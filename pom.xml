@@ -5,18 +5,27 @@
     <artifactId>libspring</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-<!--    <distributionManagement>          
+    
+    <repositories>
+        <repository>
+            <id>repo-jc</id>
+            <name>JiangCai Repository</name>
+            <url>http://115.29.228.62:8082/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <distributionManagement>          
         <repository>  
-            <id>nexus-releases</id>  
+            <id>jc-nexus</id>  
             <name>Nexus Release Repository</name>  
-            <url>http://ali.mywgame.com:8082/nexus/content/repositories/releases/</url>  
+            <url>http://115.29.228.62:8082/nexus/content/repositories/releases/</url>  
         </repository>  
         <snapshotRepository>  
-            <id>nexus-snapshots</id>  
+            <id>jc-nexus</id>   
             <name>Nexus Snapshot Repository</name>  
-            <url>http://ali.mywgame.com:8082/nexus/content/repositories/snapshots/</url>  
+            <url>http://115.29.228.62:8082/nexus/content/repositories/snapshots/</url>  
         </snapshotRepository>  
-    </distributionManagement>-->
+    </distributionManagement>
+    
     <dependencies>
         <dependency>
             <groupId>org.luffy.libs</groupId>
