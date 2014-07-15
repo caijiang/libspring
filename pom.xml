@@ -5,6 +5,18 @@
     <artifactId>libspring</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+<!--    <distributionManagement>          
+        <repository>  
+            <id>nexus-releases</id>  
+            <name>Nexus Release Repository</name>  
+            <url>http://ali.mywgame.com:8082/nexus/content/repositories/releases/</url>  
+        </repository>  
+        <snapshotRepository>  
+            <id>nexus-snapshots</id>  
+            <name>Nexus Snapshot Repository</name>  
+            <url>http://ali.mywgame.com:8082/nexus/content/repositories/snapshots/</url>  
+        </snapshotRepository>  
+    </distributionManagement>-->
     <dependencies>
         <dependency>
             <groupId>org.luffy.libs</groupId>
