@@ -3,27 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.luffy.lib.libspring.entity;
+package com.luffy.lib.libspring.demo.entity;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * 默认提供的用户体系设置AssociationOverrides可以修改表结构<p/>
- * TODO: 测试Transient于覆盖方法<p/>
+ * <p>默认提供的用户体系设置AssociationOverrides可以修改表结构</p>
+ *
+ * <p>TODO: 测试Transient于覆盖方法</p>
+ *
  * @see javax.persistence.AssociationOverrides
  * @since 1.1
  * @author luffy
@@ -54,14 +49,14 @@ public class User implements UserDetails,Serializable{
     
     @ManyToOne
     private Role role;
-        
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(role==null)
             return Collections.EMPTY_LIST;
         return role.getGrantedAuthority();
     }
-        
+
     @Override
     public String getUsername(){
         return this.loginName;

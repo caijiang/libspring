@@ -8,8 +8,10 @@ package org.luffy.lib.libspring.config;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -21,10 +23,11 @@ import org.springframework.transaction.support.ResourceTransactionManager;
  */
 @Configuration
 @EnableJpaRepositories
+@DependsOn("entityManagerFactory")
 public class JpaConfig {
    
     @Inject
-    private RuntimeConfig runtime;
+    private org.luffy.lib.libspring.config.RuntimeConfig runtime;
     @Inject
     private EntityManagerFactory entityManagerFactory;
     @Inject

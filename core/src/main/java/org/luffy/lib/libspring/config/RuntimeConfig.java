@@ -16,7 +16,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 
 /**
- * 运行时环境
+ * <p>运行时环境</p>
+ * <p>所有方法都可被覆盖</p>
  * @author luffy
  */
 @Configuration
@@ -30,11 +31,20 @@ public abstract class RuntimeConfig {
      * @return 
      **/
     public abstract boolean containerEnv();
-    
+
+    /**
+     * @return 持久化单元名称
+     **/
     public abstract String persistenceUnitName();
-    
+
+    /**
+     * @return JPA实现者方言
+     * */
     public abstract Class<? extends JpaDialect> dialectClass();
-    
+
+    /**
+     * @return 是否禁止Weaving 默认true
+     * */
     public boolean disableWeaving(){
         return true;
     }
@@ -44,8 +54,8 @@ public abstract class RuntimeConfig {
      * 本机环境一般为LocalEntityManagerFactoryBean
      * 生产环境一般为LocalContainerEntityManagerFactoryBean
      * 
-     * @see org.springframework.orm.jpa.LocalEntityManagerFactoryBean
-     * @see org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean
+     * @see LocalEntityManagerFactoryBean
+     * @see LocalContainerEntityManagerFactoryBean
      * @return 
      **/
     @Bean
