@@ -14,6 +14,11 @@ import org.luffy.lib.libspring.loader.SimpleMVCLoader;
  */
 public class MyLoader extends SimpleMVCLoader{
     @Override
+    protected boolean loadDefaultMVC() {
+        return true;
+    }
+
+    @Override
     public Class<? extends SecurityConfig> securityConfig() {
         return MySecurityConfig.class;
     }

@@ -6,10 +6,10 @@
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <!--<class>com.luffy.lib.libspring.demo.entity.User</class>-->
         <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:jtds:sqlserver://115.28.160.96:1433/HotMicroMall_Test"/>
-            <property name="javax.persistence.jdbc.user" value="sa"/>
-            <property name="javax.persistence.jdbc.driver" value="net.sourceforge.jtds.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://rdseyqfryeyqfry.mysql.rds.aliyuncs.com:3306/db5j24ra5f04w762"/>
+            <property name="javax.persistence.jdbc.user" value="ide"/>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.password" value="ideide"/>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <!--<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>-->
