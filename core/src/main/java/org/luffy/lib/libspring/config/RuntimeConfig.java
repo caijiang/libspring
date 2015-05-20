@@ -26,6 +26,7 @@ import java.util.Properties;
  * <p>所有方法都可被覆盖</p>
  * @author luffy
  */
+@SuppressWarnings("CdiManagedBeanInconsistencyInspection")
 @Configuration
 public abstract class RuntimeConfig {
     
@@ -38,16 +39,16 @@ public abstract class RuntimeConfig {
      **/
     public abstract boolean containerEnv();
 
-    /**
-     * 是否生产环境
-     * @return
-     **/
-    public abstract boolean JTASupport();
-
-    /**
-     * @return 数据源
-     * **/
-    public abstract DataSource dataSource();
+//    /**
+//     * 是否生产环境
+//     * @return
+//     **/
+//    public abstract boolean JTASupport();
+//
+//    /**
+//     * @return 数据源
+//     * **/
+//    public abstract DataSource dataSource();
 
     /**
      * @return 持久化单元名称
@@ -66,7 +67,7 @@ public abstract class RuntimeConfig {
         return true;
     }
 
-    public abstract InputStream propertiesStream();
+//    public abstract InputStream propertiesStream();
 
     /**
      * 获取当前entityManagerFactoryBeanInfo
@@ -82,12 +83,12 @@ public abstract class RuntimeConfig {
         AbstractEntityManagerFactoryBean bean;
         if (containerEnv()){
             bean = new LocalContainerEntityManagerFactoryBean();
-            LocalContainerEntityManagerFactoryBean cbean = (LocalContainerEntityManagerFactoryBean) bean;
-            if (JTASupport()){
-                cbean.setJtaDataSource(dataSource());
-            }else{
-                cbean.setDataSource(dataSource());
-            }
+//            LocalContainerEntityManagerFactoryBean cbean = (LocalContainerEntityManagerFactoryBean) bean;
+//            if (JTASupport()){
+//                cbean.setJtaDataSource(dataSource());
+//            }else{
+//                cbean.setDataSource(dataSource());
+//            }
         }
         else{
             bean = new LocalEntityManagerFactoryBean();
@@ -95,20 +96,21 @@ public abstract class RuntimeConfig {
 
         bean.setJpaDialect(jpaDialect);
 
-        Properties ps = new Properties();
-        InputStream in = propertiesStream();
-        if (in!=null){
-            try {
-                ps.load(in);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
-        }
+//        Properties ps = new Properties();
+//        InputStream in = propertiesStream();
+//        if (in!=null){
+//            try {
+//                ps.load(in);
+//            } catch (IOException e) {
+//                throw new IllegalStateException(e);
+//            } finally {
+//                try {
+//                    in.close();
+//                } catch (IOException e) {
+//                }
+//            }
+//        }
+//        bean.setJpaProperties(ps);
 
         bean.setPersistenceUnitName(persistenceUnitName());
 

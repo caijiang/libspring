@@ -8,6 +8,58 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <!-- this is relative to the pom.xml directory -->
+                            <directory>production</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>com.google.code.maven-replacer-plugin</groupId>-->
+                <!--<artifactId>replacer</artifactId>-->
+                <!--<version>1.5.3</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>prepare-package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>replace</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<file>${project.build.directory}${file.separator}${project.build.finalName}${file.separator}WEB-INF${file.separator}classes${file.separator}META-INF${file.separator}persistence.xml</file>-->
+                    <!--<replacements>-->
+                        <!--<replacement>-->
+                            <!--<token><![CDATA[&lt;!&ndash;add in test&ndash;&gt;]]></token>-->
+                            <!--<value><![CDATA[&lt;!&ndash;]]></value>-->
+                        <!--</replacement>-->
+                        <!--<replacement>-->
+                            <!--<token><![CDATA[&lt;!&ndash;add in test end&ndash;&gt;]]></token>-->
+                            <!--<value><![CDATA[&ndash;&gt;]]></value>-->
+                        <!--</replacement>-->
+                        <!--<replacement>-->
+                            <!--<token><![CDATA[&lt;!&ndash;remove in package]]></token>-->
+                            <!--<value><![CDATA[]]></value>-->
+                        <!--</replacement>-->
+                        <!--<replacement>-->
+                            <!--<token><![CDATA[remove in package&ndash;&gt;]]></token>-->
+                            <!--<value><![CDATA[]]></value>-->
+                        <!--</replacement>-->
+                    <!--</replacements>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
     
     <dependencies>
         <dependency>

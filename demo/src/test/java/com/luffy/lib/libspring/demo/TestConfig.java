@@ -26,16 +26,16 @@ public class TestConfig extends RuntimeConfig{
     public boolean containerEnv() {
         return false;
     }
-
-    @Override
-    public boolean JTASupport() {
-        return false;
-    }
-
-    @Override
-    public DataSource dataSource() {
-        return null;
-    }
+//
+//    @Override
+//    public boolean JTASupport() {
+//        return false;
+//    }
+//
+//    @Override
+//    public DataSource dataSource() {
+//        return null;
+//    }
 
     @Override
     public String persistenceUnitName() {
@@ -47,8 +47,8 @@ public class TestConfig extends RuntimeConfig{
         return EclipseLinkJpaDialect.class;
     }
 
-    @Override
-    public InputStream propertiesStream() {
-        return getClass().getResourceAsStream("ds.properties");
-    }
+//    @Override
+//    public InputStream propertiesStream() {
+//        return getClass().getResourceAsStream("ds.properties");
+//    }
 }
