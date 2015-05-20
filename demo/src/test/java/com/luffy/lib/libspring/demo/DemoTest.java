@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
  * @author luffy luffy.ja at gmail.com
  */
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {CoreConfig.class, MyRuntimeConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class})
+@ContextConfiguration(classes = {CoreConfig.class, TestConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class})
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DemoTest {

@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
 
-    <persistence-unit name="abdel" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="abdel">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
-        <!--<class>com.luffy.lib.libspring.demo.entity.User</class>-->
         <properties>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://rdseyqfryeyqfry.mysql.rds.aliyuncs.com:3306/db5j24ra5f04w762"/>
-            <property name="javax.persistence.jdbc.user" value="ide"/>
-            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.password" value="ideide"/>
-            <property name="javax.persistence.schema-generation.database.action" value="create"/>
-            <property name="eclipselink.logging.level" value="FINE"/>
-            <!--<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>-->
+            <!--<property name="javax.persistence.jdbc.url" value="jdbc:mysql://rdseyqfryeyqfry.mysql.rds.aliyuncs.com:3306/db5j24ra5f04w762"/>-->
+            <!--<property name="javax.persistence.jdbc.user" value="ide"/>-->
+            <!--<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>-->
+            <!--<property name="javax.persistence.jdbc.password" value="ideide"/>-->
+            <!--<property name="javax.persistence.schema-generation.database.action" value="create"/>-->
+
+            <!--<property name="eclipselink.logging.level" value="FINE"/>-->
         </properties>
     </persistence-unit>
 

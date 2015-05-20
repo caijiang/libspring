@@ -7,6 +7,8 @@
 package org.luffy.lib.libspring.config;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.AbstractEntityManagerFactoryBean;
@@ -14,6 +16,10 @@ import org.springframework.orm.jpa.EntityManagerFactoryInfo;
 import org.springframework.orm.jpa.JpaDialect;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * <p>运行时环境</p>
@@ -33,6 +39,17 @@ public abstract class RuntimeConfig {
     public abstract boolean containerEnv();
 
     /**
+     * 是否生产环境
+     * @return
+     **/
+    public abstract boolean JTASupport();
+
+    /**
+     * @return 数据源
+     * **/
+    public abstract DataSource dataSource();
+
+    /**
      * @return 持久化单元名称
      **/
     public abstract String persistenceUnitName();
@@ -48,7 +65,9 @@ public abstract class RuntimeConfig {
     public boolean disableWeaving(){
         return true;
     }
-    
+
+    public abstract InputStream propertiesStream();
+
     /**
      * 获取当前entityManagerFactoryBeanInfo
      * 本机环境一般为LocalEntityManagerFactoryBean
@@ -61,11 +80,36 @@ public abstract class RuntimeConfig {
     @Bean
     public EntityManagerFactoryInfo entityManagerFactory(){
         AbstractEntityManagerFactoryBean bean;
-        if (containerEnv())
+        if (containerEnv()){
             bean = new LocalContainerEntityManagerFactoryBean();
-        else
+            LocalContainerEntityManagerFactoryBean cbean = (LocalContainerEntityManagerFactoryBean) bean;
+            if (JTASupport()){
+                cbean.setJtaDataSource(dataSource());
+            }else{
+                cbean.setDataSource(dataSource());
+            }
+        }
+        else{
             bean = new LocalEntityManagerFactoryBean();
+        }
+
         bean.setJpaDialect(jpaDialect);
+
+        Properties ps = new Properties();
+        InputStream in = propertiesStream();
+        if (in!=null){
+            try {
+                ps.load(in);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
         bean.setPersistenceUnitName(persistenceUnitName());
 
         /*forbid the weaving
@@ -88,7 +132,8 @@ public abstract class RuntimeConfig {
             bean.getJpaPropertyMap().put("eclipselink.weaving", "false");
         return bean;
     }
-    
+
+
     /**
      * 最好使用@Inject JpaDialect jpaDialect 
      * jpa方言
