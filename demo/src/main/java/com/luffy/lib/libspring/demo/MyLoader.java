@@ -2,9 +2,9 @@ package com.luffy.lib.libspring.demo;
 
 import com.luffy.lib.libspring.demo.config.CoreConfig;
 import com.luffy.lib.libspring.demo.config.MyRuntimeConfig;
-import com.luffy.lib.libspring.demo.config.MySecurityConfig;
+import com.luffy.lib.libspring.demo.config.MyLibSecurityConfig;
 import org.luffy.lib.libspring.config.RuntimeConfig;
-import org.luffy.lib.libspring.config.SecurityConfig;
+import org.luffy.lib.libspring.config.LibSecurityConfig;
 import org.luffy.lib.libspring.loader.SimpleMVCLoader;
 
 /**
@@ -19,8 +19,8 @@ public class MyLoader extends SimpleMVCLoader{
     }
 
     @Override
-    public Class<? extends SecurityConfig> securityConfig() {
-        return MySecurityConfig.class;
+    public Class<? extends LibSecurityConfig> securityConfig() {
+        return MyLibSecurityConfig.class;
     }
 
     @Override

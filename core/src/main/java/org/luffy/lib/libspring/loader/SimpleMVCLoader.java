@@ -1,9 +1,9 @@
 package org.luffy.lib.libspring.loader;
 
-import org.luffy.lib.libspring.config.JpaConfig;
-import org.luffy.lib.libspring.config.MVCConfig;
+import org.luffy.lib.libspring.config.LibJpaConfig;
+import org.luffy.lib.libspring.config.LibMVCConfig;
 import org.luffy.lib.libspring.config.RuntimeConfig;
-import org.luffy.lib.libspring.config.SecurityConfig;
+import org.luffy.lib.libspring.config.LibSecurityConfig;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public abstract class SimpleMVCLoader extends AbstractAnnotationConfigDispatcher
     /**
      * @return 自定义SecurityConfig类 可以为空 如果不提供安全支持
      * */
-    protected abstract Class<? extends SecurityConfig>securityConfig();
+    protected abstract Class<? extends LibSecurityConfig>securityConfig();
 
     /**
      * @return 自定义RuntimeConfig类 不可为空！
@@ -37,13 +37,13 @@ public abstract class SimpleMVCLoader extends AbstractAnnotationConfigDispatcher
 
     protected Class<?>[] getRootConfigClasses() {
         List<Class> list = new ArrayList(Arrays.asList(getCoreRootConfigClasses()));
-        list.add(JpaConfig.class);
+        list.add(LibJpaConfig.class);
         list.add(runtimeConfig());
         Class sc = securityConfig();
         if (sc!=null)
             list.add(sc);
         if (loadDefaultMVC())
-            list.add(MVCConfig.class);
+            list.add(LibMVCConfig.class);
         return list.toArray(new Class[list.size()]);
     }
 

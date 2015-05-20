@@ -24,10 +24,11 @@ import org.springframework.transaction.support.ResourceTransactionManager;
 @Configuration
 @EnableJpaRepositories
 @DependsOn("entityManagerFactory")
-public class JpaConfig {
+public class LibJpaConfig {
    
     @Inject
     private org.luffy.lib.libspring.config.RuntimeConfig runtime;
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     @Inject
     private EntityManagerFactory entityManagerFactory;
     @Inject

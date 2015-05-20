@@ -2,15 +2,15 @@ package com.luffy.lib.libspring.demo;
 
 import com.luffy.lib.libspring.demo.config.CoreConfig;
 import com.luffy.lib.libspring.demo.config.MyRuntimeConfig;
-import com.luffy.lib.libspring.demo.config.MySecurityConfig;
+import com.luffy.lib.libspring.demo.config.MyLibSecurityConfig;
 import com.luffy.lib.libspring.demo.entity.User;
 import com.luffy.lib.libspring.demo.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.luffy.lib.libspring.config.JpaConfig;
-import org.luffy.lib.libspring.config.MVCConfig;
+import org.luffy.lib.libspring.config.LibJpaConfig;
+import org.luffy.lib.libspring.config.LibMVCConfig;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,7 +36,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
-import static org.junit.Assert.*;
 
 /**
  * Created by luffy on 2015/5/20.
@@ -44,7 +43,7 @@ import static org.junit.Assert.*;
  * @author luffy luffy.ja at gmail.com
  */
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {CoreConfig.class, MyRuntimeConfig.class, MySecurityConfig.class, JpaConfig.class, MVCConfig.class})
+@ContextConfiguration(classes = {CoreConfig.class, MyRuntimeConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class})
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DemoTest {

@@ -12,8 +12,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  *
  * @author luffy luffy.ja at gmail.com
  */
-@Controller
-public class GlobalController {
+@Controller("_libGlobalController")
+public class LibGlobalController {
 
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;

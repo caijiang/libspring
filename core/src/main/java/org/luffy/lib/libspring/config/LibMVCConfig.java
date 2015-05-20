@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 /**
  * Created by luffy on 2015/5/19.
  * 配置了一些基础controller
+ * 属于选配
  *
  * @author luffy luffy.ja at gmail.com
  */
@@ -19,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @DependsOn("innerViewResolver")
 @ComponentScan({"org.luffy.lib.libspring.viewresolver","org.luffy.lib.libspring.controller"})
-public class MVCConfig extends WebMvcConfigurerAdapter{
+public class LibMVCConfig extends WebMvcConfigurerAdapter{
 
     @Autowired
     private InnerViewResolver innerViewResolver;

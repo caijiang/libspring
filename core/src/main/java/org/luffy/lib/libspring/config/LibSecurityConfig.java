@@ -14,13 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * <p>客户端代码需要提供{@link UserDetailsService}的实现</p>
+ * <p>客户端也可以实现自身安全Config，但最好继承于这个类</p>
  * Created by CJ on 5/12/15.
  * @author luffy
  */
 @Configuration
 @EnableWebSecurity
 @DependsOn("userDetailsService")
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class LibSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
