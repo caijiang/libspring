@@ -7,6 +7,7 @@
     <modules>
         <module>demo</module>
         <module>core</module>
+        <module>libspringtest</module>
     </modules>
     <packaging>pom</packaging>
     
