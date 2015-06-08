@@ -5,7 +5,7 @@
     <parent>
         <artifactId>libspringpom</artifactId>
         <groupId>org.luffy.lib</groupId>
-        <version>1.3-SNAPSHOT</version>
+        <version>1.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,9 +63,9 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.luffy.lib</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>libspring</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
@@ -86,9 +86,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.luffy.lib</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>libspringtest</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
