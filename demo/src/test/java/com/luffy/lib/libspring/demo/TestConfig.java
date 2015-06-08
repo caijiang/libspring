@@ -28,7 +28,7 @@ public class TestConfig extends RuntimeConfig{
     }
 //
 //    @Override
-//    public boolean JTASupport() {
+//    public boolean JTASupport() {w
 //        return false;
 //    }
 //
