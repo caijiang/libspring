@@ -1,0 +1,70 @@
+package org.luffy.lib.libspring.data;
+
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import java.io.Serializable;
+import java.util.Map;
+
+/**
+ * Created by luffy on 2015/6/17.
+ *
+ * @author luffy luffy.ja at gmail.com
+ */
+public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements ClassicsRepository<T> {
+
+    private final EntityManager entityManager;
+
+    public ClassicsRepositoryImpl(Class<T> domainClass, EntityManager entityManager) {
+        super(domainClass, entityManager);
+
+        // Keep the EntityManager around to used from the newly introduced methods.
+        this.entityManager = entityManager;
+    }
+
+    @Override
+    public void lock(T entity, LockModeType lockMode) {
+        entityManager.lock(entity,lockMode);
+    }
+
+    @Override
+    public void lock(T entity, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.lock(entity,lockMode,properties);
+    }
+
+    @Override
+    public void refresh(T entity) {
+        entityManager.refresh(entity);
+    }
+
+    @Override
+    public void refresh(T entity, Map<String, Object> properties) {
+        entityManager.refresh(entity,properties);
+    }
+
+    @Override
+    public void refresh(T entity, LockModeType lockMode) {
+        entityManager.refresh(entity,lockMode);
+    }
+
+    @Override
+    public void refresh(T entity, LockModeType lockMode, Map<String, Object> properties) {
+        entityManager.refresh(entity,lockMode,properties);
+    }
+
+    @Override
+    public void clear() {
+        entityManager.clear();
+    }
+
+    @Override
+    public void detach(T entity) {
+        entityManager.detach(entity);
+    }
+
+    @Override
+    public boolean contains(T entity) {
+        return entityManager.contains(entity);
+    }
+}
