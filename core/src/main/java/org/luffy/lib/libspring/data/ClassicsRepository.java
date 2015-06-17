@@ -1,6 +1,9 @@
 package org.luffy.lib.libspring.data;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import java.util.Map;
 
 /**
@@ -244,4 +247,63 @@ public interface ClassicsRepository<T> {
      */
     boolean contains(T entity);
 
+
+    /**
+     * Create an instance of <code>Query</code> for executing a
+     * Java Persistence query language statement.
+     * @param qlString a Java Persistence query string
+     * @return the new query instance
+     * @throws IllegalArgumentException if the query string is
+     *         found to be invalid
+     */
+    Query createQuery(String qlString);
+
+    /**
+     * Create an instance of <code>TypedQuery</code> for executing a
+     * criteria query.
+     * @param criteriaQuery  a criteria query object
+     * @return the new query instance
+     * @throws IllegalArgumentException if the criteria query is
+     *         found to be invalid
+     * @since Java Persistence 2.0
+     */
+    <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery);
+
+    /**
+     * Create an instance of <code>Query</code> for executing a criteria
+     * update query.
+     * @param updateQuery  a criteria update query object
+     * @return the new query instance
+     * @throws IllegalArgumentException if the update query is
+     *         found to be invalid
+     * @since Java Persistence 2.1
+     */
+    Query createQuery(CriteriaUpdate updateQuery);
+
+    /**
+     * Create an instance of <code>Query</code> for executing a criteria
+     * delete query.
+     * @param deleteQuery  a criteria delete query object
+     * @return the new query instance
+     * @throws IllegalArgumentException if the delete query is
+     *         found to be invalid
+     * @since Java Persistence 2.1
+     */
+    Query createQuery(CriteriaDelete deleteQuery);
+
+    /**
+     * Create an instance of <code>TypedQuery</code> for executing a
+     * Java Persistence query language statement.
+     * The select list of the query must contain only a single
+     * item, which must be assignable to the type specified by
+     * the <code>resultClass</code> argument.
+     * @param qlString a Java Persistence query string
+     * @param resultClass the type of the query result
+     * @return the new query instance
+     * @throws IllegalArgumentException if the query string is found
+     *         to be invalid or if the query result is found to
+     *         not be assignable to the specified type
+     * @since Java Persistence 2.0
+     */
+    <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass);
 }

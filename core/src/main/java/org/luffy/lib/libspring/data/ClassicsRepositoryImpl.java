@@ -4,6 +4,11 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -66,5 +71,30 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     @Override
     public boolean contains(T entity) {
         return entityManager.contains(entity);
+    }
+
+    @Override
+    public Query createQuery(String qlString) {
+        return entityManager.createQuery(qlString);
+    }
+
+    @Override
+    public <T1> TypedQuery<T1> createQuery(CriteriaQuery<T1> criteriaQuery) {
+        return entityManager.createQuery(criteriaQuery);
+    }
+
+    @Override
+    public Query createQuery(CriteriaUpdate updateQuery) {
+        return entityManager.createQuery(updateQuery);
+    }
+
+    @Override
+    public Query createQuery(CriteriaDelete deleteQuery) {
+        return entityManager.createQuery(deleteQuery);
+    }
+
+    @Override
+    public <T1> TypedQuery<T1> createQuery(String qlString, Class<T1> resultClass) {
+        return entityManager.createQuery(qlString,resultClass);
     }
 }
