@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -35,7 +36,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
 
     @Override
     public void lock(T entity, LockModeType lockMode, Map<String, Object> properties) {
-        entityManager.lock(entity,lockMode,properties);
+        entityManager.lock(entity, lockMode, properties);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
 
     @Override
     public void refresh(T entity, LockModeType lockMode, Map<String, Object> properties) {
-        entityManager.refresh(entity,lockMode,properties);
+        entityManager.refresh(entity, lockMode, properties);
     }
 
     @Override
@@ -97,4 +98,10 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     public <T1> TypedQuery<T1> createQuery(String qlString, Class<T1> resultClass) {
         return entityManager.createQuery(qlString,resultClass);
     }
+
+    @Override
+    public CriteriaBuilder getCriteriaBuilder() {
+        return entityManager.getCriteriaBuilder();
+    }
+
 }

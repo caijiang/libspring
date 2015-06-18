@@ -1,6 +1,7 @@
 package org.luffy.lib.libspring.data;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
@@ -306,4 +307,14 @@ public interface ClassicsRepository<T> {
      * @since Java Persistence 2.0
      */
     <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass);
+
+    /**
+     * Return an instance of <code>CriteriaBuilder</code> for the creation of
+     * <code>CriteriaQuery</code> objects.
+     * @return CriteriaBuilder instance
+     * @throws IllegalStateException if the entity manager has
+     *         been closed
+     * @since Java Persistence 2.0
+     */
+    CriteriaBuilder getCriteriaBuilder();
 }
