@@ -30,6 +30,11 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    public EntityManager entityManager() {
+        return entityManager;
+    }
+
+    @Override
     public void lock(T entity, LockModeType lockMode) {
         entityManager.lock(entity,lockMode);
     }

@@ -15,6 +15,13 @@ import java.util.Map;
 public interface ClassicsRepository<T> {
 
     /**
+     * 返回当前EntityManager
+     * @see EntityManager
+     * @return 当前EntityManager
+     */
+    EntityManager entityManager();
+
+    /**
      * Lock an entity instance that is contained in the persistence
      * context with the specified lock mode type.
      * <p>If a pessimistic lock mode type is specified and the entity
