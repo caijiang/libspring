@@ -268,7 +268,7 @@ public interface ClassicsRepository<T> {
      * @param processor 处理器
      * @param <B> 指定的类型
      * @return 结果集
-     * @see Query#getResultList()
+     * @see TypedQuery#getResultList()
      */
     <B> List<B> queryHql(String hqlString,Class<B> resultType,Consumer<TypedQuery<B>> processor);
 
