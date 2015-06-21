@@ -11,7 +11,9 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by luffy on 2015/6/17.
@@ -30,13 +32,8 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
-    public EntityManager entityManager() {
-        return entityManager;
-    }
-
-    @Override
     public void lock(T entity, LockModeType lockMode) {
-        entityManager.lock(entity,lockMode);
+        entityManager.lock(entity, lockMode);
     }
 
     @Override
@@ -51,12 +48,12 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
 
     @Override
     public void refresh(T entity, Map<String, Object> properties) {
-        entityManager.refresh(entity,properties);
+        entityManager.refresh(entity, properties);
     }
 
     @Override
     public void refresh(T entity, LockModeType lockMode) {
-        entityManager.refresh(entity,lockMode);
+        entityManager.refresh(entity, lockMode);
     }
 
     @Override
@@ -80,33 +77,30 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
-    public Query createQuery(String qlString) {
-        return entityManager.createQuery(qlString);
+    public List queryHql(String hqlString, Consumer<Query> processor) {
+        Query query = entityManager.createQuery(hqlString);
+        if (processor != null) {
+            processor.accept(query);
+        }
+        return query.getResultList();
     }
 
     @Override
-    public <T1> TypedQuery<T1> createQuery(CriteriaQuery<T1> criteriaQuery) {
-        return entityManager.createQuery(criteriaQuery);
+    public <B> List<B> queryHql(String hqlString, Class<B> resultType, Consumer<TypedQuery<B>> processor) {
+        TypedQuery<B> query = entityManager.createQuery(hqlString, resultType);
+        if (processor != null) {
+            processor.accept(query);
+        }
+        return query.getResultList();
     }
 
     @Override
-    public Query createQuery(CriteriaUpdate updateQuery) {
-        return entityManager.createQuery(updateQuery);
-    }
-
-    @Override
-    public Query createQuery(CriteriaDelete deleteQuery) {
-        return entityManager.createQuery(deleteQuery);
-    }
-
-    @Override
-    public <T1> TypedQuery<T1> createQuery(String qlString, Class<T1> resultClass) {
-        return entityManager.createQuery(qlString,resultClass);
-    }
-
-    @Override
-    public CriteriaBuilder getCriteriaBuilder() {
-        return entityManager.getCriteriaBuilder();
+    public int executeHql(String hqlString, Consumer<Query> processor) {
+        Query query = entityManager.createQuery(hqlString);
+        if (processor != null) {
+            processor.accept(query);
+        }
+        return query.executeUpdate();
     }
 
 }

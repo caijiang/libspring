@@ -5,21 +5,18 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by luffy on 2015/6/17.
  *
+ * <p>每一个单元方法必须在一个session周期内完成</p>
+ *
  * @author luffy luffy.ja at gmail.com
  */
 public interface ClassicsRepository<T> {
-
-    /**
-     * 返回当前EntityManager
-     * @see EntityManager
-     * @return 当前EntityManager
-     */
-    EntityManager entityManager();
 
     /**
      * Lock an entity instance that is contained in the persistence
@@ -255,73 +252,32 @@ public interface ClassicsRepository<T> {
      */
     boolean contains(T entity);
 
+    /**
+     * 执行一段HQL并且返回结果
+     * @param hqlString HQL语句
+     * @param processor query处理器
+     * @return 结果集
+     * @see Query#getResultList()
+     */
+    List queryHql(String hqlString,Consumer<Query> processor);
 
     /**
-     * Create an instance of <code>Query</code> for executing a
-     * Java Persistence query language statement.
-     * @param qlString a Java Persistence query string
-     * @return the new query instance
-     * @throws IllegalArgumentException if the query string is
-     *         found to be invalid
+     * 指定结果集的HQL
+     * @param hqlString 语句
+     * @param resultType 指定的类型
+     * @param processor 处理器
+     * @param <B> 指定的类型
+     * @return 结果集
+     * @see Query#getResultList()
      */
-    Query createQuery(String qlString);
+    <B> List<B> queryHql(String hqlString,Class<B> resultType,Consumer<TypedQuery<B>> processor);
 
     /**
-     * Create an instance of <code>TypedQuery</code> for executing a
-     * criteria query.
-     * @param criteriaQuery  a criteria query object
-     * @return the new query instance
-     * @throws IllegalArgumentException if the criteria query is
-     *         found to be invalid
-     * @since Java Persistence 2.0
+     * 执行一个更新语句(update or delete)
+     * @param hqlString 语句
+     * @param processor 处理器
+     * @return 更新的记录数
+     * @see Query#executeUpdate()
      */
-    <T> TypedQuery<T> createQuery(CriteriaQuery<T> criteriaQuery);
-
-    /**
-     * Create an instance of <code>Query</code> for executing a criteria
-     * update query.
-     * @param updateQuery  a criteria update query object
-     * @return the new query instance
-     * @throws IllegalArgumentException if the update query is
-     *         found to be invalid
-     * @since Java Persistence 2.1
-     */
-    Query createQuery(CriteriaUpdate updateQuery);
-
-    /**
-     * Create an instance of <code>Query</code> for executing a criteria
-     * delete query.
-     * @param deleteQuery  a criteria delete query object
-     * @return the new query instance
-     * @throws IllegalArgumentException if the delete query is
-     *         found to be invalid
-     * @since Java Persistence 2.1
-     */
-    Query createQuery(CriteriaDelete deleteQuery);
-
-    /**
-     * Create an instance of <code>TypedQuery</code> for executing a
-     * Java Persistence query language statement.
-     * The select list of the query must contain only a single
-     * item, which must be assignable to the type specified by
-     * the <code>resultClass</code> argument.
-     * @param qlString a Java Persistence query string
-     * @param resultClass the type of the query result
-     * @return the new query instance
-     * @throws IllegalArgumentException if the query string is found
-     *         to be invalid or if the query result is found to
-     *         not be assignable to the specified type
-     * @since Java Persistence 2.0
-     */
-    <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass);
-
-    /**
-     * Return an instance of <code>CriteriaBuilder</code> for the creation of
-     * <code>CriteriaQuery</code> objects.
-     * @return CriteriaBuilder instance
-     * @throws IllegalStateException if the entity manager has
-     *         been closed
-     * @since Java Persistence 2.0
-     */
-    CriteriaBuilder getCriteriaBuilder();
+    int executeHql(String hqlString,Consumer<Query> processor);
 }
