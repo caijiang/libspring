@@ -31,34 +31,57 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
         this.entityManager = entityManager;
     }
 
-    @Override
+    //    @Override
     public void lock(T entity, LockModeType lockMode) {
         entityManager.lock(entity, lockMode);
     }
 
-    @Override
+    //    @Override
     public void lock(T entity, LockModeType lockMode, Map<String, Object> properties) {
         entityManager.lock(entity, lockMode, properties);
     }
 
-    @Override
-    public void refresh(T entity) {
-        entityManager.refresh(entity);
-    }
+//    @Override
+//    public T refresh(T entity) {
+//        if (entityManager.contains(entity)){
+//            entityManager.refresh(entity);
+//            return entity;
+//        }
+//        if (entity)
+//
+//    }
 
-    @Override
+    //    @Override
     public void refresh(T entity, Map<String, Object> properties) {
         entityManager.refresh(entity, properties);
     }
 
-    @Override
+    //    @Override
     public void refresh(T entity, LockModeType lockMode) {
         entityManager.refresh(entity, lockMode);
     }
 
-    @Override
+    //    @Override
     public void refresh(T entity, LockModeType lockMode, Map<String, Object> properties) {
         entityManager.refresh(entity, lockMode, properties);
+    }
+
+    @Override
+    public void requestEntityManager(Consumer<EntityManager> handler) {
+        if (handler != null) {
+            handler.accept(entityManager);
+        }
+    }
+
+    @Override
+    public T refresh(T entity, Serializable id) {
+        if (entityManager.contains(entity)) {
+            entityManager.refresh(entity);
+            return entity;
+        }
+        T t = this.getOne((ID) id);
+        entityManager.refresh(t);
+        return t;
     }
 
     @Override
@@ -66,12 +89,12 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
         entityManager.clear();
     }
 
-    @Override
+    //    @Override
     public void detach(T entity) {
         entityManager.detach(entity);
     }
 
-    @Override
+    //    @Override
     public boolean contains(T entity) {
         return entityManager.contains(entity);
     }
