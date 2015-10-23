@@ -12,8 +12,10 @@
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.password" value="ideide"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <!--<property name="eclipselink.logging.logger"-->
+                      <!--value="org.eclipse.persistence.logging.CommonsLoggingSessionLog"/>-->
             <property name="eclipselink.logging.logger"
-                      value="org.eclipse.persistence.logging.CommonsLoggingSessionLog"/>
+                      value="org.eclipse.persistence.logging.CommonsLoggingLog"/>
             <property name="eclipselink.logging.level" value="FINE"/>
         </properties>
     </persistence-unit>

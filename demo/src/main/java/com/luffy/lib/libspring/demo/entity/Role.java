@@ -59,7 +59,7 @@ public class Role implements Serializable {
         }
         ArrayList<GrantedAuthority> list  = new ArrayList();
         for(String s:this.getAuthorities().split(",")){
-            list.add(org.luffy.lib.libspring.entity.Role.grantedAuthorityByRole(s));
+//            list.add(org.luffy.lib.libspring.entity.Role.grantedAuthorityByRole(s));
         }
         return list;
     }

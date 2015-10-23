@@ -50,30 +50,35 @@ public class DemoTest {
 
     /**
      * 自动注入应用程序上下文
-     * **/
+     * *
+     */
     @Inject
     protected WebApplicationContext context;
     /**
      * 自动注入servlet上下文
-     * **/
+     * *
+     */
     @Inject
     protected ServletContext servletContext;
     /**
      * 选配 只有在SecurityConfig起作用的情况下
-     * **/
+     * *
+     */
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     private FilterChainProxy springSecurityFilter;
 
     /**
      * mock请求
-     * **/
+     * *
+     */
     @Autowired
     protected MockHttpServletRequest request;
 
     /**
      * mockMvc等待初始化
-     * **/
+     * *
+     */
     protected MockMvc mockMvc;
 
     @Before
@@ -86,15 +91,16 @@ public class DemoTest {
 
     /**
      * 保存登陆过以后的信息
-     * **/
-    protected void saveAuth(HttpSession session){
+     * *
+     */
+    protected void saveAuth(HttpSession session) {
         request.setSession(session);
-        SecurityContext securityContext = (SecurityContext)   session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+        SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
         // context 不为空 表示成功登陆
         SecurityContextHolder.setContext(securityContext);
     }
 
-    protected MockHttpSession loginAs(String userName,String password) throws Exception{
+    protected MockHttpSession loginAs(String userName, String password) throws Exception {
         MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/api/user"))
 //                 .andDo(print())
 //                 .andExpect(status().isFound())
@@ -103,7 +109,7 @@ public class DemoTest {
 //         Redirected URL = http://localhost/login
 
         //bad password
-        session  = (MockHttpSession) this.mockMvc.perform(post("/login").session(session)
+        session = (MockHttpSession) this.mockMvc.perform(post("/login").session(session)
                 .param("username", userName).param("password", password))
                 .andDo(print())
 //                 .andExpect(status().isFound())
@@ -128,9 +134,9 @@ public class DemoTest {
     private PasswordEncoder passwordEncoder;
 
     @After
-    public void removeDemo(){
-        User demo =userRepository.findByLoginName("demo");
-        if (demo!=null)
+    public void removeDemo() {
+        User demo = userRepository.findByLoginName("demo");
+        if (demo != null)
             userRepository.delete(demo);
     }
 
@@ -145,13 +151,13 @@ public class DemoTest {
 
         userRepository.save(u);
 
-        MockHttpSession session = loginAs("demo","demo");
+        MockHttpSession session = loginAs("demo", "demo");
 
         mockMvc.perform(get("/endpoints")
-        .session(session))
-                .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(view().name("inner.endpoints"))
+                .session(session))
+//                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("inner.endpoints"))
         ;
     }
 }
