@@ -26,6 +26,12 @@ import java.util.Enumeration;
 import java.util.Map;
 
 /**
+ * 通用可载入的日志配置辅助。
+ * 它可以自动实现自定义日志级别，目前还不支持增加日志写入目的。
+ * <p>原则上，只要存在任何log4j.开头的属性(包括上下文属性和系统属性)都将该值应用到相关日志级别。</p>
+ * <p>比如，设置了一个<code>log4j.org.luffy.lib</code>的属性，值为debug；则将生成新日志级别debug到org.luffy.lib</p>
+ * <strong>目前仅支持log4j2</strong>
+ *
  * @author CJ
  */
 @org.springframework.context.annotation.Configuration
@@ -40,6 +46,20 @@ public class LoggingConfig {
 
     @PostConstruct
     public void init() {
+        try {
+            initLog4j2();
+        } catch (Throwable ignored) {
+
+        }
+
+        log.info("test info");
+        log.debug("test debug");
+
+        log.warn("test warn");
+        log.trace("test trace");
+    }
+
+    private void initLog4j2() {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         final Configuration config = ctx.getConfiguration();
 //        Layout layout = PatternLayout.createLayout(PatternLayout.SIMPLE_CONVERSION_PATTERN, config, null,
@@ -86,11 +106,5 @@ public class LoggingConfig {
 //        config.addLogger("org.apache.logging.log4j", loggerConfig);
 
         ctx.updateLoggers();
-
-        log.info("test info");
-        log.debug("test debug");
-
-        log.warn("test warn");
-        log.trace("test trace");
     }
 }

@@ -39,15 +39,26 @@ public class CommonsLoggingLog extends AbstractSessionLog {
     private void doLog(Level level, SessionLogEntry sessionLogEntry) {
         // parameters
         if (level == Level.SEVERE) {
-            log.error(sessionLogEntry.getMessage(), sessionLogEntry.getException());
+            log.error(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.WARNING) {
-            log.warn(sessionLogEntry.getMessage(), sessionLogEntry.getException());
+            log.warn(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.INFO) {
-            log.info(sessionLogEntry.getMessage(), sessionLogEntry.getException());
+            log.info(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.CONFIG || level == Level.FINE | level == Level.FINER) {
-            log.debug(sessionLogEntry.getMessage(), sessionLogEntry.getException());
+            log.debug(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.FINEST) {
-            log.trace(sessionLogEntry.getMessage(), sessionLogEntry.getException());
+            log.trace(toMessage(sessionLogEntry), sessionLogEntry.getException());
         }
+    }
+
+    private String toMessage(SessionLogEntry logEntry) {
+        if (logEntry.getParameters() == null || logEntry.getParameters().length == 0)
+            return logEntry.getMessage();
+        StringBuilder stringBuilder = new StringBuilder(logEntry.getMessage());
+        for (Object obj : logEntry.getParameters()) {
+            stringBuilder.append(" ");
+            stringBuilder.append(obj);
+        }
+        return stringBuilder.toString();
     }
 }
