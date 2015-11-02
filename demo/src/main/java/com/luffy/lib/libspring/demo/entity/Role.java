@@ -19,7 +19,7 @@ import java.util.Collections;
  * @author luffy
  */
 @Entity
-@Table(name = "pRole", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(name = "ppppRole", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class Role implements Serializable {
     
     public static GrantedAuthority grantedAuthorityByRole(String role){

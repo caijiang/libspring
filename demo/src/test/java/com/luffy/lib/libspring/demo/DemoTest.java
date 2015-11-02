@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.luffy.lib.libspring.config.LibJpaConfig;
 import org.luffy.lib.libspring.config.LibMVCConfig;
+import org.luffy.lib.libspring.logging.LoggingConfig;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -43,7 +44,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
  * @author luffy luffy.ja at gmail.com
  */
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {CoreConfig.class, TestConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class})
+@ContextConfiguration(classes = {CoreConfig.class, TestConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class, LoggingConfig.class})
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DemoTest {

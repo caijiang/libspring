@@ -39,15 +39,20 @@ public class CommonsLoggingLog extends AbstractSessionLog {
     private void doLog(Level level, SessionLogEntry sessionLogEntry) {
         // parameters
         if (level == Level.SEVERE) {
-            log.error(toMessage(sessionLogEntry), sessionLogEntry.getException());
+            if (log.isErrorEnabled())
+                log.error(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.WARNING) {
-            log.warn(toMessage(sessionLogEntry), sessionLogEntry.getException());
+            if (log.isWarnEnabled())
+                log.warn(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.INFO) {
-            log.info(toMessage(sessionLogEntry), sessionLogEntry.getException());
+            if (log.isInfoEnabled())
+                log.info(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.CONFIG || level == Level.FINE | level == Level.FINER) {
-            log.debug(toMessage(sessionLogEntry), sessionLogEntry.getException());
+            if (log.isDebugEnabled())
+                log.debug(toMessage(sessionLogEntry), sessionLogEntry.getException());
         } else if (level == Level.FINEST) {
-            log.trace(toMessage(sessionLogEntry), sessionLogEntry.getException());
+            if (log.isTraceEnabled())
+                log.trace(toMessage(sessionLogEntry), sessionLogEntry.getException());
         }
     }
 

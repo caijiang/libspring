@@ -24,7 +24,7 @@ import java.util.Date;
  * @author luffy
  */
 @Entity
-@Table(name = "pUser", uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
+@Table(name = "ppppUser", uniqueConstraints = @UniqueConstraint(columnNames = {"loginName"}))
 public class User implements UserDetails,Serializable{
     
     private static final long serialVersionUID = -349012453592429794L;
