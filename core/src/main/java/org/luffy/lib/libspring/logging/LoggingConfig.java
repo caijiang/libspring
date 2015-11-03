@@ -30,6 +30,9 @@ import java.util.Map;
  * 它可以自动实现自定义日志级别，目前还不支持增加日志写入目的。
  * <p>原则上，只要存在任何log4j.开头的属性(包括上下文属性和系统属性)都将该值应用到相关日志级别。</p>
  * <p>比如，设置了一个<code>log4j.org.luffy.lib</code>的属性，值为debug；则将生成新日志级别debug到org.luffy.lib</p>
+ * <p>
+ *     同样也可以应用于无配置文件，它会采用<code>log4j.root.level</code>作为默认日志级别，该功能在1.9以后生效。
+ * </p>
  * <strong>目前仅支持log4j2</strong>
  *
  * @author CJ
@@ -52,11 +55,11 @@ public class LoggingConfig {
 
         }
 
-        log.info("test info");
-        log.debug("test debug");
+        log.info("LoggingConfig Info Level Log");
+        log.debug("LoggingConfig Debug Level Log");
 
-        log.warn("test warn");
-        log.trace("test trace");
+        log.warn("LoggingConfig Warn Level Log");
+        log.trace("LoggingConfig Trace Level Log");
     }
 
     private void initLog4j2() {
@@ -73,6 +76,18 @@ public class LoggingConfig {
 
         //获取所有的appender
         Map<String, Appender> appenderMap = config.getAppenders();
+
+        //如果没有配置 则默认输出级别更正为info 如果设置了 log4j.root.level 则依赖此项
+        if (appenderMap.size() == 1) {
+            String rootLevelName = System.getProperty("log4j.root.level", "info");
+            if (servletContext != null) {
+                String levelName = servletContext.getInitParameter("log4j.root.level");
+                if (levelName != null)
+                    rootLevelName = levelName;
+            }
+            ctx.getConfiguration().getRootLogger().setLevel(Level.toLevel(rootLevelName, Level.INFO));
+        }
+
         if (appenderMap.isEmpty())
             return;
         AppenderRef[] refs = appenderMap.keySet().stream().map(name -> AppenderRef.createAppenderRef(name, null, null)).toArray(AppenderRef[]::new);
