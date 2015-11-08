@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.luffy.lib</groupId>
     <artifactId>libspringpom</artifactId>
-    <version>1.9-SNAPSHOT</version>
+    <version>1.10-SNAPSHOT</version>
     <modules>
         <module>demo</module>
         <module>core</module>
@@ -134,12 +134,12 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-rest-webmvc</artifactId>
-            <version>2.3.0.RELEASE</version>
+            <version>2.4.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>1.8.0.RELEASE</version>
+            <version>1.9.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>

@@ -1,5 +1,6 @@
 package org.luffy.lib.libspring.data;
 
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
@@ -23,6 +24,11 @@ import java.util.function.Consumer;
 public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements ClassicsRepository<T> {
 
     private final EntityManager entityManager;
+
+    public ClassicsRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
+        super(entityInformation, entityManager);
+        this.entityManager = entityManager;
+    }
 
     public ClassicsRepositoryImpl(Class<T> domainClass, EntityManager entityManager) {
         super(domainClass, entityManager);
