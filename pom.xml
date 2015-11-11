@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.luffy.lib</groupId>
     <artifactId>libspringpom</artifactId>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
     <modules>
         <module>demo</module>
         <module>core</module>
@@ -13,8 +13,11 @@
 
     <properties>
         <log4j2.version>2.4.1</log4j2.version>
-        <spring.framework.version>4.1.6.RELEASE</spring.framework.version>
+        <spring.framework.version>4.2.2.RELEASE</spring.framework.version>
+        <spring.security.version>4.0.3.RELEASE</spring.security.version>
+        <jsonpath.version>2.0.0</jsonpath.version>
         <slf4j.version>1.7.12</slf4j.version>
+        <junit.version>4.12</junit.version>
     </properties>
     
     <repositories>
@@ -151,14 +154,20 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>4.0.1.RELEASE</version>
+            <version>${spring.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>4.0.1.RELEASE</version>
+            <version>${spring.security.version}</version>
         </dependency>
 
+        <!--AOP Aspect Support-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${spring.framework.version}</version>
+        </dependency>
 
         <!--View of MVC Support-->
         <dependency>

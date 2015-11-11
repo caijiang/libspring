@@ -1,7 +1,10 @@
 package com.luffy.lib.libspring.demo.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.data.jpa.repository.JpaContext;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
@@ -11,6 +14,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @Configuration
 @ComponentScan("com.luffy.lib.libspring.demo.service")
-@EnableJpaRepositories("com.luffy.lib.libspring.demo.repository")
 public class CoreConfig {
+
+    @Configuration
+    @DependsOn("libJpaConfig")
+    @EnableJpaRepositories("com.luffy.lib.libspring.demo.repository")
+    public static class JpaLoader{
+
+    }
 }

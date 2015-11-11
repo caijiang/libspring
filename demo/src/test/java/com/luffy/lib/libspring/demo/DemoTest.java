@@ -14,6 +14,7 @@ import org.luffy.lib.libspring.config.LibMVCConfig;
 import org.luffy.lib.libspring.logging.LoggingConfig;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.support.DefaultJpaContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.context.SecurityContext;
@@ -44,7 +45,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
  * @author luffy luffy.ja at gmail.com
  */
 @ActiveProfiles("test")
-@ContextConfiguration(classes = {CoreConfig.class, TestConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class, LoggingConfig.class})
+@ContextConfiguration(classes = {TestConfig.class, MyLibSecurityConfig.class, LibJpaConfig.class, LibMVCConfig.class, LoggingConfig.class, CoreConfig.class})
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class DemoTest {
@@ -144,6 +145,7 @@ public class DemoTest {
     @Test
     @Rollback
     public void justtest() throws Exception {
+        DefaultJpaContext defaultJpaContext;
         removeDemo();
 
         User u = new User();
