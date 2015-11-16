@@ -1,6 +1,7 @@
 package libspringtest;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import org.junit.After;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.WebDriver;
@@ -85,7 +86,7 @@ public class SpringWebTest {
             builder = builder.addFilters(springSecurityFilter);
         }
 
-        if (mockMvcConfigurer!=null){
+        if (mockMvcConfigurer != null) {
             builder = builder.apply(mockMvcConfigurer);
         }
         mockMvc = builder.build();
@@ -93,14 +94,22 @@ public class SpringWebTest {
         // 现在创建其他
         webClient = MockMvcWebClientBuilder
                 .mockMvcSetup(mockMvc)
-                // DIY by interface.
+                        // DIY by interface.
                 .build();
 
         driver = MockMvcHtmlUnitDriverBuilder
                 .mockMvcSetup(mockMvc)
+                        // DIY by interface.
                 .build();
 
 
+    }
+
+    @After
+    public void afterTest() {
+        if (driver != null) {
+            driver.close();
+        }
     }
 
     /**
