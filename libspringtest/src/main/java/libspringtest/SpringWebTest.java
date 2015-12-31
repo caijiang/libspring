@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import java.util.Random;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -49,12 +49,12 @@ public class SpringWebTest {
     /**
      * 自动注入应用程序上下文
      **/
-    @Inject
+    @Autowired(required = false)
     protected WebApplicationContext context;
     /**
      * 自动注入servlet上下文
      **/
-    @Inject
+    @Autowired(required = false)
     protected ServletContext servletContext;
     /**
      * 选配 只有在SecurityConfig起作用的情况下
@@ -78,7 +78,45 @@ public class SpringWebTest {
     protected WebClient webClient;
     protected WebDriver driver;
 
+    protected final Random random = new Random();
+
+    /**
+     * <p>位数不足无法保证其唯一性,需要客户端代码自行校验唯一性.</p>
+     * <p>具体的区间是10000000000-19999999999</p>
+     *
+     * @return 获取一个随机的手机号码
+     */
+    protected String randomMobile() {
+        String p1 = String.valueOf(100000 + random.nextInt(100000));
+        //还有5位 而且必须保证5位
+        String p2 = String.format("%05d", random.nextInt(100000));
+        return p1 + p2;
+    }
+
+    /**
+     * 准备测试环境所需的各个字段
+     */
     @Before
+    public void prepareFields() {
+
+        createMockMVC();
+
+        // 现在创建其他
+        webClient = MockMvcWebClientBuilder
+                .mockMvcSetup(mockMvc)
+                // DIY by interface.
+                .build();
+
+        driver = MockMvcHtmlUnitDriverBuilder
+                .mockMvcSetup(mockMvc)
+                // DIY by interface.
+                .build();
+
+    }
+
+    /**
+     * 创建{@link #mockMvc}
+     */
     public void createMockMVC() {
         MockitoAnnotations.initMocks(this);
         DefaultMockMvcBuilder builder = webAppContextSetup(context);
@@ -90,19 +128,6 @@ public class SpringWebTest {
             builder = builder.apply(mockMvcConfigurer);
         }
         mockMvc = builder.build();
-
-        // 现在创建其他
-        webClient = MockMvcWebClientBuilder
-                .mockMvcSetup(mockMvc)
-                        // DIY by interface.
-                .build();
-
-        driver = MockMvcHtmlUnitDriverBuilder
-                .mockMvcSetup(mockMvc)
-                        // DIY by interface.
-                .build();
-
-
     }
 
     @After
