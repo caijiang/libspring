@@ -21,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.Random;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -91,6 +92,21 @@ public class SpringWebTest {
         //还有5位 而且必须保证5位
         String p2 = String.format("%05d", random.nextInt(100000));
         return p1 + p2;
+    }
+
+    /**
+     * 随机一个数字
+     * @param min 最小边界
+     * @param max 最大边界
+     * @param precision 精度
+     * @return max&gt;随机小数&gt;min
+     */
+    protected double randomDouble(double min,double max,int precision){
+        double value = max-min;
+        if (value<=0)
+            throw new IllegalArgumentException("max should great than min");
+        value = random.nextDouble()*value;
+        return new BigDecimal(value+min).setScale(precision,BigDecimal.ROUND_HALF_DOWN).doubleValue();
     }
 
     /**
