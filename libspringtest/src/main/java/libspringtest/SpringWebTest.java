@@ -22,6 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Random;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -107,6 +108,42 @@ public class SpringWebTest {
             throw new IllegalArgumentException("max should great than min");
         value = random.nextDouble()*value;
         return new BigDecimal(value+min).setScale(precision,BigDecimal.ROUND_HALF_DOWN).doubleValue();
+    }
+
+    /**
+     * 随机抓取一个数组
+     * @param origin 原始数组
+     * @param minLength 最小宽度
+     * @param <T> 该数组的数据类型
+     * @return 随机数组
+     */
+    protected <T> T[] randomArray(T[] origin,int minLength){
+        //先生成结果数据索引表
+        int length = random.nextInt(origin.length-minLength)+minLength;
+        T[] newArray = Arrays.copyOf(origin,length);
+        // 抓去唯一随机的结果
+        int wheel = -1;
+//        System.out.println("do random array");
+        for (int i = 0; i < newArray.length; i++) {
+            //最少要留下 length-i-1 个结果
+            int seed = random.nextInt(origin.length-wheel-(newArray.length-i)-1);
+            wheel = wheel+seed+1;
+            newArray[i] = origin[wheel];
+//            System.out.println(wheel);
+            //  1-(-1)-1 = 0
+            // 2 2
+            // i:0 2-(-1)-2 -1 = 0 w:-1+0+1 = 0
+            // i:1 2-0-1-1 = 0     w:0+0+1 = 1
+            // 2 1
+            // i:0 2-(-1)-1-1 = 1  w:-1+(0|1)+1 = 0|1
+            // 3 2
+            // i:0 3-(-1)-2-1= 1  w:-1+(0|1)+1 = 0|1
+            // if 0
+            // i:1 3-0-1-1=1  w:0+(0|1)+1 = 1|2
+            // if 1
+            // i:1 3-1-1-1=0 w:1+0+1 = 2
+        }
+        return newArray;
     }
 
     /**
