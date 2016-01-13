@@ -1,6 +1,7 @@
 package libspringtest;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
@@ -82,6 +83,33 @@ public class SpringWebTest {
 
     protected final Random random = new Random();
 
+
+    /**
+     * @return 获取随机http url
+     */
+    protected String randomHttpURL() {
+        StringBuilder stringBuilder = new StringBuilder("http://");
+        stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+        stringBuilder.append(".");
+        stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+        if (random.nextBoolean()) {
+            stringBuilder.append(".");
+            stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * @return 获取随机email地址
+     */
+    protected String randomEmailAddress() {
+        return RandomStringUtils.randomAscii(random.nextInt(5) + 3)
+                + "@"
+                + RandomStringUtils.randomAscii(random.nextInt(5) + 3)
+                + "."
+                + RandomStringUtils.randomAscii(random.nextInt(2) + 2);
+    }
+
     /**
      * <p>位数不足无法保证其唯一性,需要客户端代码自行校验唯一性.</p>
      * <p>具体的区间是10000000000-19999999999</p>
@@ -97,37 +125,39 @@ public class SpringWebTest {
 
     /**
      * 随机一个数字
-     * @param min 最小边界
-     * @param max 最大边界
+     *
+     * @param min       最小边界
+     * @param max       最大边界
      * @param precision 精度
      * @return max&gt;随机小数&gt;min
      */
-    protected double randomDouble(double min,double max,int precision){
-        double value = max-min;
-        if (value<=0)
+    protected double randomDouble(double min, double max, int precision) {
+        double value = max - min;
+        if (value <= 0)
             throw new IllegalArgumentException("max should great than min");
-        value = random.nextDouble()*value;
-        return new BigDecimal(value+min).setScale(precision,BigDecimal.ROUND_HALF_DOWN).doubleValue();
+        value = random.nextDouble() * value;
+        return new BigDecimal(value + min).setScale(precision, BigDecimal.ROUND_HALF_DOWN).doubleValue();
     }
 
     /**
      * 随机抓取一个数组
-     * @param origin 原始数组
+     *
+     * @param origin    原始数组
      * @param minLength 最小宽度
-     * @param <T> 该数组的数据类型
+     * @param <T>       该数组的数据类型
      * @return 随机数组
      */
-    protected <T> T[] randomArray(T[] origin,int minLength){
+    protected <T> T[] randomArray(T[] origin, int minLength) {
         //先生成结果数据索引表
-        int length = random.nextInt(origin.length-minLength)+minLength;
-        T[] newArray = Arrays.copyOf(origin,length);
+        int length = random.nextInt(origin.length - minLength) + minLength;
+        T[] newArray = Arrays.copyOf(origin, length);
         // 抓去唯一随机的结果
         int wheel = -1;
 //        System.out.println("do random array");
         for (int i = 0; i < newArray.length; i++) {
             //最少要留下 length-i-1 个结果
-            int seed = random.nextInt(origin.length-wheel-(newArray.length-i)-1);
-            wheel = wheel+seed+1;
+            int seed = random.nextInt(origin.length - wheel - (newArray.length - i) - 1);
+            wheel = wheel + seed + 1;
             newArray[i] = origin[wheel];
 //            System.out.println(wheel);
             //  1-(-1)-1 = 0
@@ -154,6 +184,9 @@ public class SpringWebTest {
 
         createMockMVC();
 
+        if (mockMvc == null)
+            return;
+
         // 现在创建其他
         webClient = MockMvcWebClientBuilder
                 .mockMvcSetup(mockMvc)
@@ -172,6 +205,9 @@ public class SpringWebTest {
      */
     public void createMockMVC() {
         MockitoAnnotations.initMocks(this);
+        // ignore it, so it works in no-web fine.
+        if (context == null)
+            return;
         DefaultMockMvcBuilder builder = webAppContextSetup(context);
         if (springSecurityFilter != null) {
             builder = builder.addFilters(springSecurityFilter);
