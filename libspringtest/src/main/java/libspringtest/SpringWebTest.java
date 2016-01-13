@@ -89,12 +89,12 @@ public class SpringWebTest {
      */
     protected String randomHttpURL() {
         StringBuilder stringBuilder = new StringBuilder("http://");
-        stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+        stringBuilder.append(RandomStringUtils.randomAlphabetic(2 + random.nextInt(4)));
         stringBuilder.append(".");
-        stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+        stringBuilder.append(RandomStringUtils.randomAlphabetic(2 + random.nextInt(4)));
         if (random.nextBoolean()) {
             stringBuilder.append(".");
-            stringBuilder.append(RandomStringUtils.randomAscii(2 + random.nextInt(4)));
+            stringBuilder.append(RandomStringUtils.randomAlphabetic(2 + random.nextInt(4)));
         }
         return stringBuilder.toString();
     }
@@ -103,11 +103,11 @@ public class SpringWebTest {
      * @return 获取随机email地址
      */
     protected String randomEmailAddress() {
-        return RandomStringUtils.randomAscii(random.nextInt(5) + 3)
+        return RandomStringUtils.randomAlphabetic(random.nextInt(5) + 3)
                 + "@"
-                + RandomStringUtils.randomAscii(random.nextInt(5) + 3)
+                + RandomStringUtils.randomAlphabetic(random.nextInt(5) + 3)
                 + "."
-                + RandomStringUtils.randomAscii(random.nextInt(2) + 2);
+                + RandomStringUtils.randomAlphabetic(random.nextInt(2) + 2);
     }
 
     /**
