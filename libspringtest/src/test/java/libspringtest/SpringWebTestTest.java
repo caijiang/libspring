@@ -44,4 +44,14 @@ public class SpringWebTestTest extends SpringWebTest {
                     .isLessThanOrEqualTo(length);
         }
     }
+
+    @Test
+    public void randomTest(){
+        int x = 50;
+        while (x-->0){
+            System.out.println(randomMobile());
+            System.out.println(randomEmailAddress());
+            System.out.println(randomHttpURL());
+        }
+    }
 }
