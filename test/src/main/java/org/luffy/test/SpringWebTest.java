@@ -5,8 +5,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.luffy.test.page.AbstractPage;
 import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContext;
@@ -74,7 +76,7 @@ public class SpringWebTest {
     /**
      * mock请求
      **/
-    @Autowired
+    @Autowired(required = false)
     protected MockHttpServletRequest request;
     /**
      * mockMvc等待初始化
@@ -82,6 +84,22 @@ public class SpringWebTest {
     protected MockMvc mockMvc;
     protected WebClient webClient;
     protected WebDriver driver;
+
+    /**
+     * 初始化逻辑页面
+     * <p>会首先{@link AbstractPage#validatePage() 验证}该页面</p>
+     *
+     * @param clazz 该页面相对应的逻辑页面的类
+     * @param <T>   该页面相对应的逻辑页面
+     * @return 页面实例
+     */
+    public <T extends AbstractPage> T initPage(Class<T> clazz) {
+        T page = PageFactory.initElements(driver, clazz);
+//        page.setResourceService(resourceService);
+        page.setTestInstance(this);
+        page.validatePage();
+        return page;
+    }
 
     /**
      * @return 获取随机http url
@@ -187,16 +205,32 @@ public class SpringWebTest {
             return;
 
         // 现在创建其他
-        webClient = MockMvcWebClientBuilder
-                .mockMvcSetup(mockMvc)
-                // DIY by interface.
-                .build();
+        createWebClient();
 
+        createWebDriver();
+    }
+
+    /**
+     * 可覆盖以自定义 {@link #driver}的初始化过程
+     * <p>如果 {@link #mockMvc}构造失败该方法就不会被调用</p>
+     */
+    protected void createWebDriver() {
         driver = MockMvcHtmlUnitDriverBuilder
                 .mockMvcSetup(mockMvc)
                 // DIY by interface.
                 .build();
 
+    }
+
+    /**
+     * 可覆盖以自定义 {@link #webClient}的初始化过程
+     * <p>如果 {@link #mockMvc}构造失败该方法就不会被调用</p>
+     */
+    protected void createWebClient() {
+        webClient = MockMvcWebClientBuilder
+                .mockMvcSetup(mockMvc)
+                // DIY by interface.
+                .build();
     }
 
     /**
