@@ -22,6 +22,12 @@
                 <SizeBasedTriggeringPolicy size="250 MB"/>
             </Policies>
         </RollingFile>
+
+        <File name="TestFile" fileName="target/log.log" append="false" bufferedIO="false">
+            <PatternLayout>
+                <Pattern>%m%n</Pattern>
+            </PatternLayout>
+        </File>
     </Appenders>
     <Loggers>
         <!--<Logger name="com.huotu" level="${log4j.com.huotu}"/>-->
@@ -29,6 +35,7 @@
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ServerDailyRollingFile"/>
+            <AppenderRef ref="TestFile"/>
         </Root>
     </Loggers>
 </Configuration>
