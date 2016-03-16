@@ -1487,6 +1487,7 @@
         $('button[data-url]').click(function () {
             $.ajax($(this).attr('data-url'), {
                 method: 'delete',
+                async: false,
                 complete: function (jqXHR) {
                     console.log(jqXHR);
                     location.reload();

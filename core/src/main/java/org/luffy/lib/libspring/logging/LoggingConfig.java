@@ -20,6 +20,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -45,17 +46,29 @@ import java.util.Properties;
  * @author CJ
  */
 @org.springframework.context.annotation.Configuration
-//@ComponentScan("com.huotu.test.bean")
+@ComponentScan("org.luffy.lib.libspring.logging.controller")
 public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final Log log = LogFactory.getLog(LoggingConfig.class);
-
+    /**
+     * 可配置日志的权限
+     */
+    public static final String ROLE_MANAGER = "LOGGING_CONFIG";
     public static final String ROOT_LEVEL = "root.level";
-
+    private static final Log log = LogFactory.getLog(LoggingConfig.class);
     @Autowired(required = false)
     private ServletContext servletContext;
     @Autowired
     private ConfigurableEnvironment environment;
+
+    private Map<String, String> manageableConfigs;
+
+    public Map<String, String> getManageableConfigs() {
+        return manageableConfigs;
+    }
+
+    public void setManageableConfigs(Map<String, String> manageableConfigs) {
+        this.manageableConfigs = manageableConfigs;
+    }
 
     @PostConstruct
     public void init() {
@@ -121,6 +134,10 @@ public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent>
 //            if (levelName != null) {
 //                properties.setProperty(ROOT_LEVEL, levelName);
 //            }
+        }
+
+        if (manageableConfigs != null) {
+            manageableConfigs.forEach(properties::put);
         }
 
         return properties;
