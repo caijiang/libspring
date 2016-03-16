@@ -14,9 +14,11 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
  * <p>内置了一个ThymeleafViewResolver 它会自动读取/WEB-INF/templates/的html文件作为view</p>
  * Created by CJ on 5/12/15.
  *
+ * @deprecated since 2.0 not support
  * @author CJ
  */
 @Configuration
+@Deprecated
 public class MVCConfigStore extends WebMvcConfigurationSupport {
 
     @Autowired
