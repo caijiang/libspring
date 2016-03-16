@@ -19,11 +19,13 @@ import org.springframework.transaction.support.ResourceTransactionManager;
 
 /**
  * 使用JPA时应该使用该配置
+ * @deprecated since 2.0 not supported
  * @author luffy
  */
 @Configuration
 @EnableJpaRepositories
 @DependsOn("entityManagerFactory")
+@Deprecated
 public class LibJpaConfig {
    
     @Inject

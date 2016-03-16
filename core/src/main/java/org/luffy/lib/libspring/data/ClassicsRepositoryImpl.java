@@ -2,6 +2,7 @@ package org.luffy.lib.libspring.data;
 
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -73,6 +74,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional
     public void requestEntityManager(Consumer<EntityManager> handler) {
         if (handler != null) {
             handler.accept(entityManager);
@@ -80,6 +82,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional(readOnly = true)
     public T refresh(T entity, Serializable id) {
         if (entityManager.contains(entity)) {
             entityManager.refresh(entity);
@@ -91,6 +94,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional
     public void clear() {
         entityManager.clear();
     }
@@ -106,6 +110,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List queryHql(String hqlString, Consumer<Query> processor) {
         Query query = entityManager.createQuery(hqlString);
         if (processor != null) {
@@ -115,6 +120,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional(readOnly = true)
     public <B> List<B> queryHql(String hqlString, Class<B> resultType, Consumer<TypedQuery<B>> processor) {
         TypedQuery<B> query = entityManager.createQuery(hqlString, resultType);
         if (processor != null) {
@@ -124,6 +130,7 @@ public class ClassicsRepositoryImpl<T, ID extends Serializable> extends SimpleJp
     }
 
     @Override
+    @Transactional
     public int executeHql(String hqlString, Consumer<Query> processor) {
         Query query = entityManager.createQuery(hqlString);
         if (processor != null) {

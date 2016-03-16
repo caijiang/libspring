@@ -1,5 +1,7 @@
 package org.luffy.lib.libspring.data;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -22,6 +24,7 @@ public interface ClassicsRepository<T> {
      * 请求EntityManager并进行一些操作
      * @param handler
      */
+    @Transactional
     void requestEntityManager(Consumer<EntityManager> handler);
 
     /**
@@ -38,6 +41,7 @@ public interface ClassicsRepository<T> {
      *         exists in the database
      * @return new Entity
      */
+    @Transactional(readOnly = true)
     T refresh(T entity,java.io.Serializable id);
 
     /**
@@ -46,6 +50,7 @@ public interface ClassicsRepository<T> {
      * have not been flushed to the database will not be
      * persisted.
      */
+    @Transactional
     void clear();
 
     /**
@@ -55,6 +60,7 @@ public interface ClassicsRepository<T> {
      * @return 结果集
      * @see Query#getResultList()
      */
+    @Transactional(readOnly = true)
     List queryHql(String hqlString,Consumer<Query> processor);
 
     /**
@@ -66,6 +72,7 @@ public interface ClassicsRepository<T> {
      * @return 结果集
      * @see TypedQuery#getResultList()
      */
+    @Transactional(readOnly = true)
     <B> List<B> queryHql(String hqlString,Class<B> resultType,Consumer<TypedQuery<B>> processor);
 
     /**
@@ -75,5 +82,6 @@ public interface ClassicsRepository<T> {
      * @return 更新的记录数
      * @see Query#executeUpdate()
      */
+    @Transactional
     int executeHql(String hqlString,Consumer<Query> processor);
 }

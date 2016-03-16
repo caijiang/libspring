@@ -24,10 +24,12 @@ import java.util.Properties;
 /**
  * <p>运行时环境</p>
  * <p>所有方法都可被覆盖</p>
+ * @deprecated since 2.0 not supported
  * @author luffy
  */
 @SuppressWarnings("CdiManagedBeanInconsistencyInspection")
 @Configuration
+@Deprecated
 public abstract class RuntimeConfig {
     
     @Inject

@@ -19,8 +19,10 @@ import java.util.List;
  *
  * 1.3添加过滤器
  *
+ * @deprecated since 2.0 not supported
  * @author CJ
  */
+@Deprecated
 public abstract class SimpleMVCLoader extends AbstractAnnotationConfigDispatcherServletInitializer {
 
     protected abstract boolean loadDefaultMVC();

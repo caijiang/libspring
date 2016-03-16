@@ -14,12 +14,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * 配置了一些基础controller
  * 属于选配
  *
+ * @deprecated since 2.0 not supported
  * @author luffy luffy.ja at gmail.com
  */
 @EnableWebMvc
 @Configuration
 @DependsOn("innerViewResolver")
 @ComponentScan({"org.luffy.lib.libspring.viewresolver","org.luffy.lib.libspring.controller"})
+@Deprecated
 public class LibMVCConfig extends WebMvcConfigurerAdapter{
 
     @Autowired
