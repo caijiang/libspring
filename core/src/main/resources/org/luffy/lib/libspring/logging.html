@@ -1487,8 +1487,6 @@
         $('button[data-url]').click(function () {
             $.ajax($(this).attr('data-url'), {
                 method: 'delete',
-                // TODO 测试中 无法ajax?
-                async: false,
                 complete: function (jqXHR) {
                     console.log(jqXHR);
                     location.reload();

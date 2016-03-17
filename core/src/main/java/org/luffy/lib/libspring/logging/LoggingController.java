@@ -38,7 +38,7 @@ public class LoggingController {
     public RedirectView delete(@PathVariable("name") String name) {
         manageableConfigs.remove(name);
         applicationEventPublisher.publishEvent(new RefreshLoggingEvent());
-        System.out.println("after delete,there is " + manageableConfigs.size() + " configs");
+//        System.out.println("after delete,there is " + manageableConfigs.size() + " configs");
         return new RedirectView("/loggingConfig");
     }
 
@@ -51,7 +51,7 @@ public class LoggingController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/loggingConfig")
     public String index(Model model) {
-        System.out.println("there is " + manageableConfigs.size() + " configs");
+//        System.out.println("there is " + manageableConfigs.size() + " configs");
 //        DefaultAnnotationHandlerMapping annotationHandlerMapping;
 //        org.springframework.web.servlet.PageNotFound pageNotFound;
         model.addAttribute("currentConfigs", manageableConfigs);

@@ -1,8 +1,13 @@
 package org.luffy.test.page;
 
 import org.luffy.test.SpringWebTest;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.util.function.Consumer;
 
 /**
  * 页面的基类
@@ -49,6 +54,22 @@ public abstract class AbstractPage {
     public void reloadPageInfo() {
         PageFactory.initElements(webDriver, this);
         validatePage();
+    }
+
+    /**
+     * 等待,只到当前页面符合指定条件
+     * <p>
+     * 完成后会调用 {@link #reloadPageInfo() 刷新}
+     * </p>
+     *
+     * @param waitConsumer 条件给予者
+     */
+    public void waitOn(Consumer<FluentWait<WebDriver>> waitConsumer) throws InterruptedException {
+        Thread.sleep(500L);
+        WebDriverWait wait = new WebDriverWait(webDriver, 10);
+        wait.ignoring(NoSuchElementException.class);
+        waitConsumer.accept(wait);
+        reloadPageInfo();
     }
 
 

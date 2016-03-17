@@ -1,5 +1,6 @@
 package org.luffy.lib.libspring.logging;
 
+import com.google.common.base.Predicate;
 import org.luffy.test.page.AbstractPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -51,10 +52,13 @@ public class LoggingManagerPage extends AbstractPage {
             return trs.size();
         }
         targetButton.click();
-        Thread.sleep(100L);
-        reloadPageInfo();
-
-        System.out.println(webDriver.getPageSource());
+        waitOn(wait -> wait.until((Predicate<WebDriver>) input -> {
+            if (input == null)
+                return false;
+            input.findElement(By.tagName("tbody"));
+            input.findElement(By.tagName("form"));
+            return true;
+        }));
 
         List<WebElement> newTrs = tbody.findElements(By.tagName("tr"));
         assertThat(newTrs)
