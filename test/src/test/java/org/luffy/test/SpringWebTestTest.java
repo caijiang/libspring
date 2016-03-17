@@ -1,6 +1,7 @@
-package libspringtest;
+package org.luffy.test;
 
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -10,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author CJ
  */
+@ContextConfiguration(classes = SpringWebTestTest.Nothing.class)
 public class SpringWebTestTest extends SpringWebTest {
 
     @Override
@@ -48,5 +50,9 @@ public class SpringWebTestTest extends SpringWebTest {
             System.out.println(randomEmailAddress());
             System.out.println(randomHttpURL());
         }
+    }
+
+    public static class Nothing {
+
     }
 }

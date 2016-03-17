@@ -20,7 +20,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.luffy.lib.libspring.config.InnerViewConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -51,7 +50,7 @@ import java.util.Properties;
  */
 @Import(InnerViewConfig.class)
 @org.springframework.context.annotation.Configuration
-public class LoggingConfig implements ApplicationListener<ApplicationEvent> {
+public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent> {
 
     /**
      * 可配置日志的权限
@@ -178,11 +177,10 @@ public class LoggingConfig implements ApplicationListener<ApplicationEvent> {
     }
 
     @Override
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(ContextRefreshedEvent event) {
         log.debug("Refresh Logging Config on start.");
         try {
-            if (event instanceof ContextRefreshedEvent)
-                configLog4j(currentLoggingProperties());
+            configLog4j(currentLoggingProperties());
         } catch (Throwable ignored) {
 
         }
