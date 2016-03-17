@@ -18,10 +18,14 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.luffy.lib.libspring.config.InnerViewConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -45,9 +49,9 @@ import java.util.Properties;
  *
  * @author CJ
  */
+@Import(InnerViewConfig.class)
 @org.springframework.context.annotation.Configuration
-@ComponentScan("org.luffy.lib.libspring.logging.controller")
-public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent> {
+public class LoggingConfig implements ApplicationListener<ApplicationEvent> {
 
     /**
      * 可配置日志的权限
@@ -59,15 +63,12 @@ public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent>
     private ServletContext servletContext;
     @Autowired
     private ConfigurableEnvironment environment;
+    @Autowired
+    private LoggingController loggingController;
 
-    private Map<String, String> manageableConfigs;
-
-    public Map<String, String> getManageableConfigs() {
-        return manageableConfigs;
-    }
-
-    public void setManageableConfigs(Map<String, String> manageableConfigs) {
-        this.manageableConfigs = manageableConfigs;
+    @Bean
+    public LoggingController loggingController() {
+        return new LoggingController();
     }
 
     @PostConstruct
@@ -136,8 +137,8 @@ public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent>
 //            }
         }
 
-        if (manageableConfigs != null) {
-            manageableConfigs.forEach(properties::put);
+        if (loggingController.getManageableConfigs() != null) {
+            loggingController.getManageableConfigs().forEach(properties::put);
         }
 
         return properties;
@@ -163,6 +164,9 @@ public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent>
         properties.stringPropertyNames().stream()
                 .filter(name -> !Objects.equals(name, ROOT_LEVEL))
                 .forEach(loggerName -> {
+                    // remove first
+                    config.removeLogger(loggerName);
+
                     LoggerConfig loggerConfig = LoggerConfig.createLogger("false"
                             , Level.toLevel(properties.getProperty(loggerName)), loggerName, "true", refs, null
                             , config, null);
@@ -174,7 +178,19 @@ public class LoggingConfig implements ApplicationListener<ContextRefreshedEvent>
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    public void onApplicationEvent(ApplicationEvent event) {
+        log.debug("Refresh Logging Config on start.");
+        try {
+            if (event instanceof ContextRefreshedEvent)
+                configLog4j(currentLoggingProperties());
+        } catch (Throwable ignored) {
+
+        }
+    }
+
+    @EventListener(classes = RefreshLoggingEvent.class)
+    public void refreshLogging() {
+        log.debug("Refresh Logging Config on event.");
         try {
             configLog4j(currentLoggingProperties());
         } catch (Throwable ignored) {

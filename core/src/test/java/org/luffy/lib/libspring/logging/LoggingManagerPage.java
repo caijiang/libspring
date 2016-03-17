@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LoggingManagerPage extends AbstractPage {
 
+    @FindBy(tagName = "tbody")
     private WebElement tbody;
     private WebElement name;
     private WebElement level;
@@ -37,7 +38,7 @@ public class LoggingManagerPage extends AbstractPage {
      * @param name 配置名称
      * @return 现有配置数量
      */
-    public int removeConfigSuccess(String name) {
+    public int removeConfigSuccess(String name) throws InterruptedException {
         List<WebElement> trs = tbody.findElements(By.tagName("tr"));
         WebElement targetButton = null;
         for (WebElement webElement : trs) {
@@ -50,7 +51,10 @@ public class LoggingManagerPage extends AbstractPage {
             return trs.size();
         }
         targetButton.click();
+        Thread.sleep(100L);
         reloadPageInfo();
+
+        System.out.println(webDriver.getPageSource());
 
         List<WebElement> newTrs = tbody.findElements(By.tagName("tr"));
         assertThat(newTrs)

@@ -22,14 +22,16 @@ public class ConfigManagerTest extends LoggingConfigTest {
     private static final String NAME = ConfigManagerTest.class.getPackage().getName();
 
     @Test
-    public void flow() throws IOException {
+    public void flow() throws IOException, InterruptedException {
         driver.get("http://localhost/loggingConfig");
         LoggingManagerPage page = initPage(LoggingManagerPage.class);
 
-        // 一开始几个? anyway 先删除
-        int size = page.removeConfigSuccess(NAME);
+        page.addConfigSuccess(NAME, "INFO");
 
         disableDebug();
+
+        // 一开始几个? anyway 先删除
+        int size = page.removeConfigSuccess(NAME);
 
         int newSize = page.addConfigSuccess(NAME, "ALL");
 
@@ -38,7 +40,7 @@ public class ConfigManagerTest extends LoggingConfigTest {
 
         enableDebug();
 
-        size = page.addConfigSuccess(NAME, "NO");
+        size = page.addConfigSuccess(NAME, "INFO");
         assertThat(size).isEqualTo(newSize);
 
         disableDebug();

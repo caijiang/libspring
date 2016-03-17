@@ -1,6 +1,5 @@
 package org.luffy.lib.libspring.logging;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -13,7 +12,7 @@ import java.io.IOException;
  *
  * @author CJ
  */
-@Ignore
+//@Ignore
 @ContextConfiguration(classes = {LoggingConfig.class, DefaultContext.DefaultContextConfig.class})
 public class DefaultContext extends LoggingConfigTest {
 

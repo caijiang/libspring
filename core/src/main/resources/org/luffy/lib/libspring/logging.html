@@ -1443,20 +1443,20 @@
         <th>&nbsp;</th>
     </tr>
     </thead>
-    <tbody th:remove="first">
-    <tr>
-        <td>org.luffy.test</td>
-        <td>info</td>
-        <td>
-            <button data-url="#">Remove</button>
-        </td>
-    </tr>
+    <tbody th:remove="all-but-first">
     <!--/*@thymesVar id="currentConfigs" type="java.util.Map<String,String>"*/-->
     <tr th:each="entry:${currentConfigs}">
         <td th:text="${entry.key}">the name</td>
         <td th:text="${entry.value}">the value</td>
         <td>
-            <button th:attr="data-url=@{/loggingConfig/${entry.key}}">Remove</button>
+            <button th:attr="data-url=@{/loggingConfig/{name}/(name=${entry.key})}">Remove</button>
+        </td>
+    </tr>
+    <tr>
+        <td>org.luffy.test</td>
+        <td>info</td>
+        <td>
+            <button data-url="#">Remove</button>
         </td>
     </tr>
     </tbody>
@@ -1487,6 +1487,7 @@
         $('button[data-url]').click(function () {
             $.ajax($(this).attr('data-url'), {
                 method: 'delete',
+                // TODO 测试中 无法ajax?
                 async: false,
                 complete: function (jqXHR) {
                     console.log(jqXHR);

@@ -23,22 +23,26 @@ public abstract class LoggingConfigTest extends SpringWebTest {
         log.error("error");
 
         assertThat(lastLogMessage())
-                .isEqualTo("error");
+                .isEqualTo("error")
+                .as("看不到错误信息");
 
         log.debug("debug");
         assertThat(lastLogMessage())
-                .isEqualTo("debug");
+                .isEqualTo("debug")
+                .as("应该记录debug信息");
     }
 
     public void disableDebug() throws IOException {
         log.error("error");
 
         assertThat(lastLogMessage())
-                .isEqualTo("error");
+                .isEqualTo("error")
+                .as("看不到错误信息");
 
         log.debug("debug");
         assertThat(lastLogMessage())
-                .isNotEqualTo("debug");
+                .isNotEqualTo("debug")
+                .as("不应该记录debug信息");
     }
 
 
