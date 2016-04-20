@@ -19,9 +19,16 @@ import java.util.Locale;
 @Component
 public class InnerViewResolver extends ThymeleafViewResolver {
 
+    public InnerViewResolver() {
+        super();
+    }
+
     @Autowired
-    public void setEnv(Environment env){
+    public void setEnv(Environment env) {
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setName("LuffyClassLoaderTemplateResolver");
+        templateResolver.setOrder(0);
+        // 具有极高的优先级,所以它在获取解决方案时  应该判定是否存在该资源
         templateResolver.setPrefix("org/luffy/lib/libspring/");
         templateResolver.setSuffix(".html");
         templateResolver.setCharacterEncoding("UTF-8");
@@ -35,8 +42,10 @@ public class InnerViewResolver extends ThymeleafViewResolver {
         setTemplateEngine(engine);
     }
 
-    public InnerViewResolver() {
-        super();
+    @Override
+    public int getOrder() {
+        // 具有极高的优先级,所以它在获取解决方案时  应该判定是否存在该资源
+        return 0;
     }
 
     @Override
