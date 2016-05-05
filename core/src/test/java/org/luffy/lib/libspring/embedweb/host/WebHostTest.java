@@ -1,5 +1,6 @@
 package org.luffy.lib.libspring.embedweb.host;
 
+import me.jiangcai.ewp.test.HelloWebConfig;
 import org.junit.Test;
 import org.luffy.test.SpringWebTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author CJ
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {WebHost.class})
+@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class})
 public class WebHostTest extends SpringWebTest {
 
     @Test

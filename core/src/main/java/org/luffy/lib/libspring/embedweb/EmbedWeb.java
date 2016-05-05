@@ -19,21 +19,21 @@ public interface EmbedWeb {
     String name();
 
     /**
-     * 默认 web/private
+     * 默认 /web/private
      *
      * @return 服务端可用资源的访问路径
      */
     default String privateResourcePath() {
-        return "web/private";
+        return "/web/private";
     }
 
     /**
-     * 默认 web/private
+     * 默认 /web/public
      *
      * @return 客户端可用资源的访问路径
      */
     default String publicResourcePath() {
-        return "web/private";
+        return "/web/public";
     }
 
     /**
