@@ -4,6 +4,7 @@ import me.jiangcai.ewp.test.HelloWebConfig;
 import org.junit.Test;
 import org.luffy.lib.libspring.embedweb.PathService;
 import org.luffy.lib.libspring.embedweb.exception.NoSuchEmbedWebException;
+import org.luffy.lib.libspring.logging.LoggingConfig;
 import org.luffy.test.SpringWebTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,13 +14,15 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 
 /**
  * @author CJ
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class, InnerWebConfig.class})
+@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class, InnerWebConfig.class, LoggingConfig.class})
 public class WebHostTest extends SpringWebTest {
 
     @Autowired
@@ -33,7 +36,7 @@ public class WebHostTest extends SpringWebTest {
      * @throws NoSuchEmbedWebException
      */
     @Test
-    public void deploy() throws NoSuchEmbedWebException {
+    public void deploy() throws Exception {
         File root = new File("hello");
         File file = new File(root, "foo/bar");
         assertThat(file.getName())
@@ -46,12 +49,32 @@ public class WebHostTest extends SpringWebTest {
                 .exists()
                 .isFile();
 
-        path = pathService.forPrivate("hello", "/foo/bar.js");
+        path = pathService.forPublic("hello", "/bar/foo.js");
         File bar2 = new File(webApplicationContext.getServletContext().getRealPath(path));
         assertThat(bar2)
                 .exists()
                 .isFile();
 
+        mockMvc.perform(
+                get("/hello")
+        )
+                .andDo(print());
+    }
+
+    @Test
+    public void mvc() throws Exception {
+
+        mockMvc.perform(
+                get("/loggingConfig")
+        )
+//                .andDo(print())
+        ;
+//        PageNotFound pageNotFound;
+        mockMvc.perform(
+                get("/index")
+        )
+//                .andDo(print())
+        ;
     }
 
 }

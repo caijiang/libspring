@@ -3,15 +3,18 @@ package org.luffy.lib.libspring.embedweb.host;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.luffy.lib.libspring.embedweb.EmbedWeb;
-import org.luffy.lib.libspring.embedweb.host.service.HostedPathService;
+import org.luffy.lib.libspring.embedweb.host.service.EmbedWebInfoService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -41,14 +45,27 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @Configuration
 @ComponentScan("org.luffy.lib.libspring.embedweb.host.service")
 @EnableWebMvc
-public class WebHost implements BeanPostProcessor {
+public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcessor {
 
     private static final Log log = LogFactory.getLog(WebHost.class);
-
     @Autowired
-    private HostedPathService hostedPathService;
+    private EmbedWebInfoService embedWebInfoService;
     @Autowired
     private WebApplicationContext webApplicationContext;
+    @Autowired
+    private EmbedPrivateResourceHandler embedPrivateResourceHandler;
+
+    @Bean
+    public EmbedPrivateResourceHandler embedPrivateResourceHandler() {
+        return new EmbedPrivateResourceHandler();
+    }
+
+    @Override
+    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+        super.addReturnValueHandlers(returnValueHandlers);
+
+        returnValueHandlers.add(embedPrivateResourceHandler);
+    }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -147,7 +164,7 @@ public class WebHost implements BeanPostProcessor {
             properties.store(outputStream, null);
             outputStream.flush();
         }
-        hostedPathService.webUUIDs().put(web, uuid);
+        embedWebInfoService.webUUIDs().put(web, uuid);
     }
 
     private String uuidFrom(EmbedWeb web) throws IOException {
@@ -160,7 +177,7 @@ public class WebHost implements BeanPostProcessor {
         }
 
         String uuid = properties.getProperty(web.name() + "-" + web.version());
-        hostedPathService.webUUIDs().put(web, uuid);
+        embedWebInfoService.webUUIDs().put(web, uuid);
         return uuid;
     }
 }

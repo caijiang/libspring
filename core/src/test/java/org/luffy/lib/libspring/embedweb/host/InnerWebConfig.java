@@ -1,7 +1,6 @@
 package org.luffy.lib.libspring.embedweb.host;
 
 import org.luffy.lib.libspring.embedweb.EmbedWeb;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ViewResolver;
@@ -10,11 +9,6 @@ import org.springframework.web.servlet.ViewResolver;
  * @author CJ
  */
 public class InnerWebConfig implements EmbedWeb {
-
-    @Bean
-    public SimpleController simpleController() {
-        return new SimpleController();
-    }
 
     @Override
     public String name() {
