@@ -20,6 +20,7 @@ public interface EmbedWeb {
 
     /**
      * 默认 /web/private
+     * 可以使用 {@link PathService}获取实际资源路径
      *
      * @return 服务端可用资源的访问路径
      */
@@ -29,6 +30,7 @@ public interface EmbedWeb {
 
     /**
      * 默认 /web/public
+     * 可以使用 {@link PathService}获取实际资源路径
      *
      * @return 客户端可用资源的访问路径
      */

@@ -3,10 +3,12 @@ package org.luffy.lib.libspring.embedweb.host;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.luffy.lib.libspring.embedweb.EmbedWeb;
+import org.luffy.lib.libspring.embedweb.host.service.HostedPathService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -24,8 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -39,11 +39,14 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @SuppressWarnings({"WeakerAccess", "SpringFacetCodeInspection"})
 @Configuration
+@ComponentScan("org.luffy.lib.libspring.embedweb.host.service")
 @EnableWebMvc
 public class WebHost implements BeanPostProcessor {
 
     private static final Log log = LogFactory.getLog(WebHost.class);
-    private final Map<EmbedWeb, String> uuids = new HashMap<>();
+
+    @Autowired
+    private HostedPathService hostedPathService;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -59,18 +62,19 @@ public class WebHost implements BeanPostProcessor {
 
         if (bean instanceof EmbedWeb) {
             EmbedWeb web = (EmbedWeb) bean;
-            log.info(web.name() + " installing.");
+
+            log.debug("checking EWP " + web.name());
             try {
                 String uuid = uuidFrom(web);
                 if (uuid == null) {
                     // 需要部署资源
+                    log.info(web.name() + " is installing.");
                     uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
                     copyResource(uuid, "private", web.privateResourcePath(), web.getClass());
                     copyResource(uuid, "public", web.publicResourcePath(), web.getClass());
 
                     updateUuid(uuid, web);
-
                 }
             } catch (IOException | URISyntaxException ex) {
                 throw new BootstrapException("deploy resource failed on " + web.name(), ex);
@@ -111,7 +115,8 @@ public class WebHost implements BeanPostProcessor {
 
                         log.debug("start copy resource " + filePath);
 
-                        String targetPath = webApplicationContext.getServletContext().getRealPath(uuid + "/" + tag + name);
+                        String targetPath = webApplicationContext.getServletContext().getRealPath(uuid + "/" + tag
+                                + name);
 
                         try {
                             File targetFile = new File(targetPath);
@@ -142,7 +147,7 @@ public class WebHost implements BeanPostProcessor {
             properties.store(outputStream, null);
             outputStream.flush();
         }
-        uuids.put(web, uuid);
+        hostedPathService.webUUIDs().put(web, uuid);
     }
 
     private String uuidFrom(EmbedWeb web) throws IOException {
@@ -155,7 +160,7 @@ public class WebHost implements BeanPostProcessor {
         }
 
         String uuid = properties.getProperty(web.name() + "-" + web.version());
-        uuids.put(web, uuid);
+        hostedPathService.webUUIDs().put(web, uuid);
         return uuid;
     }
 }
