@@ -13,6 +13,7 @@
 
     <properties>
         <log4j2.version>2.4.1</log4j2.version>
+        <thymeleaf.version>3.0.0.RELEASE</thymeleaf.version>
         <spring.framework.version>4.2.5.RELEASE</spring.framework.version>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <jwebunit.version>3.3</jwebunit.version>
@@ -211,19 +212,17 @@
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring4</artifactId>
-            <version>2.1.4.RELEASE</version>
+            <version>${thymeleaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity4</artifactId>
-            <version>2.1.2.RELEASE</version>
-            <scope>compile</scope>
+            <version>${thymeleaf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-java8time</artifactId>
             <version>2.1.0.RELEASE</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
