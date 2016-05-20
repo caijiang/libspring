@@ -86,4 +86,20 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
     public Map<EmbedWeb, String> webUUIDs() {
         return UUIDs;
     }
+
+    @Override
+    public String forPrivate(String path) throws NoSuchEmbedWebException {
+        EmbedWebInfo info = getCurrentEmbedWebInfo();
+        if (info == null)
+            throw new NoSuchEmbedWebException("unknown", null);
+        return info.getPrivateResourceUri() + path;
+    }
+
+    @Override
+    public String forPublic(String path) throws NoSuchEmbedWebException {
+        EmbedWebInfo info = getCurrentEmbedWebInfo();
+        if (info == null)
+            throw new NoSuchEmbedWebException("unknown", null);
+        return info.getPubicResourceUri() + path;
+    }
 }

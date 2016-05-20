@@ -2,8 +2,8 @@ package org.luffy.lib.libspring.embedweb.host;
 
 import me.jiangcai.ewp.test.HelloWebConfig;
 import org.junit.Test;
-import org.luffy.lib.libspring.embedweb.PathService;
 import org.luffy.lib.libspring.embedweb.exception.NoSuchEmbedWebException;
+import org.luffy.lib.libspring.embedweb.host.service.EmbedWebInfoService;
 import org.luffy.lib.libspring.logging.LoggingConfig;
 import org.luffy.test.SpringWebTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +22,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  * @author CJ
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class, InnerWebConfig.class, LoggingConfig.class})
+@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class, InnerWebConfig.class, LoggingConfig.class
+        , LocalHost.class})
 public class WebHostTest extends SpringWebTest {
 
     @Autowired
-    private PathService pathService;
+    private EmbedWebInfoService embedWebInfoService;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -43,13 +44,13 @@ public class WebHostTest extends SpringWebTest {
                 .isEqualTo("bar");
 
         // 校验资源
-        String path = pathService.forPrivate("inner", "/foo/bar.js");
+        String path = embedWebInfoService.forPrivate("inner", "/foo/bar.js");
         File bar1 = new File(webApplicationContext.getServletContext().getRealPath(path));
         assertThat(bar1)
                 .exists()
                 .isFile();
 
-        path = pathService.forPublic("hello", "/bar/foo.js");
+        path = embedWebInfoService.forPublic("hello", "/bar/foo.js");
         File bar2 = new File(webApplicationContext.getServletContext().getRealPath(path));
         assertThat(bar2)
                 .exists()

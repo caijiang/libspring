@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.luffy.lib.libspring.embedweb.EmbedWeb;
 import org.luffy.lib.libspring.embedweb.host.service.EmbedWebInfoService;
+import org.luffy.lib.libspring.embedweb.thymeleaf.EWPProcessorDialect;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,9 +32,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -44,7 +47,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @SuppressWarnings({"WeakerAccess", "SpringFacetCodeInspection"})
 @Configuration
-@ComponentScan("org.luffy.lib.libspring.embedweb.host.service")
+@ComponentScan({"org.luffy.lib.libspring.embedweb.host.service", "org.luffy.lib.libspring.embedweb.thymeleaf"})
 @EnableWebMvc
 @EnableAspectJAutoProxy
 public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcessor {
@@ -54,17 +57,39 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     private EmbedWebInfoService embedWebInfoService;
     @Autowired
     private WebApplicationContext webApplicationContext;
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    @Autowired(required = false)
+    private Set<TemplateEngine> templateEngines;
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    @Autowired(required = false)
+    private Set<ThymeleafViewResolver> thymeleafViewResolvers;
 
+    /**
+     * TODO 除了host,EWP自身测试也需要一个调整,或者干脆给它一个ViewResolver
+     *
+     * @return ViewNameAdjust instance
+     */
     @Bean
     public ViewNameAdjust viewNameAdjust() {
         return new ViewNameAdjust();
     }
 
-    @Override
-    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-        super.addReturnValueHandlers(returnValueHandlers);
+    @Autowired
+    public void link(EWPProcessorDialect ewpProcessorDialect) {
+        if (templateEngines == null && thymeleafViewResolvers == null) {
+            log.warn("no TemplateEngine found, you should use\n\n@Autowired\nEWPProcessorDialect ewpProcessorDialect;\n" +
+                    "into your TemplateEngine");
+        } else {
+            log.debug("setup EWPProcessorDialect");
+            Consumer<TemplateEngine> consumer = templateEngine -> templateEngine.addDialect(ewpProcessorDialect);
 
-//        returnValueHandlers.add(embedPrivateResourceHandler);
+            if (templateEngines != null)
+                templateEngines.forEach(consumer);
+
+            if (thymeleafViewResolvers != null)
+                thymeleafViewResolvers.stream().map(thymeleafViewResolver
+                        -> (TemplateEngine) thymeleafViewResolver.getTemplateEngine()).forEach(consumer);
+        }
     }
 
     @Override
