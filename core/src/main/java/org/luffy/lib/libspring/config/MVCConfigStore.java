@@ -7,8 +7,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+import org.thymeleaf.templateresolver.ITemplateResolver;
 
 /**
  * <p>内置了一个ThymeleafViewResolver 它会自动读取/WEB-INF/templates/的html文件作为view</p>
@@ -49,8 +50,8 @@ public class MVCConfigStore extends WebMvcConfigurationSupport {
     }
 
 
-    public ServletContextTemplateResolver templateResolver() {
-        ServletContextTemplateResolver bean = new ServletContextTemplateResolver();
+    public ITemplateResolver templateResolver() {
+        SpringResourceTemplateResolver bean = new SpringResourceTemplateResolver();
         bean.setPrefix("/WEB-INF/templates/");
         bean.setSuffix(".html");
         bean.setCharacterEncoding("UTF-8");
