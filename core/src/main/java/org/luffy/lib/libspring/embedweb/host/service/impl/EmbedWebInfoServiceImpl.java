@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Created by luffy on 2016/5/6.
@@ -85,6 +86,11 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
     @Override
     public Map<EmbedWeb, String> webUUIDs() {
         return UUIDs;
+    }
+
+    @Override
+    public Stream<EmbedWebInfo> embedWebInfoStream() {
+        return webInfoList.stream();
     }
 
     @Override

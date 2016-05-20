@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
@@ -64,9 +65,16 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     @Autowired(required = false)
     private Set<ThymeleafViewResolver> thymeleafViewResolvers;
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        super.addResourceHandlers(registry);
+        embedWebInfoService.embedWebInfoStream().forEach(embedWebInfo -> {
+            registry.addResourceHandler(embedWebInfo.getPubicResourceUri() + "/**")
+                    .addResourceLocations(embedWebInfo.getPubicResourceUri() + "/");
+        });
+    }
+
     /**
-     * TODO 除了host,EWP自身测试也需要一个调整,或者干脆给它一个ViewResolver
-     *
      * @return ViewNameAdjust instance
      */
     @Bean

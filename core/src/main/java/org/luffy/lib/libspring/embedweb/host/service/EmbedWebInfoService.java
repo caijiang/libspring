@@ -5,6 +5,7 @@ import org.luffy.lib.libspring.embedweb.exception.NoSuchEmbedWebException;
 import org.luffy.lib.libspring.embedweb.host.model.EmbedWebInfo;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Created by luffy on 2016/5/6.
@@ -48,4 +49,9 @@ public interface EmbedWebInfoService {
      * @return 当前EWP
      */
     EmbedWebInfo getCurrentEmbedWebInfo();
+
+    /**
+     * @return 只读流
+     */
+    Stream<EmbedWebInfo> embedWebInfoStream();
 }
