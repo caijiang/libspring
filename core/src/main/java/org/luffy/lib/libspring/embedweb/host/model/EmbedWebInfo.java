@@ -1,5 +1,6 @@
 package org.luffy.lib.libspring.embedweb.host.model;
 
+import java.security.CodeSource;
 import java.util.Objects;
 
 /**
@@ -10,17 +11,18 @@ import java.util.Objects;
 public class EmbedWebInfo {
     private String name;
     private String version;
-    private Package aPackage;
+    //    private Package aPackage;
+    private CodeSource source;
     private String uuid;
     private String privateResourceUri;
     private String pubicResourceUri;
 
     @Override
     public String toString() {
+//        clazz.getProtectionDomain().getCodeSource()
         final StringBuilder sb = new StringBuilder("EmbedWebInfo{");
         sb.append("name='").append(name).append('\'');
         sb.append(", version='").append(version).append('\'');
-        sb.append(", aPackage=").append(aPackage);
         sb.append(", privateResourceUri='").append(privateResourceUri).append('\'');
         sb.append(", pubicResourceUri='").append(pubicResourceUri).append('\'');
         sb.append('}');
@@ -34,14 +36,13 @@ public class EmbedWebInfo {
         EmbedWebInfo that = (EmbedWebInfo) o;
         return Objects.equals(name, that.name) &&
                 Objects.equals(version, that.version) &&
-                Objects.equals(aPackage, that.aPackage) &&
                 Objects.equals(privateResourceUri, that.privateResourceUri) &&
                 Objects.equals(pubicResourceUri, that.pubicResourceUri);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, version, aPackage, privateResourceUri, pubicResourceUri);
+        return Objects.hash(name, version, privateResourceUri, pubicResourceUri);
     }
 
     public String getName() {
@@ -58,14 +59,6 @@ public class EmbedWebInfo {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public Package getaPackage() {
-        return aPackage;
-    }
-
-    public void setaPackage(Package aPackage) {
-        this.aPackage = aPackage;
     }
 
     public String getPrivateResourceUri() {
@@ -90,5 +83,13 @@ public class EmbedWebInfo {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+    }
+
+    public CodeSource getSource() {
+        return source;
+    }
+
+    public void setSource(CodeSource source) {
+        this.source = source;
     }
 }

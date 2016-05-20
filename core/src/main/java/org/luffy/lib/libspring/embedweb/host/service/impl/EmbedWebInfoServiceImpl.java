@@ -7,6 +7,7 @@ import org.luffy.lib.libspring.embedweb.host.model.EmbedWebInfo;
 import org.luffy.lib.libspring.embedweb.host.service.EmbedWebInfoService;
 import org.springframework.stereotype.Service;
 
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
             String result = super.put(key, value);
             EmbedWebInfo info = new EmbedWebInfo();
             info.setUuid(value);
-            info.setaPackage(key.getClass().getPackage());
+            info.setSource(key.getClass().getProtectionDomain().getCodeSource());
             info.setName(key.name());
             info.setVersion(key.version());
             info.setPrivateResourceUri("/" + value + "/private");
@@ -65,8 +66,8 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
 
 
     @Override
-    public void setupCurrentEmbedWeb(Package aPackage) {
-        currentInfo.set(fromPackage(aPackage));
+    public void setupCurrentEmbedWeb(Class type) {
+        currentInfo.set(fromType(type));
     }
 
     @Override
@@ -74,8 +75,9 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
         return currentInfo.get();
     }
 
-    private EmbedWebInfo fromPackage(Package aPackage) {
-        return webInfoList.stream().filter(embedWebInfo -> embedWebInfo.getaPackage() == aPackage)
+    private EmbedWebInfo fromType(Class type) {
+        CodeSource source = type.getProtectionDomain().getCodeSource();
+        return webInfoList.stream().filter(embedWebInfo -> embedWebInfo.getSource() == source)
                 .findFirst()
                 .orElse(null);
     }

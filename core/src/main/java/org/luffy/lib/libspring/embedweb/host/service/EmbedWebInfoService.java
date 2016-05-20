@@ -17,9 +17,9 @@ public interface EmbedWebInfoService {
     /**
      * 设定当前EWP
      *
-     * @param aPackage 包
+     * @param type ewp内某一个Class,如果该Class并非在任意一个ewp内,则当前ewp为null
      */
-    void setupCurrentEmbedWeb(Package aPackage);
+    void setupCurrentEmbedWeb(Class type);
 
     /**
      * @return 当前EWP
