@@ -27,6 +27,8 @@
  * <li>静态资源入口标识</li>
  * <li>可提供的ViewResolver</li>
  * </ul>
+ * 就资源问题,一般会有2种方式,一种是保存在jar中通过NIO或者Spring Resource技术进行访问 或者优先解压在content里面再访问;
+ * 现在为了保证唯一资源的可用,采用方式2
  *
  * @author CJ
  * @since 2.1
