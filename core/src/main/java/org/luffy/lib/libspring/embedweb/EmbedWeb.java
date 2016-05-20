@@ -51,10 +51,16 @@ public interface EmbedWeb {
             URL codeLocation = clazz.getProtectionDomain().getCodeSource()
                     .getLocation();
             // service-1.3-SNAPSHOT.jar
-            Pattern pattern = Pattern.compile(".*-(.+)\\.jar.*");
+            Pattern pattern = Pattern.compile(".*-(.+)-SNAPSHOT\\.jar.*");
             Matcher matcher = pattern.matcher(codeLocation.toString());
             if (matcher.matches()) {
-                version = matcher.group(1);
+                version = matcher.group(1) + "-SNAPSHOT";
+            } else {
+                pattern = Pattern.compile(".*-(.+)\\.jar.*");
+                matcher = pattern.matcher(codeLocation.toString());
+                if (matcher.matches()) {
+                    version = matcher.group(1);
+                }
             }
         }
 

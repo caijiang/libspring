@@ -177,6 +177,8 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         }
 
         String uuid = properties.getProperty(web.name() + "-" + web.version());
+        if (uuid == null)
+            return null;
         embedWebInfoService.webUUIDs().put(web, uuid);
         return uuid;
     }
