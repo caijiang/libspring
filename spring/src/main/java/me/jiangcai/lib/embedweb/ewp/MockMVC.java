@@ -25,7 +25,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
  * @author CJ
  */
 @Import(MockMVC.TemplateEngineLoader.class)
-@ComponentScan({"org.luffy.lib.libspring.embedweb.ewp.service", "org.luffy.lib.libspring.embedweb.thymeleaf"})
+@ComponentScan({"me.jiangcai.lib.embedweb.ewp.service", "me.jiangcai.lib.embedweb.thymeleaf"})
 @Configuration
 @EnableWebMvc
 public abstract class MockMVC extends WebMvcConfigurerAdapter {

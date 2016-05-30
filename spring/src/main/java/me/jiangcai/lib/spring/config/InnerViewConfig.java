@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
  * @author CJ
  */
 @Configuration
-@ComponentScan({"org.luffy.lib.libspring.viewresolver"})
+@ComponentScan({"me.jiangcai.lib.spring.viewresolver"})
 public class InnerViewConfig extends WebMvcConfigurerAdapter {
 
     @Autowired

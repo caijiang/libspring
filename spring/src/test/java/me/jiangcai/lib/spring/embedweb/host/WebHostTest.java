@@ -45,13 +45,13 @@ public class WebHostTest extends SpringWebTest {
                 .isEqualTo("bar");
 
         // 校验资源
-//        String path = embedWebInfoService.forPrivate("inner", "/foo/bar.js");
-//        File bar1 = new File(webApplicationContext.getServletContext().getRealPath(path));
-//        assertThat(bar1)
-//                .exists()
-//                .isFile();
+        String path = embedWebInfoService.forPrivate("inner", "/foo/bar.js");
+        File bar1 = new File(webApplicationContext.getServletContext().getRealPath(path));
+        assertThat(bar1)
+                .exists()
+                .isFile();
 
-        String path = embedWebInfoService.forPublic("hello", "/bar/foo.js");
+        path = embedWebInfoService.forPublic("hello", "/bar/foo.js");
         File bar2 = new File(webApplicationContext.getServletContext().getRealPath(path));
         assertThat(bar2)
                 .exists()

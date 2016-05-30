@@ -1,6 +1,7 @@
 package me.jiangcai.lib.spring.embedweb.host;
 
-import org.luffy.lib.libspring.embedweb.EmbedWeb;
+
+import me.jiangcai.lib.embedweb.EmbedWeb;
 
 /**
  * @author CJ
