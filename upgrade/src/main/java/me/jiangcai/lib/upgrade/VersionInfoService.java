@@ -1,5 +1,7 @@
 package me.jiangcai.lib.upgrade;
 
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 版本信息服务
  *
@@ -20,5 +22,6 @@ public interface VersionInfoService {
      * @param currentVersion 输入版本
      * @param <T>            参考{@link me.jiangcai.lib.upgrade.service.UpgradeService}中的范型
      */
+    @Transactional
     <T extends Enum> void updateVersion(T currentVersion);
 }
