@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author CJ
  */
 @ContextConfiguration(classes = SpringWebTestTest.Nothing.class)
-public class SpringWebTestTest extends SpringWebTest {
+public class SpringWebTestTest extends me.jiangcai.lib.test.SpringWebTest {
 
     @Override
     public void prepareFields() {
@@ -27,7 +27,7 @@ public class SpringWebTestTest extends SpringWebTest {
         //0 1 and many
         doRandomArray(0);
         doRandomArray(1);
-        doRandomArray(random.nextInt(88)+2);
+        doRandomArray(random.nextInt(88) + 2);
     }
 
     private void doRandomArray(int length) {
@@ -35,7 +35,7 @@ public class SpringWebTestTest extends SpringWebTest {
         Arrays.fill(array, UUID.randomUUID().toString());
         //min 从0到length
         for (int i = 0; i < length; i++) {
-            String[] newArray = randomArray(array,i);
+            String[] newArray = randomArray(array, i);
             assertThat(newArray.length)
                     .isGreaterThanOrEqualTo(i)
                     .isLessThanOrEqualTo(length);
@@ -43,9 +43,9 @@ public class SpringWebTestTest extends SpringWebTest {
     }
 
     @Test
-    public void randomTest(){
+    public void randomTest() {
         int x = 50;
-        while (x-->0){
+        while (x-- > 0) {
             System.out.println(randomMobile());
             System.out.println(randomEmailAddress());
             System.out.println(randomHttpURL());
