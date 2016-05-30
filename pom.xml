@@ -8,6 +8,7 @@
     <modules>
         <module>spring</module>
         <module>test</module>
+        <module>resource</module>
     </modules>
     <packaging>pom</packaging>
 
