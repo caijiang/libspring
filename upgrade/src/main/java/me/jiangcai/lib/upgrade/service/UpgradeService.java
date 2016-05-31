@@ -24,5 +24,4 @@ public interface UpgradeService {
      */
     @Transactional
     <T extends Enum> void systemUpgrade(VersionUpgrade<T> upgrade);
-
 }
