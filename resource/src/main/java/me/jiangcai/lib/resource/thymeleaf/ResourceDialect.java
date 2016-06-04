@@ -17,6 +17,7 @@ import java.util.Set;
  * 等标签可以处理{@link String 资源Path},{@link me.jiangcai.lib.resource.Resource 资源}
  * ,{@link me.jiangcai.lib.resource.ResourceHolder}以及{@link me.jiangcai.lib.resource.ResourcePathHolder}
  *
+ * TODO 缺少测试
  * @author CJ
  */
 @Component
