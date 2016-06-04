@@ -37,6 +37,12 @@
             <version>${spring.framework.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <!--VFS-->
         <dependency>
             <groupId>org.apache.commons</groupId>
