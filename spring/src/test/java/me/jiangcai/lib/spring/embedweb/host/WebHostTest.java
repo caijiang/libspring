@@ -1,6 +1,6 @@
 package me.jiangcai.lib.spring.embedweb.host;
 
-import me.jiangcai.ewp.test.HelloWebConfig;
+//import me.jiangcai.ewp.test.HelloWebConfig;
 import me.jiangcai.lib.embedweb.exception.NoSuchEmbedWebException;
 import me.jiangcai.lib.embedweb.host.WebHost;
 import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
  * @author CJ
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {WebHost.class, HelloWebConfig.class, InnerWebConfig.class, LoggingConfig.class
+@ContextConfiguration(classes = {WebHost.class, InnerWebConfig.class, LoggingConfig.class
         , LocalHost.class})
 public class WebHostTest extends SpringWebTest {
 

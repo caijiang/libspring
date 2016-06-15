@@ -134,9 +134,23 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         return bean;
     }
 
+    /**
+     * 将webClass所在代码领域的path开头的所有资源，复制到servlet context /uuid/tag下
+     * @param uuid
+     * @param tag
+     * @param path
+     * @param webClass
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     private void copyResource(String uuid, String tag, String path, Class<? extends EmbedWeb> webClass)
             throws URISyntaxException, IOException {
-        URL url = webClass.getResource(path);
+        // 情况1  webClass 的确是来自于一个jar
+        // Fiel...../abc.jar
+        // 情况2  webClass 来自classpath的几个.class 没有独立jar包
+        // file:/E:/IdeaWorkSpace/libspring/spring/target/test-classes/
+//        webClass.getProtectionDomain().getCodeSource().getLocation();
+        URL url = webClass.getResource(path)!=null?webClass.getResource(path):webClass.getProtectionDomain().getCodeSource().getLocation();
         if (url == null) {
             log.debug("no resources find for " + tag + " from " + path);
             return;
@@ -146,7 +160,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             throw new IOException("failed to mkdirs for " + rootPath);
         }
 
-        URI uri = webClass.getResource(path).toURI();
+        URI uri = url.toURI();
         Path myPath;
         FileSystem fileSystem = null;
         try {
