@@ -121,8 +121,10 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
                     log.info(web.name() + " is installing.");
                     uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
-                    copyResource(uuid, "private", web.privateResourcePath(), web.getClass());
-                    copyResource(uuid, "public", web.publicResourcePath(), web.getClass());
+                    if (web.privateResourcePath() != null)
+                        copyResource(uuid, "private", web.privateResourcePath(), web.getClass());
+                    if (web.publicResourcePath() != null)
+                        copyResource(uuid, "public", web.publicResourcePath(), web.getClass());
 
                     updateUuid(uuid, web);
                 }
@@ -136,6 +138,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
 
     /**
      * 将webClass所在代码领域的path开头的所有资源，复制到servlet context /uuid/tag下
+     *
      * @param uuid
      * @param tag
      * @param path
@@ -150,10 +153,10 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         // 情况2  webClass 来自classpath的几个.class 没有独立jar包
         // file:/E:/IdeaWorkSpace/libspring/spring/target/test-classes/
 //        webClass.getProtectionDomain().getCodeSource().getLocation();
-        URL url = webClass.getResource(path)!=null?webClass.getResource(path):webClass.getProtectionDomain().getCodeSource().getLocation();
+        URL url = webClass.getResource(path);
         if (url == null) {
-            log.debug("no resources find for " + tag + " from " + path);
-            return;
+            throw new IllegalStateException("no resources find for " + path + " from " + webClass + ", use null" +
+                    " resourcePath when EWP has no resource.");
         }
         String rootPath = webApplicationContext.getServletContext().getRealPath(uuid + "/" + tag);
         if (!new File(rootPath).mkdirs()) {

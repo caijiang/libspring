@@ -22,7 +22,7 @@ public interface EmbedWeb {
      * 默认 /web/private
      * 可以使用 {@link PathService}获取实际资源路径
      *
-     * @return 服务端可用资源的访问路径
+     * @return 服务端可用资源的访问路径,null表示EWP没有服务端可用资源
      */
     default String privateResourcePath() {
         return "/web/private";
@@ -32,7 +32,7 @@ public interface EmbedWeb {
      * 默认 /web/public
      * 可以使用 {@link PathService}获取实际资源路径
      *
-     * @return 客户端可用资源的访问路径
+     * @return 客户端可用资源的访问路径,null表示EWP没有客户端可用资源
      */
     default String publicResourcePath() {
         return "/web/public";
