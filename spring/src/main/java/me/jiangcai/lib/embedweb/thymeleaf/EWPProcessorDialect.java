@@ -30,6 +30,7 @@ public class EWPProcessorDialect extends AbstractProcessorDialect {
 
 //        processors.add(new StandardSrcTagProcessor(dialectPrefix));
         processors.add(new SrcTagProcessor(dialectPrefix, pathService));
+        processors.add(new HrefTagProcessor(dialectPrefix, pathService));
         processors.add(new StandardXmlNsTagProcessor(TemplateMode.HTML, dialectPrefix));
         return processors;
     }
