@@ -3,6 +3,7 @@ package me.jiangcai.lib.embedweb.thymeleaf;
 import me.jiangcai.lib.embedweb.PathService;
 import me.jiangcai.lib.embedweb.exception.NoSuchEmbedWebException;
 import org.thymeleaf.context.ITemplateContext;
+import org.thymeleaf.dialect.IDialect;
 import org.thymeleaf.engine.AttributeDefinition;
 import org.thymeleaf.engine.AttributeDefinitions;
 import org.thymeleaf.engine.AttributeName;
@@ -10,11 +11,14 @@ import org.thymeleaf.engine.IAttributeDefinitionsAware;
 import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.processor.element.IElementTagProcessor;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
+import org.thymeleaf.standard.expression.LinkExpression;
 import org.thymeleaf.standard.processor.AbstractStandardExpressionAttributeTagProcessor;
 import org.thymeleaf.standard.util.StandardProcessorUtils;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.util.Validate;
 import org.unbescape.html.HtmlEscape;
+
+import javax.servlet.ServletContext;
 
 /**
  * @author CJ
@@ -26,10 +30,12 @@ public class SrcTagProcessor extends AbstractStandardExpressionAttributeTagProce
     private final static String TAG_NAME = "src";
     private final PathService pathService;
     private AttributeDefinition targetAttributeDefinition;
+    private ServletContext servletContext;
 
-    public SrcTagProcessor(final String dialectPrefix, PathService pathService) {
+    public SrcTagProcessor(ServletContext servletContext,final String dialectPrefix, PathService pathService) {
         super(TemplateMode.HTML, dialectPrefix, TAG_NAME, 900, false);
         this.pathService = pathService;
+        this.servletContext=servletContext;
     }
 
 
@@ -49,14 +55,17 @@ public class SrcTagProcessor extends AbstractStandardExpressionAttributeTagProce
             final Object expressionResult,
             final IElementTagStructureHandler structureHandler) {
 
+        // 输入值就是资源相对于public的路径(String)
         String newAttributeValue = HtmlEscape.escapeHtml4Xml(expressionResult == null
                 ? null : expressionResult.toString());
 
         try {
-            newAttributeValue = pathService.forPublic(newAttributeValue);
+            newAttributeValue =servletContext.getContextPath()+pathService.forPublic(newAttributeValue);
         } catch (NoSuchEmbedWebException ignored) {
 
         }
+
+        // 额外的工作 类似@{}
 
         StandardProcessorUtils.replaceAttribute(
                 structureHandler, attributeName, this.targetAttributeDefinition, TAG_NAME

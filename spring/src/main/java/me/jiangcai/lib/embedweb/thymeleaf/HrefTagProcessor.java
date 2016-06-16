@@ -16,6 +16,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.util.Validate;
 import org.unbescape.html.HtmlEscape;
 
+import javax.servlet.ServletContext;
+
 /**
  * Created by hzbc on 2016/6/16.
  */
@@ -25,10 +27,12 @@ public class HrefTagProcessor extends AbstractStandardExpressionAttributeTagProc
     private final static String TAG_NAME = "href";
     private final PathService pathService;
     private AttributeDefinition targetAttributeDefinition;
+    private ServletContext servletContext;
 
-    public HrefTagProcessor(final String dialectPrefix, PathService pathService) {
+    public HrefTagProcessor(ServletContext servletContext,final String dialectPrefix, PathService pathService) {
         super(TemplateMode.HTML, dialectPrefix, TAG_NAME, 900, false);
         this.pathService = pathService;
+        this.servletContext=servletContext;
     }
 
 
@@ -52,7 +56,7 @@ public class HrefTagProcessor extends AbstractStandardExpressionAttributeTagProc
                 ? null : expressionResult.toString());
 
         try {
-            newAttributeValue = pathService.forPublic(newAttributeValue);
+            newAttributeValue =servletContext.getContextPath()+pathService.forPublic(newAttributeValue);
         } catch (NoSuchEmbedWebException ignored) {
 
         }

@@ -8,6 +8,7 @@ import org.thymeleaf.processor.IProcessor;
 import org.thymeleaf.standard.processor.StandardXmlNsTagProcessor;
 import org.thymeleaf.templatemode.TemplateMode;
 
+import javax.servlet.ServletContext;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +21,9 @@ public class EWPProcessorDialect extends AbstractProcessorDialect {
     @Autowired
     private PathService pathService;
 
+    @Autowired
+    ServletContext servletContext;
+
     public EWPProcessorDialect() {
         super("EmbedWeb", "ewp", 900);
     }
@@ -29,8 +33,8 @@ public class EWPProcessorDialect extends AbstractProcessorDialect {
         HashSet<IProcessor> processors = new HashSet<>();
 
 //        processors.add(new StandardSrcTagProcessor(dialectPrefix));
-        processors.add(new SrcTagProcessor(dialectPrefix, pathService));
-        processors.add(new HrefTagProcessor(dialectPrefix, pathService));
+        processors.add(new SrcTagProcessor(servletContext,dialectPrefix, pathService));
+        processors.add(new HrefTagProcessor(servletContext,dialectPrefix, pathService));
         processors.add(new StandardXmlNsTagProcessor(TemplateMode.HTML, dialectPrefix));
         return processors;
     }

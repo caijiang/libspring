@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 @Service
 public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService {
 
-
     private final ThreadLocal<EmbedWebInfo> currentInfo = new ThreadLocal<>();
     private final List<EmbedWebInfo> webInfoList = new ArrayList<>();
     private final Map<EmbedWeb, String> UUIDs = new HashMap<EmbedWeb, String>() {
