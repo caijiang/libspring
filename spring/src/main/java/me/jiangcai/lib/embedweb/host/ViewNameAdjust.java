@@ -72,6 +72,8 @@ public class ViewNameAdjust {
         String url = info.getPrivateResourceUri().substring(1);
         if (!viewName.startsWith("/"))
             url = url + "/"+viewName;
+        else
+            url+=viewName;
         modelAndView.setViewName(url);
         return modelAndView;
     }
