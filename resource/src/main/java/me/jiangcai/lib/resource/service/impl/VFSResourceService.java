@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -49,7 +48,8 @@ public class VFSResourceService implements ResourceService {
     public static final String ServletContextResourcePath = "/_resources";
 
     protected final URI uriPrefix;
-    protected final URI fileHome;
+    protected URI fileHome;
+    protected File fileFile;
     @Autowired
     private VFSHelper vfsHelper;
 
@@ -70,8 +70,11 @@ public class VFSResourceService implements ResourceService {
      */
     public VFSResourceService(String uri, String home, int port, WebApplicationContext webApplicationContext
             , String prefix) {
+        // 应该先构建字符串,再根据值判断是否未本地系统(file)
+
+        boolean autoHome = false;
         if (StringUtils.isEmpty(uri) || StringUtils.isEmpty(home)) {
-            localFileMode = true;
+            autoHome = true;
             if (webApplicationContext == null)
                 throw new IllegalStateException("ResourceService required web Environment.");
             try {
@@ -86,24 +89,47 @@ public class VFSResourceService implements ResourceService {
             home = webApplicationContext.getServletContext().getRealPath(ServletContextResourcePath);
             log.warn("ResourceService running in ServletContextPath, please setup " + prefix + ".http.uri" + ","
                     + prefix + ".home to define VFS ResourceService");
+
+        }
+
+        if (!home.endsWith("/"))
+            home = home + "/";
+
+        // 研究home
+        try {
+            URI homeUri = new URI(home);
+            if ("file".equals(homeUri.getScheme()) || homeUri.getScheme() == null) {
+                localFileMode = true;
+                fileHome = null;
+                fileFile = new File(homeUri.getPath());
+            } else {
+                localFileMode = false;
+                fileFile = null;
+                fileHome = homeUri;
+            }
+        } catch (URISyntaxException e) {
+            if (autoHome) {
+                localFileMode = true;
+                fileHome = null;
+                fileFile = new File(home);
+            } else
+                throw new IllegalArgumentException(e);
         }
 
         if (!uri.endsWith("/"))
             uri = uri + "/";
-        if (!home.endsWith("/"))
-            home = home + "/";
+
 
         log.info("ResourceService running on " + home + ", via:" + uri);
 
         try {
             uriPrefix = new URI(uri);
-            fileHome = new URI(home);
-
-            try {
-                if (home.startsWith("/") || home.startsWith("file:/"))
-                    localFileMode = true;
-            } catch (InvalidPathException ignored) {
-            }
+//
+//            try {
+//                if (home.startsWith("/") || home.startsWith("file:/"))
+//                    localFileMode = true;
+//            } catch (InvalidPathException ignored) {
+//            }
 
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
@@ -116,13 +142,15 @@ public class VFSResourceService implements ResourceService {
         if (path == null || path.startsWith("/"))
             throw new IllegalArgumentException("bad resource path:" + path);
         // 检查是否是本地文件系统,如果是的话就使用本地文件系统技术
-        String filePath = fileHome.toString() + path;
         if (localFileMode) {
-            Path path1 = Paths.get(filePath);
+            File file = new File(fileFile.toString() + File.separator + path);
+            Path path1 = Paths.get(file.toURI());
             Files.createDirectories(path1.getParent());
             Files.copy(data, path1, REPLACE_EXISTING);
             return getResource(path);
         }
+
+        String filePath = fileHome.toString() + path;
 
         vfsHelper.handle(filePath, file -> {
             OutputStream out = file.getContent().getOutputStream();
@@ -151,7 +179,7 @@ public class VFSResourceService implements ResourceService {
         String url = uriPrefix.toString() + path;
 
         if (localFileMode) {
-            return new LocalResource(fileHome.toString() + path, url);
+            return new LocalResource(fileFile.toString() + File.separator + path, url);
         }
         String filePath = fileHome.toString() + path;
 
