@@ -167,7 +167,15 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         Path myPath;
         FileSystem fileSystem = null;
         try {
-
+            // Jboss VFS support
+            // TODO 这里判断Jboss环境很草率,应该给予加强
+            if (System.getProperty("jboss.home.dir") != null && uri.getScheme().equals("vfs")
+                    && uri.toString().contains(".jar")) {
+                String ssp = uri.getSchemeSpecificPart();
+                ssp = "file:" + ssp.replaceFirst("\\.jar", ".jar!");
+                // ssp
+                uri = new URI("jar",ssp,uri.getFragment());
+            }
             if (uri.getScheme().equals("jar")) {
                 fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 myPath = fileSystem.getPath(path);

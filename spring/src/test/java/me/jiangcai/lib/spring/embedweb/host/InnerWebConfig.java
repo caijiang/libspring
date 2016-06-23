@@ -20,7 +20,7 @@ public class InnerWebConfig implements EmbedWeb {
 
     @Override
     public String publicResourcePath() {
-        return "/inner/public";
+        return null;
     }
 
 }
