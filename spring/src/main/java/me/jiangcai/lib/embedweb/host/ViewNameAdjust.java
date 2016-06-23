@@ -1,6 +1,5 @@
 package me.jiangcai.lib.embedweb.host;
 
-import com.sun.javafx.sg.prism.NGShape;
 import me.jiangcai.lib.embedweb.host.model.EmbedWebInfo;
 import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
 import org.apache.commons.logging.Log;
@@ -12,8 +11,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Map;
 
 /**
  * @author CJ
@@ -36,7 +33,7 @@ public class ViewNameAdjust {
 
     @Pointcut("execution(org.springframework.web.servlet.ModelAndView *(..))" +
             "&& @annotation(org.springframework.web.bind.annotation.RequestMapping)\"")
-    public void modelAndViewController(){
+    public void modelAndViewController() {
     }
 
     @Around(value = "stringController()")
@@ -52,6 +49,10 @@ public class ViewNameAdjust {
 
         String viewName = (String) point.proceed();
 
+        return checkViewName(info, viewName);
+    }
+
+    private String checkViewName(EmbedWebInfo info, String viewName) {
         String url = info.getPrivateResourceUri().substring(1);
         if (!viewName.startsWith("/"))
             url = url + "/";
@@ -59,22 +60,18 @@ public class ViewNameAdjust {
         return url + viewName;
     }
 
-    @Around(value ="modelAndViewController()" )
-    public Object modelAndView(ProceedingJoinPoint point) throws Throwable{
+    @Around(value = "modelAndViewController()")
+    public Object modelAndView(ProceedingJoinPoint point) throws Throwable {
         embedWebInfoService.setupCurrentEmbedWeb(point.getTarget().getClass());
         EmbedWebInfo info = embedWebInfoService.getCurrentEmbedWebInfo();
         if (log.isDebugEnabled())
             log.debug("[EWP] working in " + info);
         if (info == null)
             return point.proceed();
-        ModelAndView modelAndView=(ModelAndView) point.proceed();
-        String viewName=modelAndView.getViewName();
-        String url = info.getPrivateResourceUri().substring(1);
-        if (!viewName.startsWith("/"))
-            url = url + "/"+viewName;
-        else
-            url+=viewName;
-        modelAndView.setViewName(url);
+        ModelAndView modelAndView = (ModelAndView) point.proceed();
+        String viewName = modelAndView.getViewName();
+
+        modelAndView.setViewName(checkViewName(info, viewName));
         return modelAndView;
     }
 

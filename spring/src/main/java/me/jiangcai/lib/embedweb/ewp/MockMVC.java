@@ -86,7 +86,7 @@ public abstract class MockMVC extends WebMvcConfigurerAdapter {
         private ITemplateResolver templateResolver() {
             SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
             resolver.setApplicationContext(applicationContext);
-            resolver.setSuffix(".html");
+//            resolver.setSuffix(".html");
             resolver.setTemplateMode(TemplateMode.HTML);
             return resolver;
         }
