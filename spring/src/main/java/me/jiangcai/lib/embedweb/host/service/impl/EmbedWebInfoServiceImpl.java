@@ -3,6 +3,7 @@ package me.jiangcai.lib.embedweb.host.service.impl;
 import me.jiangcai.lib.embedweb.EmbedWeb;
 import me.jiangcai.lib.embedweb.PathService;
 import me.jiangcai.lib.embedweb.exception.NoSuchEmbedWebException;
+import me.jiangcai.lib.embedweb.host.WebHost;
 import me.jiangcai.lib.embedweb.host.model.EmbedWebInfo;
 import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
             info.setSource(key.getClass().getProtectionDomain().getCodeSource());
             info.setName(key.name());
             info.setVersion(key.version());
-            info.setPrivateResourceUri("/" + value + "/private");
-            info.setPubicResourceUri("/" + value + "/public");
+            info.setPrivateResourceUri("/" + WebHost.HeaderPrivate + "/" + value + "/private");
+            info.setPubicResourceUri("/" + WebHost.HeaderPublic + "/" + value + "/public");
             webInfoList.add(info);
             return result;
         }

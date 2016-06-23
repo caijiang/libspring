@@ -65,13 +65,23 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     @Autowired(required = false)
     private Set<ThymeleafViewResolver> thymeleafViewResolvers;
 
+    /**
+     * 所有公开资源都会放在这个目录下面
+     */
+    public static final String HeaderPublic = "_EWP1_";
+    /**
+     * 所有私有资源都会放在这个目录下
+     */
+    public static final String HeaderPrivate = "_EWP2_";
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         super.addResourceHandlers(registry);
-        embedWebInfoService.embedWebInfoStream().forEach(embedWebInfo -> {
-            registry.addResourceHandler(embedWebInfo.getPubicResourceUri() + "/**")
-                    .addResourceLocations(embedWebInfo.getPubicResourceUri() + "/");
-        });
+        // 坑爹原来这里还没有初始化好
+        registry.addResourceHandler("/" + HeaderPublic + "/**")
+                .addResourceLocations("/" + HeaderPublic + "/");
+//        registry.addResourceHandler("/" + uuid + "/public/**")
+//                .addResourceLocations("/" + uuid + "/public/");
     }
 
     /**
@@ -122,9 +132,9 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
                     uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
                     if (web.privateResourcePath() != null)
-                        copyResource(uuid, "private", web.privateResourcePath(), web.getClass());
+                        copyResource(HeaderPrivate + "/" + uuid, "private", web.privateResourcePath(), web.getClass());
                     if (web.publicResourcePath() != null)
-                        copyResource(uuid, "public", web.publicResourcePath(), web.getClass());
+                        copyResource(HeaderPublic + "/" + uuid, "public", web.publicResourcePath(), web.getClass());
 
                     updateUuid(uuid, web);
                 }
