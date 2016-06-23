@@ -158,7 +158,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             throw new IllegalStateException("no resources find for " + path + " from " + webClass + ", use null" +
                     " resourcePath when EWP has no resource.");
         }
-        String rootPath = webApplicationContext.getServletContext().getRealPath(uuid + "/" + tag);
+        String rootPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag);
         if (!new File(rootPath).mkdirs()) {
             throw new IOException("failed to mkdirs for " + rootPath);
         }
@@ -174,7 +174,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
                 String ssp = uri.getSchemeSpecificPart();
                 ssp = "file:" + ssp.replaceFirst("\\.jar", ".jar!");
                 // ssp
-                uri = new URI("jar",ssp,uri.getFragment());
+                uri = new URI("jar", ssp, uri.getFragment());
             }
             if (uri.getScheme().equals("jar")) {
                 fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
@@ -190,7 +190,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
 
                         log.debug("start copy resource " + filePath);
 
-                        String targetPath = webApplicationContext.getServletContext().getRealPath(uuid + "/" + tag
+                        String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
                                 + name);
 
                         try {
@@ -210,7 +210,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     }
 
     private void updateUuid(String uuid, EmbedWeb web) throws IOException {
-        File file = new File(webApplicationContext.getServletContext().getRealPath(".ewp.properties"));
+        File file = new File(webApplicationContext.getServletContext().getRealPath("/.ewp.properties"));
         Properties properties = new Properties();
         if (file.exists())
             try (FileInputStream inputStream = new FileInputStream(file)) {
@@ -226,7 +226,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     }
 
     private String uuidFrom(EmbedWeb web) throws IOException {
-        File file = new File(webApplicationContext.getServletContext().getRealPath(".ewp.properties"));
+        File file = new File(webApplicationContext.getServletContext().getRealPath("/.ewp.properties"));
         if (!file.exists())
             return null;
         Properties properties = new Properties();
