@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -65,6 +66,7 @@ public abstract class MockMVC extends WebMvcConfigurerAdapter {
     public ViewResolver viewResolver() {
         templateEngine.addDialect(ewpProcessorDialect);
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
+        resolver.setContentType(MediaType.TEXT_HTML_VALUE + ";charset=UTF-8");
         resolver.setTemplateEngine(templateEngine);
         resolver.setCharacterEncoding("UTF-8");
         return resolver;
@@ -86,6 +88,7 @@ public abstract class MockMVC extends WebMvcConfigurerAdapter {
         private ITemplateResolver templateResolver() {
             SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
             resolver.setApplicationContext(applicationContext);
+            resolver.setCharacterEncoding("UTF-8");
 //            resolver.setSuffix(".html");
             resolver.setTemplateMode(TemplateMode.HTML);
             return resolver;
