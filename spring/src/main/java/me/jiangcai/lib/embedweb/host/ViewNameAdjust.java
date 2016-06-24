@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * @author CJ
@@ -53,6 +54,12 @@ public class ViewNameAdjust {
     }
 
     private String checkViewName(EmbedWebInfo info, String viewName) {
+        if (viewName==null)
+            return null;
+
+        if (viewName.startsWith("redirect:"))
+            return viewName;
+
         String url = info.getPrivateResourceUri().substring(1);
         if (!viewName.startsWith("/"))
             url = url + "/";
@@ -69,6 +76,11 @@ public class ViewNameAdjust {
         if (info == null)
             return point.proceed();
         ModelAndView modelAndView = (ModelAndView) point.proceed();
+
+        if (modelAndView.getView() != null && (modelAndView.getView() instanceof RedirectView)) {
+            return modelAndView;
+        }
+
         String viewName = modelAndView.getViewName();
 
         modelAndView.setViewName(checkViewName(info, viewName));
