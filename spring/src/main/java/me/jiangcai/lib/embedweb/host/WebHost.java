@@ -245,6 +245,12 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         }
 
         String uuid = properties.getProperty(web.name() + "-" + web.version());
+        if (uuid != null && web.version().contains("SNAPSHOT")) {
+            String rootPath = webApplicationContext.getServletContext().getRealPath("/");
+            Files.deleteIfExists(Paths.get(rootPath + HeaderPrivate + "/" + uuid));
+            Files.deleteIfExists(Paths.get(rootPath + HeaderPublic + "/" + uuid));
+            return null;
+        }
         if (uuid == null)
             return null;
         embedWebInfoService.webUUIDs().put(web, uuid);
