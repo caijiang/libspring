@@ -29,9 +29,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
@@ -247,13 +250,53 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         String uuid = properties.getProperty(web.name() + "-" + web.version());
         if (uuid != null && web.version().contains("SNAPSHOT")) {
             String rootPath = webApplicationContext.getServletContext().getRealPath("/");
-            Files.deleteIfExists(Paths.get(rootPath + HeaderPrivate + "/" + uuid));
-            Files.deleteIfExists(Paths.get(rootPath + HeaderPublic + "/" + uuid));
+            removeRecursive(Paths.get(rootPath + HeaderPrivate + "/" + uuid));
+            removeRecursive(Paths.get(rootPath + HeaderPublic + "/" + uuid));
             return null;
         }
         if (uuid == null)
             return null;
         embedWebInfoService.webUUIDs().put(web, uuid);
         return uuid;
+    }
+
+
+    public static void removeRecursive(Path path) throws IOException
+    {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>()
+        {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException
+            {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException
+            {
+                // try to delete the file anyway, even if its attributes
+                // could not be read, since delete-only access is
+                // theoretically possible
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+            {
+                if (exc == null)
+                {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+                else
+                {
+                    // directory iteration failed; propagate exception
+                    throw exc;
+                }
+            }
+        });
     }
 }

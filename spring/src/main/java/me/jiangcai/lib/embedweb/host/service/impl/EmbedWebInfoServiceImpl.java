@@ -56,13 +56,25 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
     @Override
     public String forPrivate(String name, String path) throws NoSuchEmbedWebException {
         EmbedWebInfo info = fromName(name, path);
-        return info.getPrivateResourceUri() + path;
+        return getPrivatePath(path, info);
+    }
+
+    private String getPrivatePath(String path, EmbedWebInfo info) {
+        if (path.startsWith("/"))
+            return info.getPrivateResourceUri() + path;
+        return info.getPrivateResourceUri() + "/" + path;
     }
 
     @Override
     public String forPublic(String name, String path) throws NoSuchEmbedWebException {
         EmbedWebInfo info = fromName(name, path);
-        return info.getPubicResourceUri() + path;
+        return getPublicPath(path, info);
+    }
+
+    private String getPublicPath(String path, EmbedWebInfo info) {
+        if (path.startsWith("/"))
+            return info.getPubicResourceUri() + path;
+        return info.getPubicResourceUri() + "/" + path;
     }
 
 
@@ -98,7 +110,7 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
         EmbedWebInfo info = getCurrentEmbedWebInfo();
         if (info == null)
             throw new NoSuchEmbedWebException("unknown", null);
-        return info.getPrivateResourceUri() + path;
+        return getPrivatePath(path, info);
     }
 
     @Override
@@ -106,6 +118,6 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
         EmbedWebInfo info = getCurrentEmbedWebInfo();
         if (info == null)
             throw new NoSuchEmbedWebException("unknown", null);
-        return info.getPubicResourceUri() + path;
+        return getPublicPath(path, info);
     }
 }

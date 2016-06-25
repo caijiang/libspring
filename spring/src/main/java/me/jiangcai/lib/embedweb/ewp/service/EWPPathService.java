@@ -23,7 +23,7 @@ public class EWPPathService implements PathService {
 
     @Override
     public String forPrivate(String path) throws NoSuchEmbedWebException {
-        return null;
+        return path;
     }
 
     @Override
