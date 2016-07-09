@@ -12,8 +12,8 @@ public class SrcTagProcessor extends AbstractLinkProcessor {
 
     private final static String TAG_NAME = "src";
 
-    public SrcTagProcessor(ServletContext servletContext, final String dialectPrefix, PathService pathService) {
-        super(pathService, servletContext, TemplateMode.HTML, dialectPrefix, TAG_NAME);
+    public SrcTagProcessor(final String dialectPrefix, PathService pathService) {
+        super(pathService, TemplateMode.HTML, dialectPrefix, TAG_NAME);
     }
 
 

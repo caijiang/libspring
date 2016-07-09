@@ -43,4 +43,9 @@ public class EWPPathService implements PathService {
 //        }
         return MockMVC.PUBLIC_STORE + path;
     }
+
+    @Override
+    public String publicContentPath(String path) throws NoSuchEmbedWebException {
+        return webApplicationContext.getServletContext().getContextPath() + forPublic(path);
+    }
 }

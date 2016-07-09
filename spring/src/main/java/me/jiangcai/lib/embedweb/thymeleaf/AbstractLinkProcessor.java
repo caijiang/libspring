@@ -28,14 +28,12 @@ import javax.servlet.ServletContext;
  */
 public class AbstractLinkProcessor extends AbstractAttributeTagProcessor implements IAttributeDefinitionsAware {
 
-    private final ServletContext servletContext;
     private final PathService pathService;
     private final String attributeName;
     private AttributeDefinition targetAttributeDefinition;
 
-    protected AbstractLinkProcessor(PathService pathService, ServletContext servletContext, TemplateMode templateMode, String dialectPrefix, String attributeName) {
+    protected AbstractLinkProcessor(PathService pathService, TemplateMode templateMode, String dialectPrefix, String attributeName) {
         super(templateMode, dialectPrefix, null, false, attributeName, true, 10000, true);
-        this.servletContext = servletContext;
         this.pathService = pathService;
         this.attributeName = attributeName;
     }
@@ -80,7 +78,7 @@ public class AbstractLinkProcessor extends AbstractAttributeTagProcessor impleme
 
         targetLink = HtmlEscape.escapeHtml4Xml(targetLink);
         try {
-            targetLink = servletContext.getContextPath() + pathService.forPublic(targetLink);
+            targetLink = pathService.publicContentPath(targetLink);
             StandardProcessorUtils.replaceAttribute(
                     structureHandler, attributeName, this.targetAttributeDefinition, this.attributeName
                     , targetLink);

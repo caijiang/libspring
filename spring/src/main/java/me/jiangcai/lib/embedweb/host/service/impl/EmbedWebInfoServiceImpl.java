@@ -6,8 +6,10 @@ import me.jiangcai.lib.embedweb.exception.NoSuchEmbedWebException;
 import me.jiangcai.lib.embedweb.host.WebHost;
 import me.jiangcai.lib.embedweb.host.model.EmbedWebInfo;
 import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletContext;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,9 @@ import java.util.stream.Stream;
  */
 @Service
 public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService {
+
+    @Autowired
+    private ServletContext servletContext;
 
     private final ThreadLocal<EmbedWebInfo> currentInfo = new ThreadLocal<>();
     private final List<EmbedWebInfo> webInfoList = new ArrayList<>();
@@ -119,5 +124,10 @@ public class EmbedWebInfoServiceImpl implements EmbedWebInfoService, PathService
         if (info == null)
             throw new NoSuchEmbedWebException("unknown", null);
         return getPublicPath(path, info);
+    }
+
+    @Override
+    public String publicContentPath(String path) throws NoSuchEmbedWebException {
+        return servletContext.getContextPath() + forPublic(path);
     }
 }

@@ -10,8 +10,8 @@ import javax.servlet.ServletContext;
  */
 public class HrefTagProcessor extends AbstractLinkProcessor {
 
-    public HrefTagProcessor(ServletContext servletContext, final String dialectPrefix, PathService pathService) {
-        super(pathService, servletContext, TemplateMode.HTML, dialectPrefix, TAG_NAME);
+    public HrefTagProcessor(final String dialectPrefix, PathService pathService) {
+        super(pathService, TemplateMode.HTML, dialectPrefix, TAG_NAME);
     }
 
     private final static String TAG_NAME = "href";
