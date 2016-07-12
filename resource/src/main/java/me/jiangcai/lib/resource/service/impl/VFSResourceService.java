@@ -199,14 +199,13 @@ public class VFSResourceService implements ResourceService {
         if (path == null || path.startsWith("/"))
             throw new IllegalArgumentException("bad resource path:" + path);
 
-        String filePath = fileHome.toString() + path;
-
         if (localFileMode) {
-            Path ioPath = Paths.get(filePath);
+            Path ioPath = Paths.get(fileFile.toString() + File.separator + path);
             Files.deleteIfExists(ioPath);
             return;
         }
 
+        String filePath = fileHome.toString() + path;
 
         vfsHelper.handle(filePath, FileObject::delete);
     }
