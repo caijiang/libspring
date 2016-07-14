@@ -262,6 +262,8 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
 
 
     public static void removeRecursive(Path path) throws IOException {
+        if (!Files.isDirectory(path))
+            return;
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
