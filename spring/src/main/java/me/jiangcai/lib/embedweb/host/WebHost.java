@@ -250,8 +250,8 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         String uuid = properties.getProperty(web.name() + "-" + web.version());
         if (uuid != null && web.version().contains("SNAPSHOT")) {
             String rootPath = webApplicationContext.getServletContext().getRealPath("/");
-            removeRecursive(Paths.get(rootPath + HeaderPrivate + "/" + uuid));
-            removeRecursive(Paths.get(rootPath + HeaderPublic + "/" + uuid));
+            removeRecursive(Paths.get(rootPath, HeaderPrivate, uuid));
+            removeRecursive(Paths.get(rootPath, HeaderPublic, uuid));
             return null;
         }
         if (uuid == null)
@@ -261,21 +261,17 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     }
 
 
-    public static void removeRecursive(Path path) throws IOException
-    {
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>()
-        {
+    public static void removeRecursive(Path path) throws IOException {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException
-            {
+                    throws IOException {
                 Files.delete(file);
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException
-            {
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
                 // try to delete the file anyway, even if its attributes
                 // could not be read, since delete-only access is
                 // theoretically possible
@@ -284,15 +280,11 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             }
 
             @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
-            {
-                if (exc == null)
-                {
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (exc == null) {
                     Files.delete(dir);
                     return FileVisitResult.CONTINUE;
-                }
-                else
-                {
+                } else {
                     // directory iteration failed; propagate exception
                     throw exc;
                 }
