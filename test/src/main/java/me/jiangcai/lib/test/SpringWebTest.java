@@ -234,7 +234,20 @@ public class SpringWebTest {
     }
 
     /**
+     * 构建{@link #mockMvc}的辅助方法
+     *
+     * @param builder builder
+     * @return new Builder
+     * @since 2.2
+     */
+    protected DefaultMockMvcBuilder buildMockMVC(DefaultMockMvcBuilder builder) {
+        return builder;
+    }
+
+    /**
      * 创建{@link #mockMvc}
+     * <span>2.2以后需要添加更多的filter或者其他什么的可以覆盖{@link #buildMockMVC(DefaultMockMvcBuilder)}不用再重新实现一次这个
+     * 方法了。</span>
      */
     public void createMockMVC() {
         MockitoAnnotations.initMocks(this);
@@ -242,6 +255,7 @@ public class SpringWebTest {
         if (context == null)
             return;
         DefaultMockMvcBuilder builder = webAppContextSetup(context);
+        builder = buildMockMVC(builder);
         if (springSecurityFilter != null) {
             builder = builder.addFilters(springSecurityFilter);
         }
