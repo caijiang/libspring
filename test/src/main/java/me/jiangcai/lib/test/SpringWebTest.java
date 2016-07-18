@@ -1,6 +1,7 @@
 package me.jiangcai.lib.test;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import me.jiangcai.lib.seext.NumberUtils;
 import me.jiangcai.lib.test.page.AbstractPage;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -138,6 +140,31 @@ public class SpringWebTest {
         //还有5位 而且必须保证5位
         String p2 = String.format("%05d", random.nextInt(100000));
         return p1 + p2;
+    }
+
+    /**
+     * @return 尽可能唯一的随机字符串
+     * @since 2.2
+     */
+    protected String randomString() {
+        return NumberUtils.hash62(UUID.randomUUID());
+    }
+
+    /**
+     * @param maxLength 最大长度
+     * @return 尽可能唯一的随机字符串
+     * @since 2.2
+     */
+    protected String randomString(int maxLength) {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (true) {
+            if (stringBuilder.length() > maxLength) {
+                stringBuilder.setLength(maxLength);
+                break;
+            }
+            stringBuilder.append(randomString());
+        }
+        return stringBuilder.toString();
     }
 
     /**

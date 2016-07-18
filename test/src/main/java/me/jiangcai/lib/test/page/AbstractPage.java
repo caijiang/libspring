@@ -93,7 +93,7 @@ public abstract class AbstractPage {
     /**
      * 从表单的可选项中选择一个select的选项
      * <p>
-     * 支持chosen-select,但未经严格测试
+     * 支持chosen-select,但未经严格测试</p>
      *
      * @param formElement 指定表单
      * @param inputName   select 名字
@@ -119,7 +119,7 @@ public abstract class AbstractPage {
                     return;
                 }
             }
-            return;
+            throw new IllegalStateException("找不到" + label);
         }
         //chosen-container chosen-container-single and same title
         // li.active-result
@@ -132,6 +132,7 @@ public abstract class AbstractPage {
                 return;
             }
         }
+        throw new IllegalStateException("找不到" + label);
     }
 
     /**
