@@ -117,6 +117,13 @@
             <version>1.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jboss/jboss-vfs -->
+        <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jboss-vfs</artifactId>
+            <version>3.2.12.Final</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -5,6 +5,11 @@ import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
 import me.jiangcai.lib.embedweb.thymeleaf.EWPProcessorDialect;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jboss.vfs.VFS;
+import org.jboss.vfs.VFSUtils;
+import org.jboss.vfs.VirtualFile;
+import org.jboss.vfs.VirtualFileVisitor;
+import org.jboss.vfs.VisitorAttributes;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +61,14 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 @EnableAspectJAutoProxy
 public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcessor {
 
+    /**
+     * 所有公开资源都会放在这个目录下面
+     */
+    public static final String HeaderPublic = "_EWP1_";
+    /**
+     * 所有私有资源都会放在这个目录下
+     */
+    public static final String HeaderPrivate = "_EWP2_";
     private static final Log log = LogFactory.getLog(WebHost.class);
     @Autowired
     private EmbedWebInfoService embedWebInfoService;
@@ -68,14 +81,38 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     @Autowired(required = false)
     private Set<ThymeleafViewResolver> thymeleafViewResolvers;
 
-    /**
-     * 所有公开资源都会放在这个目录下面
-     */
-    public static final String HeaderPublic = "_EWP1_";
-    /**
-     * 所有私有资源都会放在这个目录下
-     */
-    public static final String HeaderPrivate = "_EWP2_";
+    public static void removeRecursive(Path path) throws IOException {
+        if (!Files.isDirectory(path))
+            return;
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                // try to delete the file anyway, even if its attributes
+                // could not be read, since delete-only access is
+                // theoretically possible
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                if (exc == null) {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                } else {
+                    // directory iteration failed; propagate exception
+                    throw exc;
+                }
+            }
+        });
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -167,6 +204,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         // file:/E:/IdeaWorkSpace/libspring/spring/target/test-classes/
 //        webClass.getProtectionDomain().getCodeSource().getLocation();
         URL url = webClass.getResource(path);
+        log.debug("webClass'url " + url);
         if (url == null) {
             throw new IllegalStateException("no resources find for " + path + " from " + webClass + ", use null" +
                     " resourcePath when EWP has no resource.");
@@ -181,14 +219,39 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         FileSystem fileSystem = null;
         try {
             // Jboss VFS support
-            // TODO 这里判断Jboss环境很草率,应该给予加强
-            if (System.getProperty("jboss.home.dir") != null && uri.getScheme().equals("vfs")
-                    && uri.toString().contains(".jar")) {
-                String ssp = uri.getSchemeSpecificPart();
-                ssp = "file:" + ssp.replaceFirst("\\.jar", ".jar!");
-                // ssp
-                uri = new URI("jar", ssp, uri.getFragment());
+            log.debug("webClass'uri " + uri);
+            if (isJboss() && uri.getScheme().equals("vfs")
+//                    && uri.toString().contains(".jar")
+                    ) {
+                VirtualFile vfsFile = VFS.getChild(uri);
+                vfsFile.visit(new VirtualFileVisitor() {
+                    @Override
+                    public VisitorAttributes getAttributes() {
+                        return VisitorAttributes.RECURSE_LEAVES_ONLY;
+                    }
+
+                    @Override
+                    public void visit(VirtualFile virtualFile) {
+                        String name = virtualFile.getPathName().substring(vfsFile.getPathName().length());
+                        log.debug("start copy resource " + virtualFile + " for " + name);
+
+                        String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
+                                + name);
+
+                        try {
+                            File targetFile = new File(targetPath);
+                            if (!targetFile.getParentFile().exists() && !targetFile.getParentFile().mkdirs())
+                                throw new IOException("create dir for " + targetFile);
+//                            VFSUtils.recursiveCopy(virtualFile, targetFile.getParentFile());
+                            VFSUtils.copyStreamAndClose(virtualFile.openStream(), new FileOutputStream(targetFile));
+                        } catch (IOException e) {
+                            throw new RuntimeException("failed to copy file " + virtualFile, e);
+                        }
+                    }
+                });
+                return;
             }
+
             if (uri.getScheme().equals("jar")) {
                 fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 myPath = fileSystem.getPath(path);
@@ -201,7 +264,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
                     .forEach(filePath -> {
                         String name = filePath.toString().substring(myPath.toString().length());
 
-                        log.debug("start copy resource " + filePath);
+                        log.debug("start copy resource " + filePath + " for " + name);
 
                         String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
                                 + name);
@@ -219,6 +282,14 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             if (fileSystem != null)
                 //noinspection ThrowFromFinallyBlock
                 fileSystem.close();
+        }
+    }
+
+    private boolean isJboss() {
+        try {
+            return Class.forName("org.jboss.vfs.VirtualFile") != null && System.getProperty("jboss.home.dir") != null;
+        } catch (ClassNotFoundException ignored) {
+            return false;
         }
     }
 
@@ -258,39 +329,5 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             return null;
         embedWebInfoService.webUUIDs().put(web, uuid);
         return uuid;
-    }
-
-
-    public static void removeRecursive(Path path) throws IOException {
-        if (!Files.isDirectory(path))
-            return;
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                // try to delete the file anyway, even if its attributes
-                // could not be read, since delete-only access is
-                // theoretically possible
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                if (exc == null) {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                } else {
-                    // directory iteration failed; propagate exception
-                    throw exc;
-                }
-            }
-        });
     }
 }
