@@ -2,14 +2,10 @@ package me.jiangcai.lib.embedweb.host;
 
 import me.jiangcai.lib.embedweb.EmbedWeb;
 import me.jiangcai.lib.embedweb.host.service.EmbedWebInfoService;
+import me.jiangcai.lib.embedweb.jboss.ResourceCopy;
 import me.jiangcai.lib.embedweb.thymeleaf.EWPProcessorDialect;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.vfs.VFS;
-import org.jboss.vfs.VFSUtils;
-import org.jboss.vfs.VirtualFile;
-import org.jboss.vfs.VirtualFileVisitor;
-import org.jboss.vfs.VisitorAttributes;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,32 +219,9 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             if (isJboss() && uri.getScheme().equals("vfs")
 //                    && uri.toString().contains(".jar")
                     ) {
-                VirtualFile vfsFile = VFS.getChild(uri);
-                vfsFile.visit(new VirtualFileVisitor() {
-                    @Override
-                    public VisitorAttributes getAttributes() {
-                        return VisitorAttributes.RECURSE_LEAVES_ONLY;
-                    }
-
-                    @Override
-                    public void visit(VirtualFile virtualFile) {
-                        String name = virtualFile.getPathName().substring(vfsFile.getPathName().length());
-                        log.debug("start copy resource " + virtualFile + " for " + name);
-
-                        String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
-                                + name);
-
-                        try {
-                            File targetFile = new File(targetPath);
-                            if (!targetFile.getParentFile().exists() && !targetFile.getParentFile().mkdirs())
-                                throw new IOException("create dir for " + targetFile);
-//                            VFSUtils.recursiveCopy(virtualFile, targetFile.getParentFile());
-                            VFSUtils.copyStreamAndClose(virtualFile.openStream(), new FileOutputStream(targetFile));
-                        } catch (IOException e) {
-                            throw new RuntimeException("failed to copy file " + virtualFile, e);
-                        }
-                    }
-                });
+                ResourceCopy.copy(uri, uuid, tag, webApplicationContext);
+//                VirtualFile vfsFile = VFS.getChild(uri);
+//                vfsFile.visit(new ResourceCopy(vfsFile, uuid, tag, webApplicationContext));
                 return;
             }
 
@@ -288,7 +261,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     private boolean isJboss() {
         try {
             return Class.forName("org.jboss.vfs.VirtualFile") != null && System.getProperty("jboss.home.dir") != null;
-        } catch (ClassNotFoundException ignored) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
             return false;
         }
     }
@@ -330,4 +303,5 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
         embedWebInfoService.webUUIDs().put(web, uuid);
         return uuid;
     }
+
 }
