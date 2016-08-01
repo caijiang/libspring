@@ -1,5 +1,6 @@
 package me.jiangcai.lib.embedweb.jboss;
 
+import me.jiangcai.lib.embedweb.host.WebHost;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.vfs.VFS;
@@ -36,10 +37,9 @@ public class ResourceCopy {
                 String name = virtualFile.getPathName().substring(vfsFile.getPathName().length());
                 log.debug("start copy resource " + virtualFile + " for " + name);
 
-                String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
-                        + name);
-
                 try {
+                    String targetPath = WebHost.realPathCreateParent(webApplicationContext.getServletContext(), "/" +
+                            uuid + "/" + tag + name);
                     File targetFile = new File(targetPath);
                     if (!targetFile.getParentFile().exists() && !targetFile.getParentFile().mkdirs())
                         throw new IOException("create dir for " + targetFile);

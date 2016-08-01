@@ -21,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -108,6 +109,44 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
                 }
             }
         });
+    }
+
+    /**
+     * 获取一个path在servletContext的实际位置
+     * 如果这个path的父级目录并不存在,则会自动创建
+     *
+     * @param context servlet上下文
+     * @param path    servlet路径
+     * @return 实际在OS中的绝对路径
+     * @throws IOException 创建目录失败
+     * @see ServletContext#getRealPath(String)
+     */
+    public static String realPathCreateParent(ServletContext context, String path) throws IOException {
+        String file = context.getRealPath(path);
+        if (file == null) {
+            // 获取最下面一个级别名称
+            int lastS = path.lastIndexOf('/');
+            if (lastS == -1 || lastS == 0)
+                throw new IOException("Failed for get realPath! path:" + path);
+            //分开2个部分
+            String parentPath = path.substring(0, lastS - 1);
+            String childPath = path.substring(lastS + 1);
+
+            String parentFile = realPathCreateParent(context, parentPath);
+
+            if (!new File(parentFile).exists() && !new File(parentFile).mkdirs()) {
+                throw new IOException("failed to mkdirs for " + parentFile);
+            }
+
+            return parentFile + File.separator + childPath;
+        }
+
+        File realFile = new File(file);
+
+        if (!realFile.getParentFile().exists() && !realFile.getParentFile().mkdirs()) {
+            throw new IOException("failed to mkdirs for " + realFile.getParentFile());
+        }
+        return file;
     }
 
     @Override
@@ -205,10 +244,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
             throw new IllegalStateException("no resources find for " + path + " from " + webClass + ", use null" +
                     " resourcePath when EWP has no resource.");
         }
-        String rootPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag);
-        if (!new File(rootPath).mkdirs()) {
-            throw new IOException("failed to mkdirs for " + rootPath);
-        }
+        realPathCreateParent(webApplicationContext.getServletContext(), "/" + uuid + "/" + tag);
 
         URI uri = url.toURI();
         Path myPath;
@@ -239,10 +275,9 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
 
                         log.debug("start copy resource " + filePath + " for " + name);
 
-                        String targetPath = webApplicationContext.getServletContext().getRealPath("/" + uuid + "/" + tag
-                                + name);
-
                         try {
+                            String targetPath = realPathCreateParent(webApplicationContext.getServletContext(), "/" +
+                                    uuid + "/" + tag + name);
                             File targetFile = new File(targetPath);
                             Files.copy(filePath, Paths.get(targetFile.toURI()), REPLACE_EXISTING);
                         } catch (IOException e) {
@@ -267,7 +302,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     }
 
     private void updateUuid(String uuid, EmbedWeb web) throws IOException {
-        File file = new File(webApplicationContext.getServletContext().getRealPath("/.ewp.properties"));
+        File file = new File(realPathCreateParent(webApplicationContext.getServletContext(), "/.ewp.properties"));
         Properties properties = new Properties();
         if (file.exists())
             try (FileInputStream inputStream = new FileInputStream(file)) {
@@ -283,7 +318,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
     }
 
     private String uuidFrom(EmbedWeb web) throws IOException {
-        File file = new File(webApplicationContext.getServletContext().getRealPath("/.ewp.properties"));
+        File file = new File(realPathCreateParent(webApplicationContext.getServletContext(), "/.ewp.properties"));
         if (!file.exists())
             return null;
         Properties properties = new Properties();
@@ -293,7 +328,7 @@ public class WebHost extends WebMvcConfigurerAdapter implements BeanPostProcesso
 
         String uuid = properties.getProperty(web.name() + "-" + web.version());
         if (uuid != null && web.version().contains("SNAPSHOT")) {
-            String rootPath = webApplicationContext.getServletContext().getRealPath("/");
+            String rootPath = realPathCreateParent(webApplicationContext.getServletContext(), "/");
             removeRecursive(Paths.get(rootPath, HeaderPrivate, uuid));
             removeRecursive(Paths.get(rootPath, HeaderPublic, uuid));
             return null;
