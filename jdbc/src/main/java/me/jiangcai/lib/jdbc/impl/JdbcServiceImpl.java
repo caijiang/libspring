@@ -73,7 +73,12 @@ public class JdbcServiceImpl implements JdbcService {
             sql.append(alter).append(" COLUMN");
         }
 
-        Field field = entityClass.getDeclaredField(fieldName);
+        Field field;
+        try {
+            field = entityClass.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException ex) {
+            field = entityClass.getField(fieldName);
+        }
 
         // 字段名未必是准确的 我们最好先找下这个表 找出这个最准确的字段名
 
