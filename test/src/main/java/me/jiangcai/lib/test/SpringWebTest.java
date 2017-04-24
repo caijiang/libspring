@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,8 +21,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.htmlunit.MockMvcWebClientBuilder;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
@@ -29,6 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.UUID;
@@ -344,5 +352,197 @@ public class SpringWebTest {
 ////                 .andExpect(status().isOk());
 //        return session;
 //    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a GET request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder get(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.get(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a GET request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder get(URI uri) {
+        return MockMvcRequestBuilders.get(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a POST request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder post(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.post(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a POST request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder post(URI uri) {
+        return MockMvcRequestBuilders.post(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a PUT request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder put(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.put(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a PUT request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder put(URI uri) {
+        return MockMvcRequestBuilders.put(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a PATCH request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder patch(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.patch(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a PATCH request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder patch(URI uri) {
+        return MockMvcRequestBuilders.patch(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a DELETE request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder delete(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.delete(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a DELETE request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder delete(URI uri) {
+        return MockMvcRequestBuilders.delete(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for an OPTIONS request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder options(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.options(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for an OPTIONS request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder options(URI uri) {
+        return MockMvcRequestBuilders.options(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a HEAD request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     * @since 4.1
+     */
+    protected MockHttpServletRequestBuilder head(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.head(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a HEAD request.
+     *
+     * @param uri the URL
+     * @since 4.1
+     */
+    protected MockHttpServletRequestBuilder head(URI uri) {
+        return MockMvcRequestBuilders.head(uri);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a request with the given HTTP method.
+     *
+     * @param httpMethod   the HTTP method
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder request(HttpMethod httpMethod, String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.request(httpMethod, urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a request with the given HTTP method.
+     *
+     * @param httpMethod the HTTP method (GET, POST, etc)
+     * @param uri        the URL
+     * @since 4.0.3
+     */
+    protected MockHttpServletRequestBuilder request(HttpMethod httpMethod, URI uri) {
+        return MockMvcRequestBuilders.request(httpMethod, uri);
+    }
+
+    /**
+     * Create a {@link MockMultipartHttpServletRequestBuilder} for a multipart request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockMultipartHttpServletRequestBuilder fileUpload(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.fileUpload(urlTemplate, urlVariables);
+    }
+
+    /**
+     * Create a {@link MockMultipartHttpServletRequestBuilder} for a multipart request.
+     *
+     * @param uri the URL
+     * @since 4.0.3
+     */
+    protected MockMultipartHttpServletRequestBuilder fileUpload(URI uri) {
+        return MockMvcRequestBuilders.fileUpload(uri);
+    }
+
+    /**
+     * Print {@link MvcResult} details to the "standard" output stream.
+     *
+     * @see System#out
+     */
+    protected ResultHandler print() {
+        return MockMvcResultHandlers.print();
+    }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * @author CJ
+ * @since 3.0
  */
 @Configuration
 @ComponentScan("me.jiangcai.lib.sys.service")
