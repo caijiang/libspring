@@ -49,9 +49,11 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -489,6 +491,19 @@ public class SpringWebTest {
         };
     }
 
+    protected <T> Stream<T> randomSort(Stream<T> stream) {
+        return stream.sorted(new RandomComparator());
+    }
+
+    /**
+     * Create a {@link MockHttpServletRequestBuilder} for a GET request.
+     *
+     * @param urlTemplate  a URL template; the resulting URL will be encoded
+     * @param urlVariables zero or more URL variables
+     */
+    protected MockHttpServletRequestBuilder get(String urlTemplate, Object... urlVariables) {
+        return MockMvcRequestBuilders.get(urlTemplate, urlVariables);
+    }
 
 // just for store
 //    protected MockHttpSession loginAs(String userName,String password) throws Exception{
@@ -518,16 +533,6 @@ public class SpringWebTest {
 ////                 .andExpect(status().isOk());
 //        return session;
 //    }
-
-    /**
-     * Create a {@link MockHttpServletRequestBuilder} for a GET request.
-     *
-     * @param urlTemplate  a URL template; the resulting URL will be encoded
-     * @param urlVariables zero or more URL variables
-     */
-    protected MockHttpServletRequestBuilder get(String urlTemplate, Object... urlVariables) {
-        return MockMvcRequestBuilders.get(urlTemplate, urlVariables);
-    }
 
     /**
      * Create a {@link MockHttpServletRequestBuilder} for a GET request.
@@ -709,6 +714,15 @@ public class SpringWebTest {
      */
     protected ResultHandler print() {
         return MockMvcResultHandlers.print();
+    }
+
+    public static class RandomComparator implements Comparator<Object> {
+        static Random random = new Random();
+
+        @Override
+        public int compare(Object o1, Object o2) {
+            return random.nextInt();
+        }
     }
 
 }
