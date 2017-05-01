@@ -1,9 +1,13 @@
 package me.jiangcai.lib.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import me.jiangcai.lib.seext.NumberUtils;
 import me.jiangcai.lib.test.page.AbstractPage;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -11,8 +15,11 @@ import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
@@ -22,7 +29,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.htmlunit.MockMvcWebClientBuilder;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -35,12 +44,16 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 /**
@@ -64,6 +77,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SpringWebTest {
 
+    private static final Log log = LogFactory.getLog(SpringWebTest.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     protected final Random random = new Random();
     /**
      * 自动注入应用程序上下文
@@ -94,6 +109,10 @@ public class SpringWebTest {
     protected MockMvc mockMvc;
     protected WebClient webClient;
     protected WebDriver driver;
+
+    private static <T> Iterable<T> IterableIterator(Iterator<T> iterator) {
+        return () -> iterator;
+    }
 
     /**
      * 初始化逻辑页面
@@ -321,6 +340,153 @@ public class SpringWebTest {
 
         // context 不为空 表示成功登陆
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    /**
+     * 如果遇见302一直执行get
+     *
+     * @param perform 操作
+     * @param session session
+     * @return 操作
+     * @throws Exception
+     * @since 3.0
+     */
+    protected ResultActions redirectTo(ResultActions perform, MockHttpSession session) throws Exception {
+        final MockHttpServletResponse response = perform.andReturn().getResponse();
+        if (response.getStatus() == 302) {
+            String uri = response.getRedirectedUrl();
+            if (session == null)
+                return redirectTo(mockMvc.perform(get(uri)), null);
+            return redirectTo(mockMvc.perform(get(uri).session(session)), session);
+        }
+        return perform;
+    }
+
+    /**
+     * 断言输入json是一个数组,并且结构上跟inputStream类似
+     *
+     * @param json
+     * @param inputStream
+     * @throws IOException
+     * @since 3.0
+     */
+    protected void assertSimilarJsonArray(JsonNode json, InputStream inputStream) throws IOException {
+        assertThat(json.isArray())
+                .isTrue();
+        JsonNode mockArray = objectMapper.readTree(inputStream);
+        JsonNode mockOne = mockArray.get(0);
+
+        assertSimilarJsonObject(json.get(0), mockOne);
+    }
+
+    /**
+     * 断言实际json是类似期望json的
+     *
+     * @param actual
+     * @param excepted
+     * @since 3.0
+     */
+    protected void assertSimilarJsonObject(JsonNode actual, JsonNode excepted) {
+        assertThat(actual.isObject())
+                .isTrue();
+        assertThat(actual.fieldNames())
+                .containsAll(IterableIterator(excepted.fieldNames()));
+    }
+
+    /**
+     * @param resource 参考资源
+     * @return 应该是一个JSON Array资源
+     * @since 3.0
+     */
+    @SuppressWarnings("unused")
+    protected ResultMatcher similarJsonArrayAs(String resource) {
+        return result -> {
+            Resource resource1 = context.getResource(resource);
+            JsonNode actual = objectMapper.readTree(result.getResponse().getContentAsByteArray());
+            assertThat(actual.isArray())
+                    .isTrue();
+
+            assertSimilarJsonArray(actual, resource1.getInputStream());
+        };
+    }
+
+
+    /**
+     * @param resource 参考资源
+     * @return 跟resource数据相对应的JSON Object
+     * @since 3.0
+     */
+    @SuppressWarnings("unused")
+    protected ResultMatcher similarJsonObjectAs(String resource) {
+        return result -> {
+            Resource resource1 = context.getResource(resource);
+            JsonNode actual = objectMapper.readTree(result.getResponse().getContentAsByteArray());
+            assertThat(actual.isObject())
+                    .isTrue();
+
+            assertSimilarJsonObject(actual, objectMapper.readTree(resource1.getInputStream()));
+        };
+    }
+
+    /**
+     * @param resource Spring资源path
+     * @return 结果跟资源的json格式相近
+     * @since 3.0
+     */
+    @SuppressWarnings("unused")
+    protected ResultMatcher similarBootstrapDataTable(String resource) {
+        return result -> {
+            Resource resource1 = context.getResource(resource);
+            try (InputStream inputStream = resource1.getInputStream()) {
+                JsonNode actual = objectMapper.readTree(result.getResponse().getContentAsByteArray());
+                assertThat(actual.get("total").isNumber())
+                        .isTrue();
+                JsonNode rows = actual.get("rows");
+                assertThat(rows.isArray())
+                        .isTrue();
+                if (rows.size() == 0) {
+                    log.warn("响应的rows为空,无法校验");
+                    return;
+                }
+                JsonNode exceptedAll = objectMapper.readTree(inputStream);
+                JsonNode excepted = exceptedAll.get("rows").get(0);
+
+                assertSimilarJsonObject(rows.get(0), excepted);
+            }
+        };
+    }
+
+    /**
+     * @param resource Spring资源path
+     * @return 结果跟资源的json格式相近
+     * @since 3.0
+     */
+    @SuppressWarnings("unused")
+    protected ResultMatcher similarJQueryDataTable(String resource) {
+        return result -> {
+            Resource resource1 = context.getResource(resource);
+            try (InputStream inputStream = resource1.getInputStream()) {
+                JsonNode actual = objectMapper.readTree(result.getResponse().getContentAsByteArray());
+                assertThat(actual.get("recordsTotal").isNumber())
+                        .isTrue();
+                assertThat(actual.get("recordsFiltered").isNumber())
+                        .isTrue();
+                assertThat(actual.get("draw").isNumber())
+                        .isTrue();
+
+                JsonNode rows = actual.get("data");
+                assertThat(rows.isArray())
+                        .isTrue();
+                if (rows.size() == 0) {
+                    log.warn("响应的rows为空,无法校验");
+                    return;
+                }
+                JsonNode exceptedAll = objectMapper.readTree(inputStream);
+                JsonNode excepted = exceptedAll.get("data").get(0);
+
+                assertSimilarJsonObject(rows.get(0), excepted);
+            }
+        };
     }
 
 

@@ -1,5 +1,6 @@
 package me.jiangcai.lib.test.page;
 
+import com.gargoylesoftware.htmlunit.html.HtmlImage;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import me.jiangcai.lib.test.SpringWebTest;
 import org.openqa.selenium.By;
@@ -13,9 +14,13 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 页面的基类
@@ -25,6 +30,17 @@ import java.util.function.Consumer;
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractPage {
 
+    private static final Field elementField;
+
+    static {
+        try {
+            elementField = HtmlUnitWebElement.class.getDeclaredField("element");
+            elementField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new InternalError("炸!,版本更新了?", e);
+        }
+    }
+
     protected final WebDriver webDriver;
     /**
      * 操作该页面的测试实例
@@ -33,6 +49,23 @@ public abstract class AbstractPage {
 
     public AbstractPage(WebDriver webDriver) {
         this.webDriver = webDriver;
+    }
+
+    /**
+     * 你懂的
+     *
+     * @param element
+     * @return
+     * @throws IOException
+     * @since 3.0
+     */
+    public static BufferedImage toImage(WebElement element) throws IOException {
+        try {
+            HtmlImage image = (HtmlImage) elementField.get(element);
+            return image.getImageReader().read(0);
+        } catch (IllegalAccessException e) {
+            throw new InternalError("炸!,版本更新了?", e);
+        }
     }
 
     public SpringWebTest getTestInstance() {
@@ -88,7 +121,6 @@ public abstract class AbstractPage {
     public void printThisPage() {
         printThisPage(System.err);
     }
-
 
     /**
      * 从表单的可选项中选择一个select的选项
@@ -225,6 +257,35 @@ public abstract class AbstractPage {
     }
 
     /**
+     * 断言标题吻合
+     *
+     * @param title 期望标题
+     * @since 3.0
+     */
+    protected void assertTitle(String title) {
+        assertThat(webDriver.getTitle())
+                .describedAs("期望标题为" + title)
+                .isEqualToIgnoringCase(title);
+    }
+
+    /**
+     * 生成一个新的页面
+     *
+     * @param pageClass 新页面类型
+     * @param webDriver 特定webDriver
+     * @param <T>       新页面类型
+     * @return 新页面实例
+     * @since 3.0
+     */
+    protected <T extends AbstractPage> T initPage(Class<T> pageClass, WebDriver webDriver) {
+        T page = PageFactory.initElements(webDriver, pageClass);
+//        page.setResourceService(resourceService);
+        page.setTestInstance(getTestInstance());
+        page.validatePage();
+        return page;
+    }
+
+    /**
      * 以当前{@link #webDriver}生成一个新的页面
      *
      * @param pageClass 新页面类型
@@ -233,11 +294,7 @@ public abstract class AbstractPage {
      * @since 2.2
      */
     protected <T extends AbstractPage> T initPage(Class<T> pageClass) {
-        T page = PageFactory.initElements(webDriver, pageClass);
-//        page.setResourceService(resourceService);
-        page.setTestInstance(getTestInstance());
-        page.validatePage();
-        return page;
+        return initPage(pageClass, webDriver);
     }
 
     /**
