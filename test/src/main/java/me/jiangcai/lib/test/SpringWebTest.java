@@ -491,6 +491,12 @@ public class SpringWebTest {
         };
     }
 
+    /**
+     * @param stream 输入流
+     * @param <T>    范型
+     * @return 随机排序之后的流
+     * @since 3.0
+     */
     protected <T> Stream<T> randomSort(Stream<T> stream) {
         return stream.sorted(new RandomComparator());
     }
@@ -716,6 +722,11 @@ public class SpringWebTest {
         return MockMvcResultHandlers.print();
     }
 
+    /**
+     * 随机排序器
+     *
+     * @since 3.0
+     */
     public static class RandomComparator implements Comparator<Object> {
         static Random random = new Random();
 
