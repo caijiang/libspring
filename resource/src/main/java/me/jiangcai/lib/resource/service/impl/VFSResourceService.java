@@ -43,13 +43,11 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class VFSResourceService implements ResourceService {
 
     private static final Log log = LogFactory.getLog(VFSResourceService.class);
+    private static final String ServletContextResourcePath = "/_resources";
+    private final URI uriPrefix;
     private boolean localFileMode;
-
-    public static final String ServletContextResourcePath = "/_resources";
-
-    protected final URI uriPrefix;
-    protected URI fileHome;
-    protected File fileFile;
+    private URI fileHome;
+    private File fileFile;
     @Autowired
     private VFSHelper vfsHelper;
 
@@ -143,8 +141,7 @@ public class VFSResourceService implements ResourceService {
             throw new IllegalArgumentException("bad resource path:" + path);
         // 检查是否是本地文件系统,如果是的话就使用本地文件系统技术
         if (localFileMode) {
-            File file = new File(fileFile.toString() + File.separator + path);
-            Path path1 = Paths.get(file.toURI());
+            Path path1 = getLocalPath(path);
             Files.createDirectories(path1.getParent());
             Files.copy(data, path1, REPLACE_EXISTING);
             return getResource(path);
@@ -152,23 +149,49 @@ public class VFSResourceService implements ResourceService {
 
         String filePath = fileHome.toString() + path;
 
-        vfsHelper.handle(filePath, file -> {
-            OutputStream out = file.getContent().getOutputStream();
-            try {
-                StreamUtils.copy(data, out);
-            } catch (IOException e) {
-                throw new FileSystemException(e);
-            } finally {
-                try {
-                    data.close();
-                    out.close();
-                } catch (IOException e) {
-                    log.info("Exception on close stream." + e);
+        try (InputStream input = data) {
+            vfsHelper.handle(filePath, file -> {
+                try (OutputStream out = file.getContent().getOutputStream()) {
+                    try {
+                        StreamUtils.copy(input, out);
+                    } catch (IOException e) {
+                        throw new FileSystemException(e);
+                    }
                 }
-            }
+                return null;
+            });
+        }
+        return getResource(path);
+    }
+
+    @Override
+    public Resource moveResource(String path, String fromPath) throws IOException {
+        if (path == null || path.startsWith("/"))
+            throw new IllegalArgumentException("bad resource path:" + path);
+        // 检查是否是本地文件系统,如果是的话就使用本地文件系统技术
+        if (localFileMode) {
+            Path path1 = getLocalPath(path);
+            Files.createDirectories(path1.getParent());
+            Files.move(getLocalPath(fromPath), path1, REPLACE_EXISTING);
+            return getResource(path);
+        }
+
+        String filePath = fileHome.toString() + path;
+
+        vfsHelper.handle(fileHome.toString() + fromPath, fromFile -> {
+            vfsHelper.handle(filePath, toFile -> {
+                fromFile.moveTo(toFile);
+                return null;
+            });
             return null;
         });
+
         return getResource(path);
+    }
+
+    private Path getLocalPath(String path) {
+        File file = new File(fileFile.toString() + File.separator + path);
+        return Paths.get(file.toURI());
     }
 
     @Override

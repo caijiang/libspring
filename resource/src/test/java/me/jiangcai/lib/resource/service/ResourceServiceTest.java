@@ -2,10 +2,9 @@ package me.jiangcai.lib.resource.service;
 
 import me.jiangcai.lib.resource.Resource;
 import me.jiangcai.lib.resource.ResourceSpringConfig;
+import me.jiangcai.lib.test.SpringWebTest;
 import org.junit.Test;
-import org.luffy.test.SpringWebTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,13 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(classes = {ResourceServiceTest.ResourceServiceTestConfig.class})
 @WebAppConfiguration
 public class ResourceServiceTest extends SpringWebTest {
-
-//    @Configuration
-    @Import(ResourceSpringConfig.class)
-    @PropertySource(name = "resourceLD",value = "classpath:/localResource.properties")
-    public static class ResourceServiceTestConfig {
-
-    }
 
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
@@ -63,6 +55,26 @@ public class ResourceServiceTest extends SpringWebTest {
         resourceService.deleteResource(path);
         assertThat(resource.exists())
                 .isFalse();
+
+        String path1 = UUID.randomUUID().toString();
+        resourceService.uploadResource(path1, buf);
+        String path2 = UUID.randomUUID().toString();
+        resourceService.moveResource(path2, path1);
+        assertThat(resourceService.getResource(path1).exists())
+                .isFalse();
+        assertThat(resourceService.getResource(path2).exists())
+                .isTrue();
+        assertThat(resourceService.getResource(path2).getInputStream())
+                .hasSameContentAs(buf);
+        resourceService.deleteResource(path2);
+
+
+    }
+
+    //    @Configuration
+    @Import(ResourceSpringConfig.class)
+    @PropertySource(name = "resourceLD", value = "classpath:/localResource.properties")
+    public static class ResourceServiceTestConfig {
 
     }
 

@@ -12,7 +12,6 @@ import java.io.InputStream;
  *
  * @author CJ
  */
-@SuppressWarnings("WeakerAccess")
 public interface ResourceService {
 
     /**
@@ -24,6 +23,17 @@ public interface ResourceService {
      * @throws IOException 保存时出错
      */
     Resource uploadResource(String path, InputStream data) throws IOException;
+
+    /**
+     * 移动资源
+     *
+     * @param path     资源路径（相对）,<strong>不可以以/开头</strong>
+     * @param fromPath 原资源路径
+     * @return 新资源的资源定位符
+     * @throws IOException 保存时出错
+     * @since 3.0
+     */
+    Resource moveResource(String path, String fromPath) throws IOException;
 
     /**
      * 获取指定资源的资源定位符
