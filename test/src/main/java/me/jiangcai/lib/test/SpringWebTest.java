@@ -271,22 +271,47 @@ public class SpringWebTest {
      * <p>如果 {@link #mockMvc}构造失败该方法就不会被调用</p>
      */
     protected void createWebDriver() {
-        driver = MockMvcHtmlUnitDriverBuilder
-                .mockMvcSetup(mockMvc)
+        MockMvcHtmlUnitDriverBuilder mockMvcHtmlUnitDriverBuilder = MockMvcHtmlUnitDriverBuilder
+                .mockMvcSetup(mockMvc);
+        mockMvcHtmlUnitDriverBuilder = buildWebDriver(mockMvcHtmlUnitDriverBuilder);
+        driver = mockMvcHtmlUnitDriverBuilder
                 // DIY by interface.
                 .build();
-
     }
+
 
     /**
      * 可覆盖以自定义 {@link #webClient}的初始化过程
      * <p>如果 {@link #mockMvc}构造失败该方法就不会被调用</p>
      */
     protected void createWebClient() {
-        webClient = MockMvcWebClientBuilder
-                .mockMvcSetup(mockMvc)
+        MockMvcWebClientBuilder mockMvcWebClientBuilder = MockMvcWebClientBuilder
+                .mockMvcSetup(mockMvc);
+        mockMvcWebClientBuilder = buildWebClient(mockMvcWebClientBuilder);
+        webClient = mockMvcWebClientBuilder
                 // DIY by interface.
                 .build();
+    }
+
+
+    /**
+     * 构建{@link #driver}的辅助方法
+     *
+     * @param mockMvcHtmlUnitDriverBuilder builder
+     * @since 3.0
+     */
+    protected MockMvcHtmlUnitDriverBuilder buildWebDriver(MockMvcHtmlUnitDriverBuilder mockMvcHtmlUnitDriverBuilder) {
+        return mockMvcHtmlUnitDriverBuilder;
+    }
+
+    /**
+     * 构建{@link #webClient}的辅助方法
+     *
+     * @param mockMvcWebClientBuilder builder
+     * @since 3.0
+     */
+    protected MockMvcWebClientBuilder buildWebClient(MockMvcWebClientBuilder mockMvcWebClientBuilder) {
+        return mockMvcWebClientBuilder;
     }
 
     /**
