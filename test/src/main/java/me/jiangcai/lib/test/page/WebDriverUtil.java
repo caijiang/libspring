@@ -1,7 +1,6 @@
 package me.jiangcai.lib.test.page;
 
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.google.common.base.Predicate;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitWebElement;
@@ -24,8 +23,9 @@ public class WebDriverUtil {
      * @param seconds   最长等待描述
      */
     public static void waitFor(WebDriver driver, java.util.function.Predicate<WebDriver> predicate, int seconds) {
-        new WebDriverWait(driver, seconds)
-                .until((Predicate<WebDriver>) driver1 -> driver1 != null && predicate.test(driver1));
+        new WebDriverWait(driver, seconds).until(input -> input != null && predicate.test(input));
+//        new WebDriverWait(driver, seconds)
+//                .until((Predicate<WebDriver>) driver1 -> driver1 != null && predicate.test(driver1));
     }
 
     /**
