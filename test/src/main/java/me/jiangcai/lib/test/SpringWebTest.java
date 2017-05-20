@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import me.jiangcai.lib.seext.NumberUtils;
 import me.jiangcai.lib.test.page.AbstractPage;
+import me.jiangcai.lib.test.why.ParamFilter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -340,7 +341,7 @@ public class SpringWebTest {
         // ignore it, so it works in no-web fine.
         if (context == null)
             return;
-        DefaultMockMvcBuilder builder = webAppContextSetup(context);
+        DefaultMockMvcBuilder builder = webAppContextSetup(context).addFilters(new ParamFilter());
         builder = buildMockMVC(builder);
         if (springSecurityFilter != null) {
             builder = builder.addFilters(springSecurityFilter);

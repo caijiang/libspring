@@ -21,7 +21,7 @@
 
         <log4j2.version>2.4.1</log4j2.version>
         <thymeleaf.version>3.0.0.RELEASE</thymeleaf.version>
-        <spring.framework.version>4.2.5.RELEASE</spring.framework.version>
+        <spring.framework.version>4.3.8.RELEASE</spring.framework.version>
         <spring.security.version>4.0.4.RELEASE</spring.security.version>
         <jwebunit.version>3.3</jwebunit.version>
         <htmlunit.version>2.20</htmlunit.version>
