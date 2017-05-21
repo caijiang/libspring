@@ -21,10 +21,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -43,7 +46,15 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,6 +94,8 @@ public class SpringWebTest {
     private static final Log log = LogFactory.getLog(SpringWebTest.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
     protected final Random random = new Random();
+    private final SecurityContextRepository httpSessionSecurityContextRepository
+            = new HttpSessionSecurityContextRepository();
     /**
      * 自动注入应用程序上下文
      **/
@@ -115,6 +128,16 @@ public class SpringWebTest {
 
     private static <T> Iterable<T> IterableIterator(Iterator<T> iterator) {
         return () -> iterator;
+    }
+
+    /**
+     * 如果没有激活Spring安全框架 则该方法无效
+     *
+     * @return 所用MVC请求都将使用该身份；如果为null则不会执行
+     * @since 3.0
+     */
+    protected Authentication autoAuthentication() {
+        return null;
     }
 
     /**
@@ -285,7 +308,6 @@ public class SpringWebTest {
                 .build();
     }
 
-
     /**
      * 可覆盖以自定义 {@link #webClient}的初始化过程
      * <p>如果 {@link #mockMvc}构造失败该方法就不会被调用</p>
@@ -298,7 +320,6 @@ public class SpringWebTest {
                 // DIY by interface.
                 .build();
     }
-
 
     /**
      * 构建{@link #driver}的辅助方法
@@ -342,6 +363,38 @@ public class SpringWebTest {
         if (context == null)
             return;
         DefaultMockMvcBuilder builder = webAppContextSetup(context).addFilters(new ParamFilter());
+
+        if (springSecurityFilter != null) {
+            builder = builder.addFilters(new Filter() {
+                @Override
+                public void init(FilterConfig filterConfig) throws ServletException {
+
+                }
+
+                @Override
+                public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+                    Authentication authentication = autoAuthentication();
+
+                    if (authentication != null) {
+                        HttpRequestResponseHolder holder = new HttpRequestResponseHolder((HttpServletRequest) request, (HttpServletResponse) response);
+                        SecurityContext context = httpSessionSecurityContextRepository.loadContext(holder);
+
+                        context.setAuthentication(authentication);
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        httpSessionSecurityContextRepository.saveContext(context, holder.getRequest(), holder.getResponse());
+                    }
+                    chain.doFilter(request, response);
+                }
+
+                @Override
+                public void destroy() {
+
+                }
+            });
+        }
+
         builder = buildMockMVC(builder);
         if (springSecurityFilter != null) {
             builder = builder.addFilters(springSecurityFilter);
