@@ -1,5 +1,8 @@
 package me.jiangcai.lib.spring.converter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.Formatter;
 import org.springframework.util.NumberUtils;
 import org.springframework.util.StringUtils;
@@ -16,7 +19,19 @@ import java.util.stream.Stream;
  * @author CJ
  * @since 3.0
  */
-public abstract class EnumFormatter<T extends Enum> implements Formatter<T> {
+public abstract class EnumFormatter<T extends Enum> implements Formatter<T>, Converter<String, T> {
+
+    private static final Log log = LogFactory.getLog(EnumFormatter.class);
+
+    @Override
+    public T convert(String source) {
+        try {
+            return parse(source, null);
+        } catch (ParseException e) {
+            log.trace("converter exception", e);
+            return null;
+        }
+    }
 
     @Override
     public T parse(String text, Locale locale) throws ParseException {
