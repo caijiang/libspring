@@ -1,12 +1,13 @@
 package org.luffy.lib.libspring.logging;
 
-import com.google.common.base.Predicate;
+import com.google.common.base.Function;
 import org.luffy.test.page.AbstractPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,12 +53,16 @@ public class LoggingManagerPage extends AbstractPage {
             return trs.size();
         }
         targetButton.click();
-        waitOn(wait -> wait.until((Predicate<WebDriver>) input -> {
-            if (input == null)
-                return false;
-            input.findElement(By.tagName("tbody"));
-            input.findElement(By.tagName("form"));
-            return true;
+        waitOn(wait -> wait.until(new Function<WebDriver, Boolean>() {
+            @Nullable
+            @Override
+            public Boolean apply(@Nullable WebDriver input) {
+                if (input == null)
+                    return false;
+                input.findElement(By.tagName("tbody"));
+                input.findElement(By.tagName("form"));
+                return true;
+            }
         }));
 
         List<WebElement> newTrs = tbody.findElements(By.tagName("tr"));
