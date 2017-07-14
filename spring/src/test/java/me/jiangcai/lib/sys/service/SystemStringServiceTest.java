@@ -125,6 +125,8 @@ public class SystemStringServiceTest {
         systemStringService.updateSystemString(key, value);
         assertThat(systemStringService.getSystemString(key, String.class, null))
                 .isEqualTo(value);
+        assertThat(systemStringService.getCustomSystemString(key, "", true, String.class, null))
+                .isEqualTo(value);
     }
 
     @Test

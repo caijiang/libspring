@@ -56,6 +56,26 @@ public class SystemStringServiceImpl implements SystemStringService {
         return toValue(exceptedType, ss.getValue());
     }
 
+    @Override
+    public <T> T getCustomSystemString(String key, String comment, boolean runtime, Class<T> exceptedType, T defaultValue) {
+        SystemString ss = systemStringRepository.findOne(key);
+        if (ss == null) {
+            ss = new SystemString();
+            ss.setId(key);
+            ss = systemStringRepository.save(ss);
+        }
+
+        ss.setComment(comment);
+        ss.setCustom(true);
+        ss.setRuntime(runtime);
+        ss.setJavaTypeName(exceptedType.getName());
+
+        if (ss.getValue() == null)
+            return defaultValue;
+
+        return toValue(exceptedType, ss.getValue());
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T toValue(Class<T> type, String value) {
         if (type.equals(String.class))
