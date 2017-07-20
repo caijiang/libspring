@@ -1504,6 +1504,7 @@
 <script src="http://mockjs.com/dist/mock.js" th:remove="all"></script>
 <script src="mock.js" th:remove="all"></script>
 <script>
+
     $(function () {
         var uri = $('body').attr('data-uri');
 
@@ -1511,6 +1512,35 @@
 
         }
 
+        function toRender(type) {
+            // render 可以生成html code
+            switch (type) {
+                case 'java.lang.Boolean':
+                    return function (value) {
+                        if ('true' == value)
+                            return '<input type="checkbox" checked/>';
+                        return '<input type="checkbox"/>';
+                    };
+                default:
+                    return function (value) {
+                        return '<input type="text" value="' + value + '"/>';
+                    };
+            }
+        }
+
+        function toValidator(type) {
+            // validator 可以从 jQuery结果中获取value 或者报错 throw message
+            switch (type) {
+                case 'java.lang.Boolean':
+                    return function (jq) {
+                        return jq.is(":checked") ? 'true' : 'false';
+                    };
+                default:
+                    return function (jq) {
+                        return jq.val();
+                    };
+            }
+        }
 
         $('.systemString').dblclick(function () {
             var _this = $(this);
@@ -1524,11 +1554,14 @@
                 console.log('edit it');
                 layer.close(index);
                 // 应该传入渲染器 校验器 回调则统一处理
-                editString(id, value, {}, {}, function (newValue) {
+                editString(id, value, toRender(type), toValidator(type), function (newValue) {
                     $.ajax(uri + id, {
                         method: 'put',
                         data: newValue,
-                        contentType: 'text/plain; charset=UTF-8'
+                        contentType: 'text/plain; charset=UTF-8',
+                        success: function () {
+                            location.reload();
+                        }
                     });
                 });
             }, function () {
