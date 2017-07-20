@@ -1442,58 +1442,59 @@
         <th th:text="#{label.sys.comment}">comment</th>
     </tr>
     </thead>
-    <tbody th:remove="all-but-first">
+    <tbody>
     <!--/*@thymesVar id="list" type="me.jiangcai.lib.sys.entity.SystemString[]"*/-->
     <tr class="systemString" th:each="ss:${list}" data-type="java.lang.String" data-id="str"
         th:data-type="${ss.javaTypeName}" th:data-id="${ss.id}">
         <td th:text="#{${ss.id}}">demo</td>
         <td th:text="${ss.value}">demo value</td>
         <td th:text="${ss.runtime}">true</td>
-        <td th:text="#{${ss.comment}}">说明</td>
+        <td th:if="${ss.comment!=null}" th:text="#{${ss.comment}}">说明</td>
+        <td th:if="${ss.comment==null}">&nbsp;</td>
     </tr>
-    <tr class="systemString" data-id="decimal" data-type="java.math.BigDecimal">
+    <tr th:remove="all" class="systemString" data-id="decimal" data-type="java.math.BigDecimal">
         <td>小数</td>
         <td>100.1</td>
         <td>false</td>
         <td>小数</td>
     </tr>
-    <tr class="systemString" data-id="dateTime" data-type="java.time.LocalDateTime">
+    <tr th:remove="all" class="systemString" data-id="dateTime" data-type="java.time.LocalDateTime">
         <td>日期与时间</td>
         <td>2017-6-10 19:12:10:234</td>
         <td>false</td>
         <td>日期与时间</td>
     </tr>
-    <tr class="systemString" data-id="date" data-type="java.util.Date">
+    <tr th:remove="all" class="systemString" data-id="date" data-type="java.util.Date">
         <td>日期与时间2</td>
         <td>2017-6-10 19:12:10:234</td>
         <td>false</td>
         <td>日期与时间2</td>
     </tr>
-    <tr class="systemString" data-id="cd" data-type="java.util.Calendar">
+    <tr th:remove="all" class="systemString" data-id="cd" data-type="java.util.Calendar">
         <td>日历</td>
         <td>2017-6-10 19:12:10:234</td>
         <td>false</td>
         <td>日历</td>
     </tr>
-    <tr class="systemString" data-id="localDate" data-type="java.time.LocalDate">
+    <tr th:remove="all" class="systemString" data-id="localDate" data-type="java.time.LocalDate">
         <td>日期</td>
         <td>2016-9-1</td>
         <td>false</td>
         <td>日期</td>
     </tr>
-    <tr class="systemString" data-id="time" data-type="java.time.LocalTime">
+    <tr th:remove="all" class="systemString" data-id="time" data-type="java.time.LocalTime">
         <td>时间</td>
         <td>22:10:01:432</td>
         <td>false</td>
         <td>时间</td>
     </tr>
-    <tr class="systemString" data-id="bool" data-type="java.lang.Boolean">
+    <tr th:remove="all" class="systemString" data-id="bool" data-type="java.lang.Boolean">
         <td>布尔</td>
         <td>true</td>
         <td>false</td>
         <td>布尔</td>
     </tr>
-    <tr class="systemString" data-id="char" data-type="java.lang.Character">
+    <tr th:remove="all" class="systemString" data-id="char" data-type="java.lang.Character">
         <td>单字符</td>
         <td>D</td>
         <td>false</td>
@@ -1555,7 +1556,7 @@
                 layer.close(index);
                 // 应该传入渲染器 校验器 回调则统一处理
                 editString(id, value, toRender(type), toValidator(type), function (newValue) {
-                    $.ajax(uri + id, {
+                    $.ajax(uri + '?id=' + encodeURIComponent(id), {
                         method: 'put',
                         data: newValue,
                         contentType: 'text/plain; charset=UTF-8',
@@ -1566,7 +1567,7 @@
                 });
             }, function () {
                 console.log('delete it');
-                $.ajax(uri + id, {
+                $.ajax(uri + '?id=' + encodeURIComponent(id), {
                     method: 'delete',
                     success: function () {
                         location.reload();

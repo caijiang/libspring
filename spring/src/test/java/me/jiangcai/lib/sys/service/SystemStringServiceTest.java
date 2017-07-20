@@ -7,10 +7,14 @@ import org.assertj.core.data.Offset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -174,8 +178,11 @@ public class SystemStringServiceTest {
                 .isEqualTo(value);
     }
 
-    @ImportResource("datasource_sys.xml")
-    static class Config extends H2DataSourceConfig {
+    @Configuration
+    @EnableTransactionManagement(mode = AdviceMode.PROXY)
+    @EnableAspectJAutoProxy
+    @ImportResource("classpath:/datasource_sys.xml")
+    public static class Config extends H2DataSourceConfig {
         @Bean
         public DataSource dataSource() {
             return memDataSource("sys");

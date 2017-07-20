@@ -1,5 +1,6 @@
 package me.jiangcai.lib.sys.service;
 
+import me.jiangcai.lib.sys.entity.SystemString;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -105,4 +107,9 @@ public interface SystemStringService {
     @Transactional
     void updateSystemString(String key, Calendar value);
 
+    @Transactional
+    void delete(String key);
+
+    @Transactional(readOnly = true)
+    List<SystemString> listCustom();
 }

@@ -18,6 +18,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -174,5 +175,19 @@ public class SystemStringServiceImpl implements SystemStringService {
     @Override
     public void updateSystemString(String key, Calendar value) {
         updateSystemString(key, value.getTime());
+    }
+
+    @Override
+    public void delete(String key) {
+        if (systemStringRepository.findOne(key) != null)
+            systemStringRepository.delete(key);
+    }
+
+    @Override
+    public List<SystemString> listCustom() {
+        return systemStringRepository.findAll((root, query, cb) -> cb.and(
+                cb.isTrue(root.get("custom"))
+                , cb.isNotNull(root.get("javaTypeName"))
+        ));
     }
 }

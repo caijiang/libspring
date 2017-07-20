@@ -1,10 +1,13 @@
 package me.jiangcai.lib.spring.viewresolver;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.View;
 import org.thymeleaf.spring4.SpringTemplateEngine;
+import org.thymeleaf.spring4.messageresolver.SpringMessageResolver;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -19,6 +22,9 @@ import java.util.Locale;
 @Component
 public class InnerViewResolver extends ThymeleafViewResolver {
 
+    @Autowired(required = false)
+    private MessageSource sysMessageSource;
+
     public InnerViewResolver() {
         super();
     }
@@ -31,6 +37,8 @@ public class InnerViewResolver extends ThymeleafViewResolver {
         // 具有极高的优先级,所以它在获取解决方案时  应该判定是否存在该资源
         templateResolver.setPrefix("me/jiangcai/lib/spring/");
         templateResolver.setSuffix(".html");
+        setContentType(MediaType.TEXT_HTML_VALUE + ";charset=UTF-8");
+        setCharacterEncoding("UTF-8");
         templateResolver.setCharacterEncoding("UTF-8");
         if (env.acceptsProfiles("dev")) {
             templateResolver.setCacheable(false);
@@ -38,6 +46,12 @@ public class InnerViewResolver extends ThymeleafViewResolver {
 
         SpringTemplateEngine engine = new SpringTemplateEngine();
         engine.setTemplateResolver(templateResolver);
+        if (sysMessageSource != null) {
+            engine.setMessageSource(sysMessageSource);
+            final SpringMessageResolver messageResolver = new SpringMessageResolver();
+            messageResolver.setMessageSource(sysMessageSource);
+            engine.setMessageResolver(messageResolver);
+        }
 
         setTemplateEngine(engine);
     }
