@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,7 +38,10 @@ public class SystemStringConfigTest extends SpringWebTest {
         systemStringService.getCustomSystemString("test.key", null, true, String.class, "hello");
         String uri = environment.getProperty("me.jiangcai.lib.sys.uri");
 
-        mockMvc.perform(get(uri))
+        mockMvc.perform(get(uri)
+                .locale(Locale.CHINA)
+        )
+                .andDo(print())
                 .andExpect(status().isOk());
 
         final String content = randomEmailAddress();

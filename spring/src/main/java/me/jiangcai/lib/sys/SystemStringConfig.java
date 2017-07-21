@@ -36,6 +36,7 @@ public class SystemStringConfig {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setParentMessageSource(this.messageSource);
         messageSource.setBasename("me/jiangcai/lib/spring/sysMessage");
+        messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
 

@@ -1581,7 +1581,7 @@
                 return '<input class="form-control" type="text" value="' + value + '">';
             },
             initDateTime: function (type, input) {
-                console.log(type);
+//                console.log(type);
                 if (type === 'java.time.LocalDateTime' || type === 'java.util.Date' || type === 'java.util.Calendar') {
                     return input.flatpickr({
                         enableTime: true,
@@ -1609,7 +1609,9 @@
             },
             toValidator: function (type, input) {
                 if (type === 'java.math.BigDecimal') {
-                    if (!(/^\d+\.\d+$/).test(+input.val())) return {message: '请填写符合格式的值'};
+                    if (!(/^\d+\.\d+$/).test(+input.val())
+                        && !(/^\d+$/).test(+input.val())
+                    ) return {message: '请填写符合格式的值'};
                     return '';
                 }
                 if (type === 'java.lang.Character') {
@@ -1641,9 +1643,9 @@
             var id = _this.attr('data-id');
             var type = _this.attr('data-type');
             var value = $('td', _this).eq(1).text();
-            console.log('db click on', id, type, value);
+//            console.log('db click on', id, type, value);
             editString.init(type, value, function (newValue, layerIndex) {
-                console.log(newValue);
+//                console.log(newValue);
                 $.ajax(uri + '?id=' + encodeURIComponent(id), {
                     method: 'put',
                     data: newValue,
@@ -1654,7 +1656,7 @@
                     }
                 });
             }, function (layerIndex) {
-                console.log('delete it');
+//                console.log('delete it');
                 $.ajax(uri + '?id=' + encodeURIComponent(id), {
                     method: 'delete',
                     success: function () {
