@@ -5,4 +5,5 @@ Mock.setup({
     timeout: '1000'
 });
 
+Mock.mock(/\/test\/.+/, "put", {});
 Mock.mock(/\/test\/.+/, "delete", {});
