@@ -11,6 +11,7 @@
         <module>resource</module>
         <module>upgrade</module>
         <module>jdbc</module>
+        <module>jpa</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -126,6 +127,12 @@
             <artifactId>javaee-web-api</artifactId>
             <version>7.0</version>
             <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
