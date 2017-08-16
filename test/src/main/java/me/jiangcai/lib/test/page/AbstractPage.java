@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -133,6 +134,20 @@ public abstract class AbstractPage {
      * @since 2.2
      */
     public void inputSelect(WebElement formElement, String inputName, String label) {
+        inputSelect(formElement, inputName, label::equals);
+    }
+
+    /**
+     * 从表单的可选项中选择一个select的选项
+     * <p>
+     * 支持chosen-select,但未经严格测试</p>
+     *
+     * @param formElement 指定表单
+     * @param inputName   select 名字
+     * @param useIt       是否使用这个label
+     * @since 2.2
+     */
+    public void inputSelect(WebElement formElement, String inputName, Function<String, Boolean> useIt) {
         WebElement input = formElement.findElement(By.name(inputName));
 
         if (input.getAttribute("class") != null && input.getAttribute("class").contains("chosen-select")) {
@@ -141,17 +156,18 @@ public abstract class AbstractPage {
                     .stream()
                     .filter(webElement -> webElement.getAttribute("title") != null && webElement.getAttribute("title")
                             .equals(input.getAttribute("title")))
-                    .findAny().orElseThrow(() -> new IllegalStateException("使用了chosen-select,但没看到chosen-container"));
-
-            container.click();
-            // TODO 还是不完善的 基本可用 要是数据不是太多的话。
-            for (WebElement element : container.findElements(By.cssSelector("li.active-result"))) {
-                if (label.equals(element.getText())) {
-                    element.click();
-                    return;
+                    .findAny().orElse(null);
+            if (container != null) {
+                container.click();
+                // TODO 还是不完善的 基本可用 要是数据不是太多的话。
+                for (WebElement element : container.findElements(By.cssSelector("li.active-result"))) {
+                    if (useIt.apply(element.getText())) {
+                        element.click();
+                        return;
+                    }
                 }
+                throw new IllegalStateException("找不到符合要求的Label");
             }
-            throw new IllegalStateException("找不到" + label);
         }
         //chosen-container chosen-container-single and same title
         // li.active-result
@@ -159,12 +175,12 @@ public abstract class AbstractPage {
         input.clear();
         for (WebElement element : input.findElements(By.tagName("option"))) {
 //            System.out.println(element.getText());
-            if (label.equals(element.getText())) {
+            if (useIt.apply(element.getText())) {
                 element.click();
                 return;
             }
         }
-        throw new IllegalStateException("找不到" + label);
+        throw new IllegalStateException("找不到符合要求的Label");
     }
 
     /**
