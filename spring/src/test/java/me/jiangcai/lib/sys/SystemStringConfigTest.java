@@ -1,5 +1,7 @@
 package me.jiangcai.lib.sys;
 
+import me.jiangcai.lib.sys.entity.SystemString;
+import me.jiangcai.lib.sys.entity.SystemString_;
 import me.jiangcai.lib.sys.service.SystemStringService;
 import me.jiangcai.lib.sys.service.SystemStringServiceTest;
 import me.jiangcai.lib.test.SpringWebTest;
@@ -15,6 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.net.URLEncoder;
 import java.util.Locale;
 
@@ -32,8 +38,12 @@ public class SystemStringConfigTest extends SpringWebTest {
     private Environment environment;
     @Autowired
     private SystemStringService systemStringService;
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
+//    @Transactional
     public void go() throws Exception {
         systemStringService.getCustomSystemString("test.key", null, true, String.class, "hello");
         String uri = environment.getProperty("me.jiangcai.lib.sys.uri");
@@ -60,6 +70,18 @@ public class SystemStringConfigTest extends SpringWebTest {
 
         assertThat(systemStringService.getCustomSystemString("test.key", null, true, String.class, "hello"))
                 .isEqualTo("hello");
+
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<String> cq = criteriaBuilder.createQuery(String.class);
+        Root<SystemString> root = cq.from(SystemString.class);
+        System.out.println(
+                entityManager.createQuery(
+                        cq
+                                .select(root.get(SystemString_.value))
+                                .where(criteriaBuilder.equal(root.get(SystemString_.id), "test.key"))
+                ).getSingleResult()
+        );
+
     }
 
     @Configuration
