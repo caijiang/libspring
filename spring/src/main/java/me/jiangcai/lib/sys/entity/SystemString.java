@@ -1,5 +1,8 @@
 package me.jiangcai.lib.sys.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,6 +16,8 @@ import java.util.Objects;
  * @since 3.0
  */
 @Entity
+@Setter
+@Getter
 public class SystemString {
     @Id
     @Column(length = 50)
@@ -36,54 +41,6 @@ public class SystemString {
      */
     @Column(length = 50)
     private String comment;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getJavaTypeName() {
-        return javaTypeName;
-    }
-
-    public void setJavaTypeName(String javaTypeName) {
-        this.javaTypeName = javaTypeName;
-    }
-
-    public boolean isRuntime() {
-        return runtime;
-    }
-
-    public void setRuntime(boolean runtime) {
-        this.runtime = runtime;
-    }
-
-    public boolean isCustom() {
-        return custom;
-    }
-
-    public void setCustom(boolean custom) {
-        this.custom = custom;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
 
     @Override
     public boolean equals(Object o) {
