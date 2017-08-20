@@ -102,12 +102,20 @@ public class JdbcServiceImpl implements JdbcService {
             FieldTypeDefinition fieldTypeDefinition = connectionProvider.profile().getFieldTypeDefinition(type);
             sql.append(' ').append(fieldTypeDefinition.getName());
             if (fieldTypeDefinition.isSizeAllowed() && fieldTypeDefinition.isSizeRequired()) {
-                sql.append('(');
-                if (column != null)
-                    sql.append(column.length());
-                else
-                    sql.append(fieldTypeDefinition.getDefaultSize());
-                sql.append(')');
+                if (column != null && fieldTypeDefinition.getName().equalsIgnoreCase("DECIMAL")) {
+                    sql.append('(');
+                    sql.append(column.precision());
+                    sql.append(',');
+                    sql.append(column.scale());
+                    sql.append(')');
+                } else {
+                    sql.append('(');
+                    if (column != null)
+                        sql.append(column.length());
+                    else
+                        sql.append(fieldTypeDefinition.getDefaultSize());
+                    sql.append(')');
+                }
             }
 
             boolean nullable;
