@@ -131,6 +131,24 @@ public class SpringWebTest {
     }
 
     /**
+     * <p>位数不足无法保证其唯一性,需要客户端代码自行校验唯一性.</p>
+     * <p>具体的区间是10000000000-19999999999</p>
+     * 采用/^1(3|4|5|7|8)\d{9} 结构
+     *
+     * @return 获取一个随机的手机号码
+     */
+    public static String randomAllMobile() {
+        String[] p2 = new String[]{
+                "3", "4", "5", "7", "8"
+        };
+        return "1" + p2[new Random().nextInt(p2.length)] + RandomStringUtils.randomNumeric(9);
+//        String p1 = String.valueOf(100000 + random.nextInt(100000));
+//        //还有5位 而且必须保证5位
+//        String p2 = String.format("%05d", random.nextInt(100000));
+//        return p1 + p2;
+    }
+
+    /**
      * 如果没有激活Spring安全框架 则该方法无效
      *
      * @return 所用MVC请求都将使用该身份；如果为null则不会执行
@@ -190,14 +208,7 @@ public class SpringWebTest {
      * @return 获取一个随机的手机号码
      */
     protected String randomMobile() {
-        String[] p2 = new String[]{
-                "3", "4", "5", "7", "8"
-        };
-        return "1" + p2[random.nextInt(p2.length)] + RandomStringUtils.randomNumeric(9);
-//        String p1 = String.valueOf(100000 + random.nextInt(100000));
-//        //还有5位 而且必须保证5位
-//        String p2 = String.format("%05d", random.nextInt(100000));
-//        return p1 + p2;
+        return randomAllMobile();
     }
 
     /**
