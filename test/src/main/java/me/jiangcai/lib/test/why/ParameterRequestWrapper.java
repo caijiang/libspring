@@ -106,7 +106,8 @@ public class ParameterRequestWrapper extends HttpServletRequestWrapper {
                     continue;
                 }
 
-                String key = param.substring(0, splitIndex);
+                final String originKey = param.substring(0, splitIndex);
+                final String key = URLDecoder.decode(originKey, encoding);
 
                 if (!this.params.containsKey(key)) {
                     if (splitIndex < param.length()) {
