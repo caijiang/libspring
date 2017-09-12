@@ -108,12 +108,16 @@ public class ParameterRequestWrapper extends HttpServletRequestWrapper {
 
                 final String originKey = param.substring(0, splitIndex);
                 final String key = URLDecoder.decode(originKey, encoding);
-
-                if (!this.params.containsKey(key)) {
-                    if (splitIndex < param.length()) {
-                        String value = param.substring(splitIndex + 1);
-
-                        this.params.put(key, new String[]{URLDecoder.decode(value, encoding)});
+                if (splitIndex < param.length()) {
+                    String value = param.substring(splitIndex + 1);
+                    final String realValue = URLDecoder.decode(value, encoding);
+                    if (this.params.putIfAbsent(key, new String[]{realValue}) != null) {
+                        this.params.computeIfPresent(key, (s, strings) -> {
+                            String[] na = new String[strings.length + 1];
+                            System.arraycopy(strings, 0, na, 0, strings.length);
+                            na[na.length - 1] = realValue;
+                            return na;
+                        });
                     }
                 }
             }
