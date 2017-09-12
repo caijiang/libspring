@@ -147,7 +147,6 @@ public class RunPage extends JDialog {
      * >>> IMPORTANT!! <<<
      * DO NOT edit this method OR call it in your code!
      *
-     * @noinspection ALL
      */
     private void $$$setupUI$$$() {
         contentPane = new JPanel();
@@ -195,7 +194,6 @@ public class RunPage extends JDialog {
     }
 
     /**
-     * @noinspection ALL
      */
     public JComponent $$$getRootComponent$$$() {
         return contentPane;
