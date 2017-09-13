@@ -3,14 +3,18 @@ package me.jiangcai.lib.test.page;
 import com.gargoylesoftware.htmlunit.html.HtmlImage;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import me.jiangcai.lib.test.SpringWebTest;
+import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotVisibleException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitWebElement;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -18,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -172,7 +177,7 @@ public abstract class AbstractPage {
         //chosen-container chosen-container-single and same title
         // li.active-result
 
-        input.clear();
+//        input.clear();
         for (WebElement element : input.findElements(By.tagName("option"))) {
 //            System.out.println(element.getText());
             if (useIt.apply(element.getText())) {
@@ -349,5 +354,90 @@ public abstract class AbstractPage {
         reloadPageInfo();
     }
 
+    /**
+     * @param element 通过JS调用方式让特定element可见
+     */
+    public void makeVisible(WebElement element) {
+        String js = "arguments[0].style.height='auto'; arguments[0].style.visibility='visible';";
+        ((JavascriptExecutor) webDriver).executeScript(js, element);
+    }
+
+    /**
+     * 若目标存在且可见，则点击直至它消失
+     *
+     * @param by 目标选择器
+     */
+    public void clickTargetForClosePurpose(By by) {
+        webDriver.findElements(by).stream()
+                .filter(WebElement::isDisplayed)
+                .findFirst()
+                .ifPresent(element -> {
+                    element.click();
+                    new WebDriverWait(webDriver, 3)
+                            .until(ExpectedConditions.invisibilityOfElementLocated(by));
+                });
+    }
+
+    ///////////////////LAYER UI////////////////
+
+    /**
+     * 会自动等待2s为了 等消息的出现；即使不出现也不会报错
+     *
+     * @return 断言弹出的消息
+     */
+    public AbstractCharSequenceAssert<?, String> assertLayerMessage() {
+        try {
+            WebDriverUtil.waitFor(webDriver, driver -> driver.findElements(By.className("layui-layer-content")).stream()
+                    .filter(WebElement::isDisplayed).count() > 0, 2);
+        } catch (TimeoutException ignored) {
+        }
+        WebElement target = webDriver.findElements(By.className("layui-layer-content")).stream()
+                .filter(WebElement::isDisplayed)
+                .findFirst().orElse(null);
+        if (target == null)
+            return assertThat((String) null);
+        return assertThat(target.getText());
+    }
+
+    /**
+     * 检查下是否有弹出框，有的话function就会被执行
+     *
+     * @param function 参数分别为弹出窗标题，整个弹出界面的div；如果返回true则表示输入，返回false就直接关闭
+     */
+    public void layerPrompt(BiFunction<String, WebElement, Boolean> function) {
+        final By locator = By.className("layui-layer-prompt");
+        layerInputAndYes(function, locator);
+    }
+
+    /**
+     * 检查下是否有弹出框，有的话function就会被执行
+     *
+     * @param function 参数分别为弹出窗标题，整个弹出界面的div；如果返回true则表示输入，返回false就直接关闭
+     */
+    public void layerDialog(BiFunction<String, WebElement, Boolean> function) {
+        final By locator = By.className("layui-layer-dialog");
+        layerInputAndYes(function, locator);
+    }
+
+    private void layerInputAndYes(BiFunction<String, WebElement, Boolean> function, By locator) {
+        // layui-layer-dialog
+        try {
+            new WebDriverWait(webDriver, 1)
+                    .until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+            WebElement div = webDriver.findElements(locator).stream()
+                    .filter(WebElement::isDisplayed)
+                    .findFirst()
+                    .orElse(null);
+            if (function.apply(div.findElement(By.className("layui-layer-title")).getText(), div)) {
+                clickTargetForClosePurpose(By.className("layui-layer-btn0"));
+            } else {
+                clickTargetForClosePurpose(By.className("layui-layer-btn1"));
+                clickTargetForClosePurpose(By.className("layui-layer-close"));
+            }
+        } catch (TimeoutException ignored) {
+        }
+    }
+
+    ///////////////////LAYER UI////////////////
 
 }
