@@ -14,6 +14,8 @@ public class JpaUtilsTest {
                 .isEqualTo(String.class);
         assertThat(JpaUtils.idClassForEntity(EntityTest2.class))
                 .isEqualTo(String.class);
+        assertThat(JpaUtils.idClassForEntity(EntityTest4.class))
+                .isEqualTo(String.class);
     }
 
 }

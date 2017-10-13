@@ -48,6 +48,12 @@ public class JpaUtils {
                 .filter(pd -> pd.getReadMethod() != null && pd.getReadMethod().getAnnotation(Id.class) != null)
                 .map(PropertyDescriptor::getPropertyType)
                 .findAny()
-                .orElseThrow(() -> new IllegalArgumentException(entityClass + "has no @Id field."));
+                .orElseGet(() -> {
+                    if (entityClass.getSuperclass() == null || entityClass.getSuperclass() == Object.class)
+                        throw new IllegalArgumentException(entityClass + " has no @Id field.");
+                    @SuppressWarnings("UnnecessaryLocalVariable")
+                    Class target = idClassForEntity(entityClass.getSuperclass());
+                    return target;
+                });
     }
 }
