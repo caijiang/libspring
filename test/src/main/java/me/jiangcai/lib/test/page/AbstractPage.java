@@ -389,6 +389,7 @@ public abstract class AbstractPage {
     public AbstractCharSequenceAssert<?, String> assertLayerMessage() {
         try {
             WebDriverUtil.waitFor(webDriver, driver -> driver.findElements(By.className("layui-layer-content")).stream()
+                    .filter(webElement -> !webElement.getAttribute("class").contains("layui-layer-loading"))// 不可包含 layui-layer-loading
                     .filter(WebElement::isDisplayed).count() > 0, 2);
         } catch (TimeoutException ignored) {
         }
