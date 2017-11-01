@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * 支持通过MVC方式管理属性，路径为系统参数<b>me.jiangcai.lib.sys.uri</b>必须以/开头并且以/结尾
+ * 在任意参数被调整之后会发起{@link SystemStringUpdatedEvent}
  *
  * @author CJ
  * @since 3.0

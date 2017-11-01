@@ -1,11 +1,13 @@
 package me.jiangcai.lib.sys.service.impl;
 
+import me.jiangcai.lib.sys.SystemStringUpdatedEvent;
 import me.jiangcai.lib.sys.entity.SystemString;
 import me.jiangcai.lib.sys.repository.SystemStringRepository;
 import me.jiangcai.lib.sys.service.SystemStringService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.NumberUtils;
 
@@ -40,10 +42,13 @@ public class SystemStringServiceImpl implements SystemStringService {
     private static final Log log = LogFactory.getLog(SystemStringServiceImpl.class);
 
     private final SystemStringRepository systemStringRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    public SystemStringServiceImpl(SystemStringRepository systemStringRepository) {
+    public SystemStringServiceImpl(SystemStringRepository systemStringRepository
+            , ApplicationEventPublisher applicationEventPublisher) {
         this.systemStringRepository = systemStringRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -119,14 +124,20 @@ public class SystemStringServiceImpl implements SystemStringService {
     @Override
     public void updateSystemString(String key, BigDecimal decimal) {
         if (decimal == null) {
-            updateSystemString(key, (String) null);
+            u(key, null);
         } else {
-            updateSystemString(key, decimal.toString());
+            u(key, decimal.toString());
         }
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, decimal));
     }
 
     @Override
     public void updateSystemString(String key, String value) {
+        u(key, value);
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, value));
+    }
+
+    private void u(String key, String value) {
         SystemString ss = systemStringRepository.findOne(key);
         if (ss == null) {
             ss = new SystemString();
@@ -139,48 +150,58 @@ public class SystemStringServiceImpl implements SystemStringService {
     @Override
     public void updateSystemString(String key, LocalDateTime value) {
         if (value == null) {
-            updateSystemString(key, (String) null);
+            u(key, null);
         } else {
-            updateSystemString(key, dateTimeFormatter.format(value));
+            u(key, dateTimeFormatter.format(value));
         }
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, value));
     }
 
     @Override
     public void updateSystemString(String key, LocalDate value) {
         if (value == null) {
-            updateSystemString(key, (String) null);
+            u(key, null);
         } else {
-            updateSystemString(key, dateFormatter.format(value));
+            u(key, dateFormatter.format(value));
         }
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, value));
     }
 
     @Override
     public void updateSystemString(String key, LocalTime value) {
         if (value == null) {
-            updateSystemString(key, (String) null);
+            u(key, null);
         } else {
-            updateSystemString(key, timeFormatter.format(value));
+            u(key, timeFormatter.format(value));
         }
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, value));
     }
 
     @Override
     public void updateSystemString(String key, Date value) {
         if (value == null) {
-            updateSystemString(key, (String) null);
+            u(key, null);
         } else {
-            updateSystemString(key, simpleDateFormat.format(value));
+            u(key, simpleDateFormat.format(value));
         }
+        applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, false, value));
     }
 
     @Override
     public void updateSystemString(String key, Calendar value) {
-        updateSystemString(key, value.getTime());
+        if (value == null)
+            u(key, null);
+        else
+            updateSystemString(key, value.getTime());
     }
 
     @Override
     public void delete(String key) {
-        if (systemStringRepository.findOne(key) != null)
+        if (systemStringRepository.findOne(key) != null) {
             systemStringRepository.delete(key);
+            applicationEventPublisher.publishEvent(new SystemStringUpdatedEvent(key, true, null));
+        }
+
     }
 
     @Override
