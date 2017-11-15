@@ -27,9 +27,13 @@ public class POIDialect implements IProcessorDialect {
         Set<IProcessor> processors = new LinkedHashSet<>();
         processors.add(new StandardXmlNsTagProcessor(TemplateMode.XML, dialectPrefix));
         processors.add(new AbstractNamespaceAttributeTagProcessor(TemplateMode.XML, dialectPrefix, "ss", "MergeDown"));
+        processors.add(new AbstractNamespaceAttributeTagProcessor(TemplateMode.XML, dialectPrefix, "ss", "ExpandedRowCount"));
+
+        ///
 
         processors.add(new StandardXmlNsTagProcessor(TemplateMode.HTML, dialectPrefix));
         processors.add(new AbstractNamespaceAttributeTagProcessor(TemplateMode.HTML, dialectPrefix, "ss", "MergeDown"));
+        processors.add(new AbstractNamespaceAttributeTagProcessor(TemplateMode.HTML, dialectPrefix, "ss", "ExpandedRowCount"));
         return processors;
     }
 

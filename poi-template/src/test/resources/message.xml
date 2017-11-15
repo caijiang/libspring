@@ -33,7 +33,7 @@
         </Style>
     </Styles>
     <Worksheet ss:Name="Sheet1">
-        <Table ss:ExpandedColumnCount="8" ss:ExpandedRowCount="40" x:FullColumns="1"
+        <Table ss:ExpandedColumnCount="8" x:FullColumns="1"
                x:FullRows="1" ss:DefaultColumnWidth="65" ss:DefaultRowHeight="16">
             <Row ss:AutoFitHeight="0">
                 <Cell>
