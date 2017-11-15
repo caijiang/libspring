@@ -11,8 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,6 +25,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -36,6 +41,21 @@ public class ExeclDramatizer implements RowDramatizer {
     private POITemplateService poiTemplateService;
     @Autowired
     private RowService rowService;
+
+    private static Page<?> export(Page<?> page, RowDefinition<?> rowDefinition) {
+        final List<? extends FieldDefinition<?>> fields = rowDefinition.fields();
+        ArrayList<Object> list = new ArrayList<>();
+        for (int i = 0; i < page.getContent().size(); i++) {
+            Object[] objects = (Object[]) page.getContent().get(i);
+            HashMap<String, Object> data = new HashMap<>();
+
+            for (int j = 0; j < fields.size(); j++) {
+                data.put(fields.get(j).name(), objects[j]);
+            }
+            list.add(data);
+        }
+        return new PageImpl<>(list, null, page.getTotalElements());
+    }
 
     @Override
     public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder, Root root) {
@@ -85,7 +105,12 @@ public class ExeclDramatizer implements RowDramatizer {
         final ServletOutputStream outputStream = response.getOutputStream();
         try {
             poiTemplateService.export(outputStream, (integer, integer2)
-                    -> rowService.queryEntity(rowDefinition, new PageRequest(integer, integer2)), resource, null);
+                    -> {
+                if (CollectionUtils.isEmpty(rowDefinition.fields()))
+                    return rowService.queryEntity(rowDefinition, new PageRequest(integer, integer2));
+                return export(rowService.queryFields(rowDefinition, distinct, null
+                        , new PageRequest(integer, integer2)), rowDefinition);
+            }, resource, null);
 
             outputStream.flush();
         } catch (IllegalTemplateException e) {
@@ -94,4 +119,5 @@ public class ExeclDramatizer implements RowDramatizer {
 
         response.setStatus(200);
     }
+
 }

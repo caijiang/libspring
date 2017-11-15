@@ -53,13 +53,18 @@ public class POITemplateAndCrudConfigTest extends SpringWebTest {
 
     @Test
     public void go() throws Exception {
-        byte[] responseBuffer = mockMvc.perform(get("/message"))
+        getAndOpen("/message", "target/POITemplateAndCrudConfigTest.go.xls");
+        getAndOpen("/message2", "target/POITemplateAndCrudConfigTest2.go.xls");
+    }
+
+    private void getAndOpen(String url, String fileName) throws Exception {
+        byte[] responseBuffer = mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsByteArray();
 
         //  如果桌面支持 则将它写入到一个临时文件
         if (Desktop.isDesktopSupported()) {
-            File file = new File("target/POITemplateAndCrudConfigTest.go.xls");
+            File file = new File(fileName);
             StreamUtils.copy(responseBuffer, new FileOutputStream(file));
             Desktop.getDesktop().open(file);
         }

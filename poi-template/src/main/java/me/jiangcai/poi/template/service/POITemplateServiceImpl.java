@@ -153,11 +153,11 @@ public class POITemplateServiceImpl implements POITemplateService {
     private List<Map<String, Cell>> toCellList(Object array) {
         return toCellList(array, o -> {
             int length = Array.getLength(o);
-            int[] key = new int[length];
+            ArrayList<Integer> keys = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
-                key[i] = i;
+                keys.add(i);
             }
-            return Arrays.asList(key);
+            return keys;
         }, (o, o2) -> Array.get(o, (Integer) o2));
     }
 

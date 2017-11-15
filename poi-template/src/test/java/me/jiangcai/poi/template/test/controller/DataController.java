@@ -3,6 +3,7 @@ package me.jiangcai.poi.template.test.controller;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
+import me.jiangcai.crud.row.field.Fields;
 import me.jiangcai.poi.template.crud.ExeclDramatizer;
 import me.jiangcai.poi.template.crud.ExeclReport;
 import me.jiangcai.poi.template.test.entity.Message;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,6 +41,36 @@ public class DataController {
             message.setValue7(RandomStringUtils.randomAlphabetic(5));
             messageRepository.save(message);
         }
+    }
+
+    @GetMapping("/message2")
+    @RowCustom(distinct = true, dramatizer = ExeclDramatizer.class)
+    @ExeclReport("classpath:/message2.xml")
+    public RowDefinition<Message> message2() {
+        return new RowDefinition<Message>() {
+            @Override
+            public String getName() {
+                return "无敌者";
+            }
+
+            @Override
+            public Class<Message> entityClass() {
+                return Message.class;
+            }
+
+            @Override
+            public List<FieldDefinition<Message>> fields() {
+                return Arrays.asList(
+                        Fields.asBasic("id")
+                        , Fields.asBasic("value1")
+                );
+            }
+
+            @Override
+            public Specification<Message> specification() {
+                return null;
+            }
+        };
     }
 
     @GetMapping("/message")
