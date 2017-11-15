@@ -18,6 +18,13 @@ import java.util.List;
 public interface RowDefinition<T> {
 
     /**
+     * @return 这个定义的名称，支持中文
+     */
+    default String getName() {
+        return null;
+    }
+
+    /**
      * @return 最初查询的实体也就是使用哪个 {@link Root}
      */
     Class<T> entityClass();

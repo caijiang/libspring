@@ -6,6 +6,8 @@ import me.jiangcai.poi.template.IllegalTemplateException;
 import me.jiangcai.poi.template.POITemplateService;
 import me.jiangcai.poi.template.thymeleaf.POIDialect;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.IEngineConfiguration;
@@ -39,6 +41,7 @@ import java.util.stream.Stream;
  */
 @Service
 public class POITemplateServiceImpl implements POITemplateService {
+    private static final Log log = LogFactory.getLog(POITemplateServiceImpl.class);
 
     private static final int SIZE = 20;
 
@@ -123,6 +126,17 @@ public class POITemplateServiceImpl implements POITemplateService {
                     list = toCellList((ExeclEntityRow) next);
                 } else
                     throw new IllegalArgumentException("unknown type of " + next);
+
+                if (log.isDebugEnabled()) {
+                    list.forEach(stringCellMap -> {
+                        StringBuilder rs = new StringBuilder();
+                        stringCellMap.entrySet().forEach(stringCellEntry -> {
+                            rs.append(stringCellEntry.getKey()).append(":").append(stringCellEntry.getValue()).append(",");
+                        });
+                        log.debug(rs.toString());
+                    });
+                }
+
                 listIterator = list.iterator();
 
                 return listIterator.next();

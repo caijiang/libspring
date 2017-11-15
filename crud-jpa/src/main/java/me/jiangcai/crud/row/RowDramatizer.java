@@ -1,5 +1,6 @@
 package me.jiangcai.crud.row;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -47,4 +48,27 @@ public interface RowDramatizer {
      * @throws IOException 写入时出现的
      */
     void writeResponse(long total, List<?> list, List<? extends IndefiniteFieldDefinition> fields, NativeWebRequest webRequest) throws IOException;
+
+    /**
+     * @param type          MVC参数类型
+     * @param rowDefinition 相关定义
+     * @return 是否支持自行获取数据
+     */
+    default boolean supportFetch(MethodParameter type, RowDefinition rowDefinition) {
+        return false;
+    }
+
+    /**
+     * 完成数据获取并且写入到响应流
+     *
+     * @param type          MVC参数类型
+     * @param rowDefinition 相关定义
+     * @param distinct      distinct
+     * @param webRequest    请求
+     * @throws IOException 写入时出现的
+     */
+    default void fetchAndWriteResponse(MethodParameter type, RowDefinition rowDefinition, boolean distinct
+            , NativeWebRequest webRequest) throws IOException {
+
+    }
 }

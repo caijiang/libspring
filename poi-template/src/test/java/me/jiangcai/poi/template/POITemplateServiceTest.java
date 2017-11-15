@@ -14,7 +14,6 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Collections;
-import java.util.function.BiFunction;
 
 /**
  * @author CJ
@@ -43,21 +42,17 @@ public class POITemplateServiceTest extends SpringWebTest {
         JsonNode list = objectMapper.readTree(new ClassPathResource("/list.json").getFile());
         File targetFile = new File("target/report.xls");
         try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
-            poiTemplateService.export(outputStream, new BiFunction<Integer, Integer, Iterable<?>>() {
-                @Override
-                public Iterable<?> apply(Integer integer, Integer integer2) {
-                    if (integer == 0)
-                        return list;
-                    return Collections.emptyList();
-                }
+            poiTemplateService.export(outputStream, (integer, integer2) -> {
+                if (integer == 0)
+                    return list;
+                return Collections.emptyList();
             }, new ClassPathResource("/demo1.xml"), null);
 
             outputStream.flush();
         }
 
-
-        Desktop.getDesktop().open(targetFile);
-
+        if (Desktop.isDesktopSupported())
+            Desktop.getDesktop().open(targetFile);
 
     }
 

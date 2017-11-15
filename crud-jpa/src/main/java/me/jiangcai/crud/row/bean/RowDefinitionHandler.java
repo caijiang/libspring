@@ -5,9 +5,12 @@ import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.RowDramatizer;
+import me.jiangcai.crud.row.RowService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -40,6 +43,10 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private RowService rowService;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public boolean supportsReturnType(MethodParameter returnType) {
@@ -62,11 +69,21 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
         RowDramatizer dramatizer;
         boolean distinct;
         if (rowCustom != null) {
-            dramatizer = rowCustom.dramatizer().newInstance();
+            try {
+                dramatizer = applicationContext.getBean(rowCustom.dramatizer());
+            } catch (BeansException ex) {
+                dramatizer = rowCustom.dramatizer().newInstance();
+            }
             distinct = rowCustom.distinct();
         } else {
             dramatizer = new DefaultRowDramatizer();
             distinct = false;
+        }
+
+        if (dramatizer.supportFetch(returnType, rowDefinition)) {
+            dramatizer.fetchAndWriteResponse(returnType, rowDefinition, distinct, webRequest);
+            mavContainer.setRequestHandled(true);
+            return;
         }
 
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
