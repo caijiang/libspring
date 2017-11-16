@@ -34,7 +34,6 @@
             <groupId>me.jiangcai.lib</groupId>
             <artifactId>crud-jpa</artifactId>
             <version>${project.version}</version>
-            <scope>test provided</scope>
         </dependency>
         <dependency>
             <groupId>me.jiangcai.lib</groupId>
