@@ -35,7 +35,6 @@ public class POITemplateServiceTest extends SpringWebTest {
 
     @Test
     public void export() throws Exception {
-        System.out.println(poiTemplateService);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
