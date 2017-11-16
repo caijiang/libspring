@@ -9,10 +9,14 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.StreamUtils;
 
 import java.awt.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 
 /**
@@ -35,24 +39,31 @@ public class POITemplateServiceTest extends SpringWebTest {
 
     @Test
     public void export() throws Exception {
+//        exportOne("demo1");
+        exportOne("demo2");
+    }
+
+    private void exportOne(String name) throws IOException, IllegalTemplateException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
-        JsonNode list = objectMapper.readTree(new ClassPathResource("/list.json").getFile());
-        File targetFile = new File("target/report.xls");
+        JsonNode list = objectMapper.readTree(new ClassPathResource("/"+name+".json").getFile());
+        File targetFile = new File("target/"+name+".xls");
         try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
             poiTemplateService.export(outputStream, (integer, integer2) -> {
                 if (integer == 0)
                     return list;
                 return Collections.emptyList();
-            }, new ClassPathResource("/demo1.xml"), null);
+            }, new ClassPathResource("/"+name+".xml"), null);
 
             outputStream.flush();
         }
 
+        String result = StreamUtils.copyToString(new FileInputStream(targetFile), Charset.forName("UTF-8"));
+        System.out.println(result);
+
         if (Desktop.isDesktopSupported())
             Desktop.getDesktop().open(targetFile);
-
     }
 
 }

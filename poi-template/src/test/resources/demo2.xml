@@ -101,10 +101,10 @@
     <Cell ss:MergeDown="5" ss:StyleID="s68" th:if="${data['address'].rows>0}" poi:MergeDown="${data['address'].rows-1}"><Data ss:Type="String" th:text="${data['address'].value.asText()}">浙江省杭州市滨江区滨盛路9999号海亮大厦1801-9999室</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s66" th:if="${data['mobile'].rows>0}" poi:MergeDown="${data['mobile'].rows-1}"><Data ss:Type="String" th:text="${data['mobile'].value.asText()}">18606509617</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s66" th:if="${data['payMethod'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}"><Data ss:Type="String" th:text="${data['payMethod'].value.asText()}">拉卡拉</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s68" ss:Index="6" th:if="${data['goods.name'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}"><Data ss:Type="String" th:text="${data['goods.name'].value.asText()}">超级量子净水器</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s79" th:if="${data['goods.amount'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.amount'].value.asInt()}">1</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.price'].value.asDouble()}">999.99</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}" ss:Formula="=RC[-1]*RC[-2]"><Data
+    <Cell ss:MergeDown="1" ss:StyleID="s68" ss:Index="6" th:if="${data['goods.name'].rows>0}" poi:MergeDown="${data['goods.name'].rows-1}"><Data ss:Type="String" th:text="${data['goods.name'].value.asText()}">超级量子净水器</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s79" th:if="${data['goods.amount'].rows>0}" poi:MergeDown="${data['goods.amount'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.amount'].value.asInt()}">1</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.price'].value.asDouble()}">999.99</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}" ss:Formula="=RC[-1]*RC[-2]"><Data
       ss:Type="Number">999.99</Data></Cell>
     <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s81" th:if="${data['tags'].rows>0}" poi:MergeDown="${data['tags'].rows-1}"><Data ss:Type="String" th:text="${data['tags'].value.asText()}">很不错</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s70" th:if="${data['orderDate'].rows>0}" poi:MergeDown="${data['orderDate'].rows-1}"><Data ss:Type="DateTime" th:text="${data['orderDate'].value.asText()}">2017-11-11T09:10:00.000</Data></Cell>
