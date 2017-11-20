@@ -104,12 +104,12 @@ public class ExeclDramatizer implements RowDramatizer {
 
         final ServletOutputStream outputStream = response.getOutputStream();
         try {
-            poiTemplateService.export(outputStream, (integer, integer2)
+            poiTemplateService.export(outputStream, (pageable)
                     -> {
                 if (CollectionUtils.isEmpty(rowDefinition.fields()))
-                    return rowService.queryEntity(rowDefinition, new PageRequest(integer, integer2));
+                    return rowService.queryEntity(rowDefinition, pageable);
                 return export(rowService.queryFields(rowDefinition, distinct, null
-                        , new PageRequest(integer, integer2)), rowDefinition);
+                        , pageable), rowDefinition);
             }, resource, null);
 
             outputStream.flush();

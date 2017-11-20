@@ -10,6 +10,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.TemplateEngine;
@@ -25,10 +28,13 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
+import java.sql.Time;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +73,7 @@ public class POITemplateServiceImpl implements POITemplateService {
     }
 
     @Override
-    public void export(OutputStream out, BiFunction<Integer, Integer, Iterable<?>> listFunction
+    public void export(OutputStream out, Function<Pageable, Page<?>> listFunction
             , Resource templateResource, String shellName) throws IOException, IllegalTemplateException
             , IllegalArgumentException {
 
@@ -89,96 +95,116 @@ public class POITemplateServiceImpl implements POITemplateService {
 
         // 数据处理，需将其处理成最小列
 
-        context.setVariable("list", (Iterable) () -> new Iterator() {
-            int page = 0;
-            Iterator currentIterator;
-            Iterator<Map<String, Cell>> listIterator;
+        final Iterable listTotal = () -> {
+            Iterator iterator = new Iterator() {
+                int page = 0;
+                Iterator currentIterator;
+                Iterator<Map<String, Cell>> listIterator;
 
-            @Override
-            public boolean hasNext() {
-                // 检查current 有没有
-                if (listIterator != null && listIterator.hasNext())
-                    return true;
-                // 当前有可用的迭代器么？
-                if (currentIterator == null) {
-                    currentIterator = listFunction.apply(0, SIZE).iterator();
+                @Override
+                public boolean hasNext() {
+                    // 检查current 有没有
+                    if (listIterator != null && listIterator.hasNext())
+                        return true;
+                    // 当前有可用的迭代器么？
+                    if (currentIterator == null) {
+                        final Page<?> page = listFunction.apply(new PageRequest(0, SIZE));
+                        context.setVariable("_listTotal", page.getTotalElements());
+                        currentIterator = page.iterator();
+                    }
+                    // 当前的迭代器是否依然有效
+                    if (currentIterator.hasNext())
+                        return true;
+                    final Page<?> apply = listFunction.apply(new PageRequest(++page, SIZE));
+                    if (apply == null)
+                        return false;
+                    currentIterator = apply.iterator();
+                    return currentIterator.hasNext();
                 }
-                // 当前的迭代器是否依然有效
-                if (currentIterator.hasNext())
-                    return true;
-                currentIterator = listFunction.apply(++page, SIZE).iterator();
-                return currentIterator.hasNext();
-            }
 
-            @Override
-            public Object next() {
-                // 拿到 current 并且current+1
-                if (listIterator != null && listIterator.hasNext())
-                    return listIterator.next();
+                @Override
+                public Object next() {
+                    // 拿到 current 并且current+1
+                    if (listIterator != null && listIterator.hasNext())
+                        return listIterator.next();
 
-                final Object next = currentIterator.next();
-                final List<Map<String, Cell>> list;
-                if (next instanceof JsonNode) {
-                    list = toCellList((JsonNode) next);
-                } else if (next instanceof Map) {
-                    // name,subList.
-                    list = toCellList((Map) next);
-                } else if (next.getClass().isArray()) {
-                    list = toCellListFromArray(next);
-                } else if (next instanceof ExeclEntityRow) {
-                    list = toCellList((ExeclEntityRow) next);
-                } else
-//                    throw new IllegalArgumentException("unknown type of " + next);
-                    list = toCellList(next);
+                    final Object next = currentIterator.next();
+                    final List<Map<String, Cell>> list;
+                    if (next instanceof JsonNode) {
+                        list = toCellList((JsonNode) next, context);
+                    } else if (next instanceof Map) {
+                        // name,subList.
+                        list = toCellList((Map) next, context);
+                    } else if (next.getClass().isArray()) {
+                        list = toCellListFromArray(next, context);
+                    } else if (next instanceof ExeclEntityRow) {
+                        list = toCellList((ExeclEntityRow) next, context);
+                    } else
+                        list = toCellList(next, context);
 
-                if (log.isDebugEnabled()) {
-                    list.forEach(stringCellMap -> {
-                        StringBuilder rs = new StringBuilder();
-                        stringCellMap.entrySet().forEach(stringCellEntry -> {
-                            rs.append(stringCellEntry.getKey()).append(":").append(stringCellEntry.getValue()).append(",");
+                    if (log.isDebugEnabled()) {
+                        list.forEach(stringCellMap -> {
+                            StringBuilder rs = new StringBuilder();
+                            stringCellMap.entrySet().forEach(stringCellEntry -> {
+                                rs.append(stringCellEntry.getKey()).append(":").append(stringCellEntry.getValue()).append(",");
+                            });
+                            log.debug(rs.toString());
                         });
-                        log.debug(rs.toString());
-                    });
+                    }
+
+                    listIterator = list.iterator();
+
+                    return listIterator.next();
                 }
+            };
+//            iterator.hasNext();
+            return iterator;
+        };
 
-                listIterator = list.iterator();
+        final Iterator iterator = listTotal.iterator();
+        final int rows;
+        if (iterator.hasNext()) {
+            iterator.next();
+            rows = (Integer) context.getVariable("rowsPerRow")
+                    * ((Number) context.getVariable("_listTotal")).intValue();
+        } else {
+            rows = 0;
+        }
 
-                return listIterator.next();
-            }
-        });
+        context.setVariable("rows", rows);
+        context.setVariable("list", listTotal);
         engine.process("", context, new OutputStreamWriter(out, Charset.forName("UTF-8")));
     }
 
-    private List<Map<String, Cell>> toCellList(Object object) {
-        return toCellList(object, new Function<Object, List>() {
-            @Override
-            public List apply(Object o) {
-                return Stream.of(BeanUtils.getPropertyDescriptors(o.getClass()))
-                        .filter(propertyDescriptor -> {
-                            return propertyDescriptor.getReadMethod() != null;
-                        })
-                        .map(PropertyDescriptor::getName)
-                        .collect(Collectors.toList());
-            }
-        }, new BiFunction<Object, Object, Object>() {
-            @Override
-            public Object apply(Object o, Object o2) {
-                PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(o.getClass(), o2.toString());
-                try {
-                    return propertyDescriptor.getReadMethod().invoke(o);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-        });
+    private List<Map<String, Cell>> toCellList(Object object, Context context) {
+        return toCellList(object, beanKeys(), beanValueResolver(), context);
     }
 
-    private List<Map<String, Cell>> toCellList(JsonNode node) {
+    private BiFunction<Object, Object, Object> beanValueResolver() {
+        return (o, o2) -> {
+            PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(o.getClass(), o2.toString());
+            try {
+                return propertyDescriptor.getReadMethod().invoke(o);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
+            }
+        };
+    }
+
+    private Function<Object, List<?>> beanKeys() {
+        return o -> Stream.of(BeanUtils.getPropertyDescriptors(o.getClass()))
+                .filter(propertyDescriptor -> propertyDescriptor.getReadMethod() != null)
+                .filter(propertyDescriptor -> !propertyDescriptor.getName().equalsIgnoreCase("class"))
+                .map(PropertyDescriptor::getName)
+                .collect(Collectors.toList());
+    }
+
+    private List<Map<String, Cell>> toCellList(JsonNode node, Context context) {
         return toCellList(node, jsonNode -> IteratorUtils.toList(jsonNode.fieldNames())
-                , (jsonNode, o) -> jsonNode.get(o.toString()));
+                , (jsonNode, o) -> jsonNode.get(o.toString()), context);
     }
 
-    private List<Map<String, Cell>> toCellListFromArray(Object array) {
+    private List<Map<String, Cell>> toCellListFromArray(Object array, Context context) {
         return toCellList(array, o -> {
             int length = Array.getLength(o);
             ArrayList<Integer> keys = new ArrayList<>(length);
@@ -186,25 +212,26 @@ public class POITemplateServiceImpl implements POITemplateService {
                 keys.add(i);
             }
             return keys;
-        }, (o, o2) -> Array.get(o, (Integer) o2));
+        }, (o, o2) -> Array.get(o, (Integer) o2), context);
     }
 
-    private List<Map<String, Cell>> toCellList(ExeclEntityRow row) {
+    private List<Map<String, Cell>> toCellList(ExeclEntityRow row, Context context) {
         return toCellList(row
                 , execlEntityRow -> execlEntityRow.keySet().stream().collect(Collectors.toList())
-                , (execlEntityRow, o) -> execlEntityRow.get(o.toString()));
+                , (execlEntityRow, o) -> execlEntityRow.get(o.toString()), context);
     }
 
     // 获取该数据的平铺数据
 
-    private List<Map<String, Cell>> toCellList(Map input) {
+    private List<Map<String, Cell>> toCellList(Map input, Context context) {
         return toCellList(input, map -> {
             final Stream<?> stream = map.keySet().stream();
             return stream.collect(Collectors.toList());
-        }, Map::get);
+        }, Map::get, context);
     }
 
-    private <T> List<Map<String, Cell>> toCellList(T map, Function<T, List> keyResolver, BiFunction<T, Object, Object> valueResolver) {
+    private <T> List<Map<String, Cell>> toCellList(T map, Function<T, List<?>> keyResolver
+            , BiFunction<T, Object, Object> valueResolver, Context context) {
         final List set = keyResolver.apply(map);
         // 每列需要的行数
         int[] rows = new int[set.size()];
@@ -217,6 +244,11 @@ public class POITemplateServiceImpl implements POITemplateService {
 
         // 总行数
         int max = lcm(rows);
+        // 只留下最大的。
+        if (!context.containsVariable("rowsPerRow"))
+            context.setVariable("rowsPerRow", max);
+        else
+            context.setVariable("rowsPerRow", Math.max(max, (int) context.getVariable("rowsPerRow")));
         // 每列的跨行数
         int[] rowSpans = new int[set.size()];
         for (int i = 0; i < rows.length; i++) {
@@ -326,7 +358,22 @@ public class POITemplateServiceImpl implements POITemplateService {
             }
             return list;
         }
-        return Collections.singletonList(Collections.singletonMap(originKey.toString(), data));
+//        if (beanAccepted)
+//            return Collections.singletonList(Collections.singletonMap(originKey.toString(), data));
+
+        // 如果是简单的直接给，复杂的 变成map给吧。。
+        if (data.getClass().isPrimitive()
+                || data.getClass() == String.class
+                || Number.class.isAssignableFrom(data.getClass())
+                || Temporal.class.isAssignableFrom(data.getClass())
+                || Date.class.isAssignableFrom(data.getClass())
+                || Time.class.isAssignableFrom(data.getClass()))
+            return Collections.singletonList(Collections.singletonMap(originKey.toString(), data));
+
+        // into a map
+        HashMap<Object, Object> map = new HashMap<>();
+        beanKeys().apply(data).forEach(key -> map.put(key, beanValueResolver().apply(data, key)));
+        return iterable(originKey, map);
     }
 
     private int getCol(Object data) {

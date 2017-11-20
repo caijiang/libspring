@@ -11,6 +11,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.StreamUtils;
 
@@ -23,7 +24,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * @author CJ
@@ -52,10 +53,10 @@ public class POITemplateServiceTest extends SpringWebTest {
     @Test
     public void bean() throws IOException, IllegalTemplateException {
         ArrayList<ModelOne> list = new ArrayList<>();
-        int count = 2 + random.nextInt(3);
+        int count = 4 + random.nextInt(3);
         while (count-- > 0)
             list.add(randomModelOne());
-        openExecl("demo1", list);
+        openExecl("demo1bean", list);
     }
 
     private ModelOne randomModelOne() {
@@ -85,18 +86,20 @@ public class POITemplateServiceTest extends SpringWebTest {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
-        JsonNode list = objectMapper.readTree(new ClassPathResource("/"+name+".json").getFile());
-        openExecl(name, list);
+        JsonNode list = objectMapper.readTree(new ClassPathResource("/" + name + ".json").getFile());
+        ArrayList<JsonNode> jsonNodeArrayList = new ArrayList<>();
+        list.forEach(jsonNodeArrayList::add);
+        openExecl(name, jsonNodeArrayList);
     }
 
-    private void openExecl(String name, Iterable<?> list) throws IOException, IllegalTemplateException {
-        File targetFile = new File("target/"+name+".xls");
+    private void openExecl(String name, List<?> list) throws IOException, IllegalTemplateException {
+        File targetFile = new File("target/" + name + ".xls");
         try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
-            poiTemplateService.export(outputStream, (integer, integer2) -> {
-                if (integer == 0)
-                    return list;
-                return Collections.emptyList();
-            }, new ClassPathResource("/"+name+".xml"), null);
+            poiTemplateService.export(outputStream, pageable -> {
+                if (pageable.getPageNumber() == 0)
+                    return new PageImpl<>(list,pageable,list.size());
+                return null;
+            }, new ClassPathResource("/" + name + ".xml"), null);
 
             outputStream.flush();
         }
