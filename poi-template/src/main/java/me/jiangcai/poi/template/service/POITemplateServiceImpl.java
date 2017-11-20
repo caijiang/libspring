@@ -8,6 +8,7 @@ import me.jiangcai.poi.template.thymeleaf.POIDialect;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.IEngineConfiguration;
@@ -17,10 +18,12 @@ import org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring4.templateresource.SpringResourceTemplateResource;
 import org.thymeleaf.templateresource.ITemplateResource;
 
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,11 +124,12 @@ public class POITemplateServiceImpl implements POITemplateService {
                     // name,subList.
                     list = toCellList((Map) next);
                 } else if (next.getClass().isArray()) {
-                    list = toCellList(next);
+                    list = toCellListFromArray(next);
                 } else if (next instanceof ExeclEntityRow) {
                     list = toCellList((ExeclEntityRow) next);
                 } else
-                    throw new IllegalArgumentException("unknown type of " + next);
+//                    throw new IllegalArgumentException("unknown type of " + next);
+                    list = toCellList(next);
 
                 if (log.isDebugEnabled()) {
                     list.forEach(stringCellMap -> {
@@ -145,12 +149,36 @@ public class POITemplateServiceImpl implements POITemplateService {
         engine.process("", context, new OutputStreamWriter(out, Charset.forName("UTF-8")));
     }
 
+    private List<Map<String, Cell>> toCellList(Object object) {
+        return toCellList(object, new Function<Object, List>() {
+            @Override
+            public List apply(Object o) {
+                return Stream.of(BeanUtils.getPropertyDescriptors(o.getClass()))
+                        .filter(propertyDescriptor -> {
+                            return propertyDescriptor.getReadMethod() != null;
+                        })
+                        .map(PropertyDescriptor::getName)
+                        .collect(Collectors.toList());
+            }
+        }, new BiFunction<Object, Object, Object>() {
+            @Override
+            public Object apply(Object o, Object o2) {
+                PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(o.getClass(), o2.toString());
+                try {
+                    return propertyDescriptor.getReadMethod().invoke(o);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        });
+    }
+
     private List<Map<String, Cell>> toCellList(JsonNode node) {
         return toCellList(node, jsonNode -> IteratorUtils.toList(jsonNode.fieldNames())
                 , (jsonNode, o) -> jsonNode.get(o.toString()));
     }
 
-    private List<Map<String, Cell>> toCellList(Object array) {
+    private List<Map<String, Cell>> toCellListFromArray(Object array) {
         return toCellList(array, o -> {
             int length = Array.getLength(o);
             ArrayList<Integer> keys = new ArrayList<>(length);

@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jiangcai.lib.test.SpringWebTest;
 import me.jiangcai.poi.template.service.POITemplateServiceImpl;
+import me.jiangcai.poi.template.test.model.ModelOne;
+import me.jiangcai.poi.template.test.model.ModelOneInOne;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -16,7 +19,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -43,11 +49,47 @@ public class POITemplateServiceTest extends SpringWebTest {
         exportOne("demo2");
     }
 
+    @Test
+    public void bean() throws IOException, IllegalTemplateException {
+        ArrayList<ModelOne> list = new ArrayList<>();
+        int count = 2 + random.nextInt(3);
+        while (count-- > 0)
+            list.add(randomModelOne());
+        openExecl("demo1", list);
+    }
+
+    private ModelOne randomModelOne() {
+        ModelOne one = new ModelOne();
+        one.setAddress(RandomStringUtils.randomAlphabetic(25));
+        one.setMobile(randomMobile());
+        one.setName(RandomStringUtils.randomAlphabetic(4));
+        one.setOrderDate(LocalDateTime.now());
+        one.setOrderId(RandomStringUtils.randomAlphanumeric(8));
+        one.setPayMethod(RandomStringUtils.randomAlphabetic(6));
+        int count = 2 + random.nextInt(3);
+        one.setGoods(new ArrayList<>(count));
+        while (count-- > 0)
+            one.getGoods().add(randomModelOneInOne());
+        return one;
+    }
+
+    private ModelOneInOne randomModelOneInOne() {
+        ModelOneInOne one = new ModelOneInOne();
+        one.setName(RandomStringUtils.randomAlphabetic(10));
+        one.setAmount(1 + random.nextInt(10));
+        one.setPrice(BigDecimal.valueOf(Math.abs(random.nextDouble())).movePointRight(2));
+        return one;
+    }
+
     private void exportOne(String name) throws IOException, IllegalTemplateException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
         JsonNode list = objectMapper.readTree(new ClassPathResource("/"+name+".json").getFile());
+        openExecl(name, list);
+    }
+
+    private void openExecl(String name, Iterable<?> list) throws IOException, IllegalTemplateException {
         File targetFile = new File("target/"+name+".xls");
         try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
             poiTemplateService.export(outputStream, (integer, integer2) -> {
