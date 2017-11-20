@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -99,7 +100,7 @@ public class POITemplateServiceTest extends SpringWebTest {
                 if (pageable.getPageNumber() == 0)
                     return new PageImpl<>(list,pageable,list.size());
                 return null;
-            }, new ClassPathResource("/" + name + ".xml"), null);
+            }, null, new ClassPathResource("/" + name + ".xml"), null);
 
             outputStream.flush();
         }

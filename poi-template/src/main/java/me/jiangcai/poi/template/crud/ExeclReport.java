@@ -20,4 +20,9 @@ public @interface ExeclReport {
      * @return 报表模板的resourceLocation {@link org.springframework.context.ApplicationContext#getResource(String)}
      */
     String value();
+
+    /**
+     * @return 允许的key；如果保持默认则不会强行要求
+     */
+    String[] keys() default {};
 }

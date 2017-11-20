@@ -13,7 +13,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -28,6 +27,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author CJ
@@ -110,7 +111,8 @@ public class ExeclDramatizer implements RowDramatizer {
                     return rowService.queryEntity(rowDefinition, pageable);
                 return export(rowService.queryFields(rowDefinition, distinct, null
                         , pageable), rowDefinition);
-            }, resource, null);
+            }, report.keys().length == 0 ? null : Stream.of(report.keys()).collect(Collectors.toSet())
+                    , resource, null);
 
             outputStream.flush();
         } catch (IllegalTemplateException e) {

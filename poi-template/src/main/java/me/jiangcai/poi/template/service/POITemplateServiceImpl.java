@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -74,7 +75,7 @@ public class POITemplateServiceImpl implements POITemplateService {
 
     @Override
     public void export(OutputStream out, Function<Pageable, Page<?>> listFunction
-            , Resource templateResource, String shellName) throws IOException, IllegalTemplateException
+            , Set<String> allowKeys, Resource templateResource, String shellName) throws IOException, IllegalTemplateException
             , IllegalArgumentException {
 
 
@@ -131,16 +132,16 @@ public class POITemplateServiceImpl implements POITemplateService {
                     final Object next = currentIterator.next();
                     final List<Map<String, Cell>> list;
                     if (next instanceof JsonNode) {
-                        list = toCellList((JsonNode) next, context);
+                        list = toCellList((JsonNode) next, allowKeys, context);
                     } else if (next instanceof Map) {
                         // name,subList.
-                        list = toCellList((Map) next, context);
+                        list = toCellList((Map) next, allowKeys, context);
                     } else if (next.getClass().isArray()) {
-                        list = toCellListFromArray(next, context);
+                        list = toCellListFromArray(next, allowKeys, context);
                     } else if (next instanceof ExeclEntityRow) {
-                        list = toCellList((ExeclEntityRow) next, context);
+                        list = toCellList((ExeclEntityRow) next, allowKeys, context);
                     } else
-                        list = toCellList(next, context);
+                        list = toCellList(next, allowKeys, context);
 
                     if (log.isDebugEnabled()) {
                         list.forEach(stringCellMap -> {
@@ -176,8 +177,8 @@ public class POITemplateServiceImpl implements POITemplateService {
         engine.process("", context, new OutputStreamWriter(out, Charset.forName("UTF-8")));
     }
 
-    private List<Map<String, Cell>> toCellList(Object object, Context context) {
-        return toCellList(object, beanKeys(), beanValueResolver(), context);
+    private List<Map<String, Cell>> toCellList(Object object, Set<String> allowKeys, Context context) {
+        return toCellList(object, allowKeys, beanKeys(), beanValueResolver(), context);
     }
 
     private BiFunction<Object, Object, Object> beanValueResolver() {
@@ -199,13 +200,13 @@ public class POITemplateServiceImpl implements POITemplateService {
                 .collect(Collectors.toList());
     }
 
-    private List<Map<String, Cell>> toCellList(JsonNode node, Context context) {
-        return toCellList(node, jsonNode -> IteratorUtils.toList(jsonNode.fieldNames())
+    private List<Map<String, Cell>> toCellList(JsonNode node, Set<String> allowKeys, Context context) {
+        return toCellList(node, allowKeys, jsonNode -> IteratorUtils.toList(jsonNode.fieldNames())
                 , (jsonNode, o) -> jsonNode.get(o.toString()), context);
     }
 
-    private List<Map<String, Cell>> toCellListFromArray(Object array, Context context) {
-        return toCellList(array, o -> {
+    private List<Map<String, Cell>> toCellListFromArray(Object array, Set<String> allowKeys, Context context) {
+        return toCellList(array, allowKeys, o -> {
             int length = Array.getLength(o);
             ArrayList<Integer> keys = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
@@ -215,24 +216,32 @@ public class POITemplateServiceImpl implements POITemplateService {
         }, (o, o2) -> Array.get(o, (Integer) o2), context);
     }
 
-    private List<Map<String, Cell>> toCellList(ExeclEntityRow row, Context context) {
+    private List<Map<String, Cell>> toCellList(ExeclEntityRow row, Set<String> allowKeys, Context context) {
         return toCellList(row
-                , execlEntityRow -> execlEntityRow.keySet().stream().collect(Collectors.toList())
+                , allowKeys, execlEntityRow -> execlEntityRow.keySet().stream().collect(Collectors.toList())
                 , (execlEntityRow, o) -> execlEntityRow.get(o.toString()), context);
     }
 
     // 获取该数据的平铺数据
 
-    private List<Map<String, Cell>> toCellList(Map input, Context context) {
-        return toCellList(input, map -> {
+    private List<Map<String, Cell>> toCellList(Map input, Set<String> allowKeys, Context context) {
+        return toCellList(input, allowKeys, map -> {
             final Stream<?> stream = map.keySet().stream();
             return stream.collect(Collectors.toList());
         }, Map::get, context);
     }
 
-    private <T> List<Map<String, Cell>> toCellList(T map, Function<T, List<?>> keyResolver
+    private <T> List<Map<String, Cell>> toCellList(T map, Set<String> allowKeys, Function<T, List<?>> keyResolver
             , BiFunction<T, Object, Object> valueResolver, Context context) {
-        final List set = keyResolver.apply(map);
+        final List<?> originSet = keyResolver.apply(map);
+        final List<?> set;
+        if (allowKeys != null) {
+            set = originSet.stream()
+                    .filter(allowKeys::contains)
+                    .collect(Collectors.toList());
+        } else
+            set = originSet;
+
         // 每列需要的行数
         int[] rows = new int[set.size()];
         for (int i = 0; i < set.size(); i++) {
