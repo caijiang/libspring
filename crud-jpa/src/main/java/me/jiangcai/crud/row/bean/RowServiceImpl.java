@@ -1,5 +1,6 @@
 package me.jiangcai.crud.row.bean;
 
+import lombok.AllArgsConstructor;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.RowService;
@@ -86,70 +87,42 @@ public class RowServiceImpl implements RowService {
         return new PageImpl<T>(resultList, pageable, entityManager.createQuery(countCq).getSingleResult());
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<?> queryFields(RowDefinition rowDefinition, boolean distinct
+            , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction) {
+        final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
+
+        QueryPair resultPair = smartQuery(rowDefinition, distinct, customOrderFunction, fieldDefinitions);
+        try {
+            return entityManager.createQuery(resultPair.dataQuery).getResultList();
+        } catch (NoResultException ex) {
+            log.debug("RW Result: no result found.");
+            return Collections.emptyList();
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Page<?> queryFields(RowDefinition rowDefinition, boolean distinct,
                                BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, Pageable pageable) {
         final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
 
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery originDataQuery = criteriaBuilder.createQuery();
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-//        Subquery subquery = null;
-//        subquery.from(rowDefinition.entityClass());
-
-        Root root = originDataQuery.from(rowDefinition.entityClass());
-        Root countRoot = countQuery.from(rowDefinition.entityClass());
-
-
-        CriteriaQuery dataQuery = originDataQuery.multiselect(fieldDefinitions.stream()
-                .map(new Function<FieldDefinition, Selection>() {
-                    @Override
-                    public Selection apply(FieldDefinition fieldDefinition) {
-//                        field
-//                                -> field.select(criteriaBuilder, originDataQuery, root)
-                        return fieldDefinition.select(criteriaBuilder, originDataQuery, root);
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
-
-        // where
-        dataQuery = where(criteriaBuilder, dataQuery, root, rowDefinition);
-        dataQuery = rowDefinition.dataGroup(criteriaBuilder, dataQuery, root);
-        countQuery = where(criteriaBuilder, countQuery, countRoot, rowDefinition);
-        countQuery = rowDefinition.countQuery(criteriaBuilder, countQuery, countRoot);
-
-        if (distinct)
-            countQuery = countQuery.select(criteriaBuilder.countDistinct(rowDefinition.count(countQuery, criteriaBuilder, countRoot)));
-        else
-            countQuery = countQuery.select(criteriaBuilder.count(rowDefinition.count(countQuery, criteriaBuilder, countRoot)));
-
-        // Distinct
-        if (distinct)
-            dataQuery = dataQuery.distinct(true);
-
-        // sort
-        List<Order> order = customOrderFunction == null ? null : customOrderFunction.apply(criteriaBuilder, root);
-        if (CollectionUtils.isEmpty(order))
-            order = rowDefinition.defaultOrder(criteriaBuilder, root);
-
-        if (!CollectionUtils.isEmpty(order))
-            dataQuery = dataQuery.orderBy(order);
+        QueryPair resultPair = smartQuery(rowDefinition, distinct, customOrderFunction, fieldDefinitions);
 
         // 打包成Object[]
         try {
             long total;
             try {
-                total = entityManager.createQuery(countQuery).getSingleResult();
+                total = entityManager.createQuery(resultPair.countQuery).getSingleResult();
             } catch (NonUniqueResultException ex) {
-                total = entityManager.createQuery(countQuery).getResultList().size();
+                total = entityManager.createQuery(resultPair.countQuery).getResultList().size();
             }
             List<?> list;
             if (total == 0)
                 list = Collections.emptyList();
             else {
-                list = entityManager.createQuery(dataQuery)
+                list = entityManager.createQuery(resultPair.dataQuery)
                         .setFirstResult(pageable.getOffset())
                         .setMaxResults(pageable.getPageSize())
                         .getResultList();
@@ -164,6 +137,57 @@ public class RowServiceImpl implements RowService {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private QueryPair smartQuery(RowDefinition rowDefinition, boolean distinct, BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, List<FieldDefinition> fieldDefinitions) {
+        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+//        CriteriaQuery originDataQuery = criteriaBuilder.createQuery();
+//        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        QueryPair pair = new QueryPair(criteriaBuilder);
+//        Subquery subquery = null;
+//        subquery.from(rowDefinition.entityClass());
+
+        Root root = pair.dataQuery.from(rowDefinition.entityClass());
+        Root countRoot = pair.countQuery.from(rowDefinition.entityClass());
+
+
+        CriteriaQuery dataQuery = pair.dataQuery.multiselect(fieldDefinitions.stream()
+                .map(new Function<FieldDefinition, Selection>() {
+                    @Override
+                    public Selection apply(FieldDefinition fieldDefinition) {
+//                        field
+//                                -> field.select(criteriaBuilder, originDataQuery, root)
+                        return fieldDefinition.select(criteriaBuilder, pair.dataQuery, root);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+
+        // where
+        dataQuery = where(criteriaBuilder, dataQuery, root, rowDefinition);
+        dataQuery = rowDefinition.dataGroup(criteriaBuilder, dataQuery, root);
+        pair.countQuery = where(criteriaBuilder, pair.countQuery, countRoot, rowDefinition);
+        pair.countQuery = rowDefinition.countQuery(criteriaBuilder, pair.countQuery, countRoot);
+
+        if (distinct)
+            pair.countQuery = pair.countQuery.select(criteriaBuilder.countDistinct(rowDefinition.count(pair.countQuery, criteriaBuilder, countRoot)));
+        else
+            pair.countQuery = pair.countQuery.select(criteriaBuilder.count(rowDefinition.count(pair.countQuery, criteriaBuilder, countRoot)));
+
+        // Distinct
+        if (distinct)
+            dataQuery = dataQuery.distinct(true);
+
+        // sort
+        List<Order> order = customOrderFunction == null ? null : customOrderFunction.apply(criteriaBuilder, root);
+        if (CollectionUtils.isEmpty(order))
+            order = rowDefinition.defaultOrder(criteriaBuilder, root);
+
+        if (!CollectionUtils.isEmpty(order))
+            dataQuery = dataQuery.orderBy(order);
+
+
+        return new QueryPair(dataQuery, pair.countQuery);
+    }
 
     private <T> CriteriaQuery<T> where(CriteriaBuilder criteriaBuilder, CriteriaQuery<T> query, Root<?> root
             , RowDefinition<?> rowDefinition) {
@@ -172,5 +196,16 @@ public class RowServiceImpl implements RowService {
             return query;
         //noinspection unchecked
         return query.where(specification.toPredicate((Root) root, query, criteriaBuilder));
+    }
+
+    @AllArgsConstructor
+    private class QueryPair {
+        CriteriaQuery dataQuery;
+        CriteriaQuery<Long> countQuery;
+
+        QueryPair(CriteriaBuilder criteriaBuilder) {
+            dataQuery = criteriaBuilder.createQuery();
+            countQuery = criteriaBuilder.createQuery(Long.class);
+        }
     }
 }

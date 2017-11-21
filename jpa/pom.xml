@@ -23,6 +23,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
+        <dependency>
+            <groupId>me.jiangcai.lib</groupId>
+            <artifactId>poi-template</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

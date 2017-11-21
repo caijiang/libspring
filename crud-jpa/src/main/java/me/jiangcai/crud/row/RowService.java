@@ -40,4 +40,13 @@ public interface RowService {
      */
     Page<?> queryFields(RowDefinition rowDefinition, boolean distinct
             , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, Pageable pageable);
+
+    /**
+     * @param rowDefinition       数据定义
+     * @param distinct            是否唯一
+     * @param customOrderFunction 可选的自定义排序
+     * @return 获取相关的字段
+     */
+    List<?> queryFields(RowDefinition rowDefinition, boolean distinct
+            , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction);
 }

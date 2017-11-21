@@ -1,6 +1,7 @@
 package me.jiangcai.jpa.entity.support;
 
 import lombok.Data;
+import me.jiangcai.poi.template.SingleValue;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -13,7 +14,7 @@ import javax.persistence.criteria.Predicate;
  */
 @Data
 @Embeddable
-public class Address {
+public class Address implements SingleValue {
     /**
      * 省(province)/直辖市(municipality)/自治区(autonomous region)/特别行政区(special administrative region/SAR)
      */

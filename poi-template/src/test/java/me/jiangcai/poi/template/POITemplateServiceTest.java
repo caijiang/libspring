@@ -24,8 +24,9 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author CJ
@@ -47,8 +48,16 @@ public class POITemplateServiceTest extends SpringWebTest {
 
     @Test
     public void export() throws Exception {
-//        exportOne("demo1");
-        exportOne("demo2");
+//        exportOne("demo1",null);
+        Set<String> keys = new HashSet<>();
+        keys.add("name");
+        keys.add("address");
+        keys.add("mobile");
+        keys.add("payMethod");
+        keys.add("orderId");
+        keys.add("orderDate");
+        exportOne("demo1", keys);
+//        exportOne("demo2", null);
     }
 
     @Test
@@ -57,7 +66,7 @@ public class POITemplateServiceTest extends SpringWebTest {
         int count = 4 + random.nextInt(3);
         while (count-- > 0)
             list.add(randomModelOne());
-        openExecl("demo1bean", list);
+        openExecl("demo1bean", list, null);
     }
 
     private ModelOne randomModelOne() {
@@ -83,24 +92,24 @@ public class POITemplateServiceTest extends SpringWebTest {
         return one;
     }
 
-    private void exportOne(String name) throws IOException, IllegalTemplateException {
+    private void exportOne(String name, Set<String> equalsKeys) throws IOException, IllegalTemplateException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
         JsonNode list = objectMapper.readTree(new ClassPathResource("/" + name + ".json").getFile());
         ArrayList<JsonNode> jsonNodeArrayList = new ArrayList<>();
         list.forEach(jsonNodeArrayList::add);
-        openExecl(name, jsonNodeArrayList);
+        openExecl(name, jsonNodeArrayList, equalsKeys);
     }
 
-    private void openExecl(String name, List<?> list) throws IOException, IllegalTemplateException {
+    private void openExecl(String name, List<?> list, Set<String> equalsKeys) throws IOException, IllegalTemplateException {
         File targetFile = new File("target/" + name + ".xls");
         try (FileOutputStream outputStream = new FileOutputStream(targetFile)) {
-            poiTemplateService.export(outputStream, pageable -> {
+            poiTemplateService.export(outputStream, null, pageable -> {
                 if (pageable.getPageNumber() == 0)
                     return new PageImpl<>(list,pageable,list.size());
                 return null;
-            }, null, new ClassPathResource("/" + name + ".xml"), null);
+            }, equalsKeys, null, new ClassPathResource("/" + name + ".xml"), null);
 
             outputStream.flush();
         }

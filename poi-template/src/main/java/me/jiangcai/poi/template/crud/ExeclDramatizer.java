@@ -43,6 +43,21 @@ public class ExeclDramatizer implements RowDramatizer {
     @Autowired
     private RowService rowService;
 
+    private static List<?> export(List<?> page, RowDefinition<?> rowDefinition) {
+        final List<? extends FieldDefinition<?>> fields = rowDefinition.fields();
+        ArrayList<Object> list = new ArrayList<>();
+        for (Object aPage : page) {
+            Object[] objects = (Object[]) aPage;
+            HashMap<String, Object> data = new HashMap<>();
+
+            for (int j = 0; j < fields.size(); j++) {
+                data.put(fields.get(j).name(), objects[j]);
+            }
+            list.add(data);
+        }
+        return list;
+    }
+
     private static Page<?> export(Page<?> page, RowDefinition<?> rowDefinition) {
         final List<? extends FieldDefinition<?>> fields = rowDefinition.fields();
         ArrayList<Object> list = new ArrayList<>();
@@ -105,13 +120,12 @@ public class ExeclDramatizer implements RowDramatizer {
 
         final ServletOutputStream outputStream = response.getOutputStream();
         try {
-            poiTemplateService.export(outputStream, (pageable)
-                    -> {
-                if (CollectionUtils.isEmpty(rowDefinition.fields()))
-                    return rowService.queryEntity(rowDefinition, pageable);
-                return export(rowService.queryFields(rowDefinition, distinct, null
-                        , pageable), rowDefinition);
-            }, report.keys().length == 0 ? null : Stream.of(report.keys()).collect(Collectors.toSet())
+            poiTemplateService.export(outputStream, () -> {
+                        if (CollectionUtils.isEmpty(rowDefinition.fields()))
+                            return rowService.queryAllEntity(rowDefinition);
+                        return export(rowService.queryFields(rowDefinition, distinct, null), rowDefinition);
+                    }, null, report.equalsKeys().length == 0 ? null : Stream.of(report.equalsKeys()).collect(Collectors.toSet())
+                    , report.allowKeys().length == 0 ? null : Stream.of(report.allowKeys()).collect(Collectors.toSet())
                     , resource, null);
 
             outputStream.flush();

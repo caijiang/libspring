@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import me.jiangcai.poi.template.ExeclEntityRow;
 import me.jiangcai.poi.template.IllegalTemplateException;
 import me.jiangcai.poi.template.POITemplateService;
+import me.jiangcai.poi.template.SingleValue;
 import me.jiangcai.poi.template.thymeleaf.POIDialect;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.logging.Log;
@@ -39,10 +40,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,8 +78,8 @@ public class POITemplateServiceImpl implements POITemplateService {
     }
 
     @Override
-    public void export(OutputStream out, Function<Pageable, Page<?>> listFunction
-            , Set<String> allowKeys, Resource templateResource, String shellName) throws IOException, IllegalTemplateException
+    public void export(OutputStream out, Supplier<List<?>> listSupplier, Function<Pageable, Page<?>> pageFunction
+            , Set<String> equalsKeys, Set<String> allowKeys, Resource templateResource, String shellName) throws IOException, IllegalTemplateException
             , IllegalArgumentException {
 
 
@@ -94,9 +98,15 @@ public class POITemplateServiceImpl implements POITemplateService {
 
         Context context = new Context();
 
-        // 数据处理，需将其处理成最小列
+        final List<?> onlyList;
+        if (listSupplier != null) {
+            onlyList = listSupplier.get();
+        } else {
+            onlyList = null;
+        }
 
-        final Iterable listTotal = () -> {
+        // 数据处理，需将其处理成最小列
+        final Iterable<?> listTotal = () -> {
             Iterator iterator = new Iterator() {
                 int page = 0;
                 Iterator currentIterator;
@@ -107,16 +117,23 @@ public class POITemplateServiceImpl implements POITemplateService {
                     // 检查current 有没有
                     if (listIterator != null && listIterator.hasNext())
                         return true;
+                    if (onlyList != null) {
+                        if (currentIterator != null)
+                            return false;
+                        currentIterator = onlyList.iterator();
+                        context.setVariable("_listTotal", onlyList.size());
+                        return currentIterator.hasNext();
+                    }
                     // 当前有可用的迭代器么？
                     if (currentIterator == null) {
-                        final Page<?> page = listFunction.apply(new PageRequest(0, SIZE));
+                        final Page<?> page = pageFunction.apply(new PageRequest(0, SIZE));
                         context.setVariable("_listTotal", page.getTotalElements());
                         currentIterator = page.iterator();
                     }
                     // 当前的迭代器是否依然有效
                     if (currentIterator.hasNext())
                         return true;
-                    final Page<?> apply = listFunction.apply(new PageRequest(++page, SIZE));
+                    final Page<?> apply = pageFunction.apply(new PageRequest(++page, SIZE));
                     if (apply == null)
                         return false;
                     currentIterator = apply.iterator();
@@ -129,22 +146,79 @@ public class POITemplateServiceImpl implements POITemplateService {
                     if (listIterator != null && listIterator.hasNext())
                         return listIterator.next();
 
-                    final Object next = currentIterator.next();
-                    final List<Map<String, Cell>> list;
-                    if (next instanceof JsonNode) {
-                        list = toCellList((JsonNode) next, allowKeys, context);
-                    } else if (next instanceof Map) {
-                        // name,subList.
-                        list = toCellList((Map) next, allowKeys, context);
-                    } else if (next.getClass().isArray()) {
-                        list = toCellListFromArray(next, allowKeys, context);
-                    } else if (next instanceof ExeclEntityRow) {
-                        list = toCellList((ExeclEntityRow) next, allowKeys, context);
+                    // 先持续滴next 然后把所有list进行合并。
+                    final List<Map<String, Cell>> list = new ArrayList<>();
+                    while (true) {
+                        try {
+                            final Object next = currentIterator.next();
+                            final List<Map<String, Cell>> subList;
+                            if (next instanceof JsonNode) {
+                                subList = toCellList((JsonNode) next, allowKeys, context);
+                            } else if (next instanceof Map) {
+                                // name,subList.
+                                subList = toCellList((Map) next, allowKeys, context);
+                            } else if (next.getClass().isArray()) {
+                                subList = toCellListFromArray(next, allowKeys, context);
+                            } else if (next instanceof ExeclEntityRow) {
+                                subList = toCellList((ExeclEntityRow) next, allowKeys, context);
+                            } else
+                                subList = toCellList(next, allowKeys, context);
+
+                            list.addAll(subList);
+                        } catch (NoSuchElementException ignored) {
+                            break;
+                        }
+                    }
+
+
+                    // 将根据 equalsKey 进行重组
+                    final List<Map<String, Cell>> setupList;
+                    if (equalsKeys != null && !equalsKeys.isEmpty()) {
+                        //  第一步寻找一致的key 而且必须是临近的
+                        List<Integer> hashes = new ArrayList<>(list.size());
+                        for (int i = 0; i < list.size(); i++) {
+                            Map<String, Cell> map = list.get(i);
+                            Object[] data = new Object[equalsKeys.size()];
+                            int j = 0;
+                            for (String key : equalsKeys) {
+                                final Cell cell = map.get(key);
+                                if (cell != null) {
+                                    data[j] = cell.getValue();
+//                                    if (data[j]!=null && data[j] instanceof ValueNode){
+//                                        data[j] = data[j].toString();
+//                                    }
+                                }
+                                j++;
+                            }
+                            hashes.add(Objects.hash(data));
+                        }
+
+                        Map<String, Cell> lastHitRow = null;
+                        Integer lastHash = Integer.MAX_VALUE;
+
+                        setupList = new ArrayList<>(list.size());
+                        for (int i = 0; i < list.size(); i++) {
+                            Map<String, Cell> row = list.get(i);
+                            if (lastHitRow != null && lastHash.intValue() == hashes.get(i)) {
+                                // 命中 我们就叠加吧
+                                for (String key : equalsKeys) {
+                                    Cell cell = lastHitRow.get(key);
+                                    final Cell currentCell = row.get(key);
+                                    cell.setRows(cell.getRows() + currentCell.getRows());
+                                    currentCell.setRows(0);
+                                }
+                            } else if (validRow(row, equalsKeys)) {
+                                // 更换的前提是当前行是有效的 即所有rows>0
+                                lastHitRow = row;
+                                lastHash = hashes.get(i);
+                            }
+                            setupList.add(row);
+                        }
                     } else
-                        list = toCellList(next, allowKeys, context);
+                        setupList = list;
 
                     if (log.isDebugEnabled()) {
-                        list.forEach(stringCellMap -> {
+                        setupList.forEach(stringCellMap -> {
                             StringBuilder rs = new StringBuilder();
                             stringCellMap.entrySet().forEach(stringCellEntry -> {
                                 rs.append(stringCellEntry.getKey()).append(":").append(stringCellEntry.getValue()).append(",");
@@ -153,7 +227,7 @@ public class POITemplateServiceImpl implements POITemplateService {
                         });
                     }
 
-                    listIterator = list.iterator();
+                    listIterator = setupList.iterator();
 
                     return listIterator.next();
                 }
@@ -175,6 +249,19 @@ public class POITemplateServiceImpl implements POITemplateService {
         context.setVariable("rows", rows);
         context.setVariable("list", listTotal);
         engine.process("", context, new OutputStreamWriter(out, Charset.forName("UTF-8")));
+    }
+
+    /**
+     * @param row
+     * @param equalsKeys
+     * @return 有效的行
+     */
+    private boolean validRow(Map<String, Cell> row, Set<String> equalsKeys) {
+        return row.entrySet().stream()
+                .filter(stringCellEntry -> equalsKeys.contains(stringCellEntry.getKey()))
+                .map(Map.Entry::getValue)
+                .map(Cell::getRows)
+                .allMatch(integer -> integer > 0);
     }
 
     private List<Map<String, Cell>> toCellList(Object object, Set<String> allowKeys, Context context) {
@@ -376,7 +463,9 @@ public class POITemplateServiceImpl implements POITemplateService {
                 || Number.class.isAssignableFrom(data.getClass())
                 || Temporal.class.isAssignableFrom(data.getClass())
                 || Date.class.isAssignableFrom(data.getClass())
-                || Time.class.isAssignableFrom(data.getClass()))
+                || Time.class.isAssignableFrom(data.getClass())
+                || SingleValue.class.isAssignableFrom(data.getClass())
+                || JsonNode.class.isAssignableFrom(data.getClass()))
             return Collections.singletonList(Collections.singletonMap(originKey.toString(), data));
 
         // into a map

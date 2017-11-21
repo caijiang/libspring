@@ -24,5 +24,10 @@ public @interface ExeclReport {
     /**
      * @return 允许的key；如果保持默认则不会强行要求
      */
-    String[] keys() default {};
+    String[] allowKeys() default {};
+
+    /**
+     * @return 可以形成唯一约束的键集合；如果保持默认则无此功能
+     */
+    String[] equalsKeys() default {};
 }
