@@ -368,7 +368,7 @@ public class POITemplateServiceImpl implements POITemplateService {
             int currentRow = 0;
             for (Map<String, Object> rowData : iterableData) {
                 for (String realKey : rowData.keySet()) {
-                    Cell cell = new Cell(span, 1, rowData.get(realKey));
+                    Cell cell = new Cell(rowData.get(realKey), span, 1);
                     // currentRow realKey 的cell确定了
                     lists[currentRow].put(realKey, cell);
                 }
