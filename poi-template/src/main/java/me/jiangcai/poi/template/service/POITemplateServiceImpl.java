@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.thymeleaf.IEngineConfiguration;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -363,10 +364,10 @@ public class POITemplateServiceImpl implements POITemplateService {
             // 跨则同一个
             // 取出一个子data
 //            final Map<String, Object> iterable = iterable(key, data);
-            final List<Map<String, Object>> iterableData = iterable(key, data);
+            final List<Map<String, Object>> iterableData = iterable(key, data, allowKeys);
             int currentRow = 0;
             if (iterableData.isEmpty()) {
-                lists[currentRow++].put(key.toString(),new Cell("",span,1));
+                lists[currentRow++].put(key.toString(), new Cell("", span, 1));
                 for (int k = 0; k < span - 1; k++) {
 //                    for (String realKey : rowData.keySet()) {
                     lists[currentRow].put(key.toString(), Cell.EMPTY);
@@ -416,9 +417,10 @@ public class POITemplateServiceImpl implements POITemplateService {
      *
      * @param originKey 原始字段
      * @param data      该字段的内容
+     * @param allowKeys
      * @return 若为对象 则直接 key.dataName 逐一平铺；若为数组 则
      */
-    private List<Map<String, Object>> iterable(Object originKey, Object data) {
+    private List<Map<String, Object>> iterable(Object originKey, Object data, Set<String> allowKeys) {
         if (data == null)
             return Collections.singletonList(Collections.singletonMap(originKey.toString(), null));
         if (data instanceof Cell)
@@ -431,7 +433,7 @@ public class POITemplateServiceImpl implements POITemplateService {
                 Map.Entry<String, JsonNode> entry = fields.next();
                 array.put(entry.getKey(), entry.getValue());
             }
-            return iterable(originKey, array);
+            return iterable(originKey, array, allowKeys);
         }
         if (data instanceof JsonNode && ((JsonNode) data).isArray()) {
             // 是json而且是个json array
@@ -440,11 +442,12 @@ public class POITemplateServiceImpl implements POITemplateService {
             for (int i = 0; i < array.length; i++) {
                 array[i] = ((JsonNode) data).get(i);
             }
-            return iterable(originKey, array);
+            return iterable(originKey, array, allowKeys);
         }
         if (data instanceof Map) {
             @SuppressWarnings("unchecked") final Stream<Map.Entry> stream = ((Map) data).entrySet().stream();
             return Collections.singletonList(stream
+                    .filter(entry -> CollectionUtils.isEmpty(allowKeys) || allowKeys.contains(originKey + "." + entry.getKey()))
                     .collect(Collectors.toMap(o -> originKey + "." + o.getKey()
                             , Map.Entry::getValue)));
         }
@@ -452,12 +455,12 @@ public class POITemplateServiceImpl implements POITemplateService {
             final Collection collection = (Collection) data;
             final Object[] array = new Object[collection.size()];
             collection.toArray(array);
-            return iterable(originKey, array);
+            return iterable(originKey, array, allowKeys);
         }
         if (data.getClass().isArray()) {
             ArrayList<Map<String, Object>> list = new ArrayList<>();
             for (int i = 0; i < Array.getLength(data); i++) {
-                List<Map<String, Object>> itemData = iterable(originKey, Array.get(data, i));
+                List<Map<String, Object>> itemData = iterable(originKey, Array.get(data, i), allowKeys);
                 if (itemData.size() != 1)
                     throw new IllegalStateException("内部又产生循环？" + itemData);
                 list.add(itemData.get(0));
@@ -481,7 +484,7 @@ public class POITemplateServiceImpl implements POITemplateService {
         // into a map
         HashMap<Object, Object> map = new HashMap<>();
         beanKeys().apply(data).forEach(key -> map.put(key, beanValueResolver().apply(data, key)));
-        return iterable(originKey, map);
+        return iterable(originKey, map, allowKeys);
     }
 
     private int getCol(Object data) {
