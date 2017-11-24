@@ -366,33 +366,33 @@ public class POITemplateServiceImpl implements POITemplateService {
 //            final Map<String, Object> iterable = iterable(key, data);
             final List<Map<String, Object>> iterableData = iterable(key, data, allowKeys);
             int currentRow = 0;
-            if (iterableData.isEmpty()) {
+            for (Map<String, Object> rowData : iterableData) {
+                for (String realKey : rowData.keySet()) {
+                    Cell cell = new Cell(rowData.get(realKey), span, 1);
+                    // currentRow realKey 的cell确定了
+                    lists[currentRow].put(realKey, cell);
+                }
+                currentRow++;
+                // 还剩下 span -1
+                for (int k = 0; k < span - 1; k++) {
+                    for (String realKey : rowData.keySet()) {
+                        lists[currentRow].put(realKey, Cell.EMPTY);
+                    }
+                    currentRow++;
+                }
+                // 如果已经写到最后一行 说明该列需要写入新的一列 则重新开启
+                if (currentRow == max) {
+                    currentRow = 0;
+                }
+            }
+            // 如果当前key没有被设置，那么说明要么没有值，要么是一个map 作为一个负责任的列表应该给予空值
+            if (!lists[currentRow].containsKey(key.toString())) {
                 lists[currentRow++].put(key.toString(), new Cell("", span, 1));
                 for (int k = 0; k < span - 1; k++) {
 //                    for (String realKey : rowData.keySet()) {
                     lists[currentRow].put(key.toString(), Cell.EMPTY);
 //                    }
                     currentRow++;
-                }
-            } else {
-                for (Map<String, Object> rowData : iterableData) {
-                    for (String realKey : rowData.keySet()) {
-                        Cell cell = new Cell(rowData.get(realKey), span, 1);
-                        // currentRow realKey 的cell确定了
-                        lists[currentRow].put(realKey, cell);
-                    }
-                    currentRow++;
-                    // 还剩下 span -1
-                    for (int k = 0; k < span - 1; k++) {
-                        for (String realKey : rowData.keySet()) {
-                            lists[currentRow].put(realKey, Cell.EMPTY);
-                        }
-                        currentRow++;
-                    }
-                    // 如果已经写到最后一行 说明该列需要写入新的一列 则重新开启
-                    if (currentRow == max) {
-                        currentRow = 0;
-                    }
                 }
             }
 
