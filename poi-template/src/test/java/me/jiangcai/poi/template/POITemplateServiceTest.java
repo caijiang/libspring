@@ -47,6 +47,11 @@ public class POITemplateServiceTest extends SpringWebTest {
     }
 
     @Test
+    public void export2() throws IOException, IllegalTemplateException {
+        exportOne("demo2", null);
+    }
+
+    @Test
     public void export() throws Exception {
 //        exportOne("demo1",null);
         Set<String> keys = new HashSet<>();
@@ -57,7 +62,6 @@ public class POITemplateServiceTest extends SpringWebTest {
         keys.add("orderId");
         keys.add("orderDate");
         exportOne("demo1", keys);
-//        exportOne("demo2", null);
     }
 
     @Test

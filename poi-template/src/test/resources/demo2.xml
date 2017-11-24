@@ -106,7 +106,7 @@
     <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.price'].value.asDouble()}">999.99</Data></Cell>
     <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}" ss:Formula="=RC[-1]*RC[-2]"><Data
       ss:Type="Number">999.99</Data></Cell>
-    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s81" th:if="${data['tags'].rows>0}" poi:MergeDown="${data['tags'].rows-1}"><Data ss:Type="String" th:text="${data['tags'].value.asText()}">很不错</Data></Cell>
+    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s81" th:if="${data['tags'].rows>0}" poi:MergeDown="${data['tags'].rows-1}"><Data ss:Type="String" th:text="${data['tags'].value.toString()}">很不错</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s70" th:if="${data['orderDate'].rows>0}" poi:MergeDown="${data['orderDate'].rows-1}"><Data ss:Type="DateTime" th:text="${data['orderDate'].value.asText()}">2017-11-11T09:10:00.000</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0" th:remove="all"/>

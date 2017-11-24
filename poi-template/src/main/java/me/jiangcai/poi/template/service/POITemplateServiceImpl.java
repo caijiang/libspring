@@ -335,7 +335,7 @@ public class POITemplateServiceImpl implements POITemplateService {
             Object key = set.get(i);
             Object data = valueResolver.apply(map, key);
             int col = getCol(data);
-            rows[i] = col;
+            rows[i] = Math.max(col, 1);
         }
 
         // 总行数
@@ -352,7 +352,6 @@ public class POITemplateServiceImpl implements POITemplateService {
         }
 
         // 获取到了 开始整理row
-        Cell[][] cells = new Cell[max][set.size()];// 暂不支持跨列
         @SuppressWarnings("unchecked")
         Map<String, Cell>[] lists = new Map[max];
         Arrays.setAll(lists, (IntFunction<Map<String, Cell>>) value -> new HashMap<>());
@@ -366,25 +365,36 @@ public class POITemplateServiceImpl implements POITemplateService {
 //            final Map<String, Object> iterable = iterable(key, data);
             final List<Map<String, Object>> iterableData = iterable(key, data);
             int currentRow = 0;
-            for (Map<String, Object> rowData : iterableData) {
-                for (String realKey : rowData.keySet()) {
-                    Cell cell = new Cell(rowData.get(realKey), span, 1);
-                    // currentRow realKey 的cell确定了
-                    lists[currentRow].put(realKey, cell);
-                }
-                currentRow++;
-                // 还剩下 span -1
+            if (iterableData.isEmpty()) {
+                lists[currentRow++].put(key.toString(),new Cell("",span,1));
                 for (int k = 0; k < span - 1; k++) {
-                    for (String realKey : rowData.keySet()) {
-                        lists[currentRow].put(realKey, Cell.EMPTY);
-                    }
+//                    for (String realKey : rowData.keySet()) {
+                    lists[currentRow].put(key.toString(), Cell.EMPTY);
+//                    }
                     currentRow++;
                 }
-                // 如果已经写到最后一行 说明该列需要写入新的一列 则重新开启
-                if (currentRow == max) {
-                    currentRow = 0;
+            } else {
+                for (Map<String, Object> rowData : iterableData) {
+                    for (String realKey : rowData.keySet()) {
+                        Cell cell = new Cell(rowData.get(realKey), span, 1);
+                        // currentRow realKey 的cell确定了
+                        lists[currentRow].put(realKey, cell);
+                    }
+                    currentRow++;
+                    // 还剩下 span -1
+                    for (int k = 0; k < span - 1; k++) {
+                        for (String realKey : rowData.keySet()) {
+                            lists[currentRow].put(realKey, Cell.EMPTY);
+                        }
+                        currentRow++;
+                    }
+                    // 如果已经写到最后一行 说明该列需要写入新的一列 则重新开启
+                    if (currentRow == max) {
+                        currentRow = 0;
+                    }
                 }
             }
+
             // iterableData
 //            int currentRow = 0;
 //            for (String realKey : iterable.keySet()) {
