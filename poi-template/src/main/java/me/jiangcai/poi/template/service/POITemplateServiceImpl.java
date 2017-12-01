@@ -1,6 +1,7 @@
 package me.jiangcai.poi.template.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import me.jiangcai.poi.template.EqualsKey;
 import me.jiangcai.poi.template.ExeclEntityRow;
 import me.jiangcai.poi.template.IllegalTemplateException;
 import me.jiangcai.poi.template.POITemplateService;
@@ -38,16 +39,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,7 +82,8 @@ public class POITemplateServiceImpl implements POITemplateService {
 
     @Override
     public void export(OutputStream out, Supplier<List<?>> listSupplier, Function<Pageable, Page<?>> pageFunction
-            , Set<String> equalsKeys, Set<String> allowKeys, Resource templateResource, String shellName) throws IOException, IllegalTemplateException
+            , EqualsKey equalsKey, Set<String> equalsKeys, Set<String> allowKeys, Resource templateResource
+            , String shellName) throws IOException, IllegalTemplateException
             , IllegalArgumentException {
 
 
@@ -173,50 +176,13 @@ public class POITemplateServiceImpl implements POITemplateService {
 
 
                     // 将根据 equalsKey 进行重组
+                    // goods fav
                     final List<Map<String, Cell>> setupList;
-                    if (equalsKeys != null && !equalsKeys.isEmpty()) {
-                        //  第一步寻找一致的key 而且必须是临近的
-                        List<Integer> hashes = new ArrayList<>(list.size());
-                        for (int i = 0; i < list.size(); i++) {
-                            Map<String, Cell> map = list.get(i);
-                            Object[] data = new Object[equalsKeys.size()];
-                            int j = 0;
-                            for (String key : equalsKeys) {
-                                final Cell cell = map.get(key);
-                                if (cell != null) {
-                                    data[j] = cell.getValue();
-//                                    if (data[j]!=null && data[j] instanceof ValueNode){
-//                                        data[j] = data[j].toString();
-//                                    }
-                                }
-                                j++;
-                            }
-                            hashes.add(Objects.hash(data));
-                        }
-
-                        Map<String, Cell> lastHitRow = null;
-                        Integer lastHash = Integer.MAX_VALUE;
-
-                        setupList = new ArrayList<>(list.size());
-                        for (int i = 0; i < list.size(); i++) {
-                            Map<String, Cell> row = list.get(i);
-                            if (lastHitRow != null && lastHash.intValue() == hashes.get(i)) {
-                                // 命中 我们就叠加吧
-                                for (String key : equalsKeys) {
-                                    Cell cell = lastHitRow.get(key);
-                                    final Cell currentCell = row.get(key);
-                                    cell.setRows(cell.getRows() + currentCell.getRows());
-                                    currentCell.setRows(0);
-                                }
-                            } else if (validRow(row, equalsKeys)) {
-                                // 更换的前提是当前行是有效的 即所有rows>0
-                                lastHitRow = row;
-                                lastHash = hashes.get(i);
-                            }
-                            setupList.add(row);
-                        }
-                    } else
+                    if (equalsKey != null) {
+                        setupList = equalsKey.build(list);
+                    } else {
                         setupList = list;
+                    }
 
                     if (log.isDebugEnabled()) {
                         setupList.forEach(stringCellMap -> {
@@ -376,7 +342,7 @@ public class POITemplateServiceImpl implements POITemplateService {
                 // 还剩下 span -1
                 for (int k = 0; k < span - 1; k++) {
                     for (String realKey : rowData.keySet()) {
-                        lists[currentRow].put(realKey, Cell.EMPTY);
+                        lists[currentRow].put(realKey, Cell.empty());
                     }
                     currentRow++;
                 }
@@ -390,7 +356,7 @@ public class POITemplateServiceImpl implements POITemplateService {
                 lists[currentRow++].put(key.toString(), new Cell("", span, 1));
                 for (int k = 0; k < span - 1; k++) {
 //                    for (String realKey : rowData.keySet()) {
-                    lists[currentRow].put(key.toString(), Cell.EMPTY);
+                    lists[currentRow].put(key.toString(), Cell.empty());
 //                    }
                     currentRow++;
                 }
@@ -407,6 +373,31 @@ public class POITemplateServiceImpl implements POITemplateService {
 //                    lists[currentRow++].put(realKey, Cell.EMPTY);
 //                }
 //            }
+        }
+
+        // 错误纠正 1 保证rows的有效性 1 保证 所有列都完整
+        HashSet<String> allKeys = new HashSet<>();
+        for (Map<String, Cell> data : lists) {
+            allKeys.addAll(data.keySet());
+        }
+        //
+        for (Map<String, Cell> data : lists) {
+            Set<String> dataKeySet = data.keySet();
+            for (String key : allKeys.stream()
+                    .filter(input->!dataKeySet.contains(input))
+                    .collect(Collectors.toList())) {
+                data.put(key, new Cell("", 1, 1));
+            }
+        }
+        // 确保每一个key都拥有max个rows
+        for (String key:allKeys){
+            int sum = Stream.of(lists)
+                    .map(d->d.get(key))
+                    .map(Cell::getRows)
+                    .mapToInt(value -> value)
+                    .sum();
+            if (sum!=max)
+                throw new IllegalStateException("其中"+key+"没有准确的行数");
         }
 
         return Arrays.asList(lists);
@@ -448,6 +439,7 @@ public class POITemplateServiceImpl implements POITemplateService {
             @SuppressWarnings("unchecked") final Stream<Map.Entry> stream = ((Map) data).entrySet().stream();
             return Collections.singletonList(stream
                     .filter(entry -> CollectionUtils.isEmpty(allowKeys) || allowKeys.contains(originKey + "." + entry.getKey()))
+                    .filter(entry -> entry.getValue() != null)
                     .collect(Collectors.toMap(o -> originKey + "." + o.getKey()
                             , Map.Entry::getValue)));
         }

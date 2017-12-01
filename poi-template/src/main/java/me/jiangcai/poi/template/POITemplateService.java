@@ -22,6 +22,7 @@ public interface POITemplateService {
      * @param out              目标流
      * @param listSupplier     直接提供List
      * @param pageFunction     提供Page；如果提供了listSupplier 则该选项就不再必要了。
+     * @param equalsKey
      * @param equalsKeys       可选的唯一信息识别字段组；该字段一致的数据 将被认为数据一致
      * @param allowKeys        可选的允许可用的key
      * @param templateResource 模板资源
@@ -30,7 +31,7 @@ public interface POITemplateService {
      * @throws IllegalTemplateException 模板有问题
      * @throws IllegalArgumentException 给的数据不行
      */
-    void export(OutputStream out, Supplier<List<?>> listSupplier, Function<Pageable, Page<?>> pageFunction, Set<String> equalsKeys, Set<String> allowKeys, Resource templateResource
+    void export(OutputStream out, Supplier<List<?>> listSupplier, Function<Pageable, Page<?>> pageFunction, EqualsKey equalsKey, Set<String> equalsKeys, Set<String> allowKeys, Resource templateResource
             , String shellName) throws IOException, IllegalTemplateException, IllegalArgumentException;
 
 }

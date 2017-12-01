@@ -9,8 +9,10 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Cell {
-    public static final Cell EMPTY = new Cell(null, 0, 0);
-    private final Object value;
+    public static Cell empty(){
+        return new Cell(null, 0, 0);
+    }
+    private Object value;
     private int rows;
     private int cols;
 }

@@ -21,8 +21,8 @@
   <PixelsPerInch>96</PixelsPerInch>
  </OfficeDocumentSettings>
  <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
-  <WindowHeight>16380</WindowHeight>
-  <WindowWidth>27160</WindowWidth>
+  <WindowHeight>14380</WindowHeight>
+  <WindowWidth>25620</WindowWidth>
   <WindowTopX>940</WindowTopX>
   <WindowTopY>460</WindowTopY>
   <TabRatio>600</TabRatio>
@@ -55,23 +55,23 @@
    <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
   </Style>
   <Style ss:ID="s70">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="s72">
+   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
+   <NumberFormat ss:Format="&quot;CN¥&quot;#,##0.00"/>
+  </Style>
+  <Style ss:ID="s74">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <NumberFormat ss:Format="&quot;CN¥&quot;#,##0.00"/>
+  </Style>
+  <Style ss:ID="s76">
    <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
    <NumberFormat ss:Format="yyyy/m/d\ h:mm;@"/>
   </Style>
-  <Style ss:ID="s79">
-   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
-  </Style>
-  <Style ss:ID="s81">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-   <NumberFormat ss:Format="&quot;CN¥&quot;#,##0.00"/>
-  </Style>
-  <Style ss:ID="s82">
-   <Alignment ss:Horizontal="Right" ss:Vertical="Center"/>
-   <NumberFormat ss:Format="&quot;CN¥&quot;#,##0.00"/>
-  </Style>
  </Styles>
  <Worksheet ss:Name="订单格式">
-  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="7" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="12" ss:ExpandedRowCount="20" x:FullColumns="1"
    x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="15">
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="96"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0"/>
@@ -80,8 +80,8 @@
    <Column ss:Index="6" ss:AutoFitWidth="0" ss:Width="129"/>
    <Column ss:AutoFitWidth="0" ss:Width="37"/>
    <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="75"/>
-   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="78" ss:Span="1"/>
-   <Column ss:Index="11" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="96"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="78" ss:Span="2"/>
+   <Column ss:Index="12" ss:StyleID="s64" ss:AutoFitWidth="0" ss:Width="96"/>
    <Row ss:AutoFitHeight="0">
     <Cell><Data ss:Type="String">订单序列号</Data></Cell>
     <Cell><Data ss:Type="String">订单用户</Data></Cell>
@@ -93,6 +93,7 @@
     <Cell><Data ss:Type="String">单价</Data></Cell>
     <Cell><Data ss:Type="String">订单金额</Data></Cell>
     <Cell><Data ss:Type="String">其他</Data></Cell>
+    <Cell><Data ss:Type="String">爱好</Data></Cell>
     <Cell><Data ss:Type="String">下单时间</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0" th:each="data:${list}">
@@ -101,33 +102,34 @@
     <Cell ss:MergeDown="5" ss:StyleID="s68" th:if="${data['address'].rows>0}" poi:MergeDown="${data['address'].rows-1}"><Data ss:Type="String" th:text="${data['address'].value.asText()}">浙江省杭州市滨江区滨盛路9999号海亮大厦1801-9999室</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s66" th:if="${data['mobile'].rows>0}" poi:MergeDown="${data['mobile'].rows-1}"><Data ss:Type="String" th:text="${data['mobile'].value.asText()}">18606509617</Data></Cell>
     <Cell ss:MergeDown="5" ss:StyleID="s66" th:if="${data['payMethod'].rows>0}" poi:MergeDown="${data['payMethod'].rows-1}"><Data ss:Type="String" th:text="${data['payMethod'].value.asText()}">拉卡拉</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s68" ss:Index="6" th:if="${data['goods.name'].rows>0}" poi:MergeDown="${data['goods.name'].rows-1}"><Data ss:Type="String" th:text="${data['goods.name'].value.asText()}">超级量子净水器</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s79" th:if="${data['goods.amount'].rows>0}" poi:MergeDown="${data['goods.amount'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.amount'].value.asInt()}">1</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.price'].value.asDouble()}">999.99</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}" ss:Formula="=RC[-1]*RC[-2]"><Data
-      ss:Type="Number">999.99</Data></Cell>
-    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s81" th:if="${data['tags'].rows>0}" poi:MergeDown="${data['tags'].rows-1}"><Data ss:Type="String" th:text="${data['tags'].value.toString()}">很不错</Data></Cell>
-    <Cell ss:MergeDown="5" ss:StyleID="s70" th:if="${data['orderDate'].rows>0}" poi:MergeDown="${data['orderDate'].rows-1}"><Data ss:Type="DateTime" th:text="${data['orderDate'].value.asText()}">2017-11-11T09:10:00.000</Data></Cell>
+    <Cell  ss:Index="6" ss:MergeDown="1" ss:StyleID="s68" th:if="${data['goods.name'].rows>0}" poi:MergeDown="${data['goods.name'].rows-1}"><Data ss:Type="String" th:text="${data['goods.name'].value.asText()}">超级量子净水器</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s70" th:if="${data['goods.amount'].rows>0}" poi:MergeDown="${data['goods.amount'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.amount'].value.asInt()}">1</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}"><Data ss:Type="Number" th:text="${data['goods.price'].value.asDouble()}">999.99</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72" ss:Formula="=RC[-1]*RC[-2]" th:if="${data['goods.price'].rows>0}" poi:MergeDown="${data['goods.price'].rows-1}"><Data ss:Type="Number">999.99</Data></Cell>
+    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s74" th:if="${data['tags'].rows>0}" poi:MergeDown="${data['tags'].rows-1}"><Data ss:Type="String" th:text="${data['tags'].value.toString()}">很不错</Data></Cell>
+    <Cell ss:Index="11" ss:MergeDown="2" ss:StyleID="s74" th:if="${data['fav.name'].rows>0}" poi:MergeDown="${data['fav.name'].rows-1}"><Data ss:Type="String" th:text="${data['fav.name'].value.toString()}">foo</Data></Cell>
+    <Cell ss:MergeDown="5" ss:StyleID="s76" th:if="${data['orderDate'].rows>0}" poi:MergeDown="${data['orderDate'].rows-1}"><Data ss:Type="DateTime" th:text="${data['orderDate'].value.asText()}">2017-11-11T09:10:00.000</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0" th:remove="all"/>
    <Row ss:AutoFitHeight="0" th:remove="all">
     <Cell ss:Index="6" ss:MergeDown="1" ss:StyleID="s68"><Data ss:Type="String">无敌天蓝色食品优化宝</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s79"><Data ss:Type="Number">2</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82"><Data ss:Type="Number">9800</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" ss:Formula="=RC[-1]*RC[-2]"><Data
+    <Cell ss:MergeDown="1" ss:StyleID="s70"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72"><Data ss:Type="Number">9800</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72" ss:Formula="=RC[-1]*RC[-2]"><Data
       ss:Type="Number">19600</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0" th:remove="all">
-    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s81"><Data ss:Type="String">不太喜欢</Data></Cell>
+    <Cell ss:Index="10" ss:MergeDown="2" ss:StyleID="s74"><Data ss:Type="String">不太喜欢</Data></Cell>
+    <Cell ss:MergeDown="2" ss:StyleID="s74"><Data ss:Type="String">bar</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0" th:remove="all">
     <Cell ss:Index="6" ss:MergeDown="1" ss:StyleID="s68"><Data ss:Type="String">女款性感量子项链</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s79"><Data ss:Type="Number">3</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82"><Data ss:Type="Number">99</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s82" ss:Formula="=RC[-1]*RC[-2]"><Data
+    <Cell ss:MergeDown="1" ss:StyleID="s70"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72"><Data ss:Type="Number">99</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s72" ss:Formula="=RC[-1]*RC[-2]"><Data
       ss:Type="Number">297</Data></Cell>
    </Row>
-   <Row ss:AutoFitHeight="0" th:remove="all"/>
+   <Row ss:AutoFitHeight="0"/>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
    <PageSetup>
@@ -144,13 +146,13 @@
    <Zoom>191</Zoom>
    <PageLayoutZoom>0</PageLayoutZoom>
    <Selected/>
-   <LeftColumnVisible>3</LeftColumnVisible>
+   <LeftColumnVisible>5</LeftColumnVisible>
    <Panes>
     <Pane>
      <Number>3</Number>
      <ActiveRow>1</ActiveRow>
-     <ActiveCol>1</ActiveCol>
-     <RangeSelection>R2C2:R7C2</RangeSelection>
+     <ActiveCol>10</ActiveCol>
+     <RangeSelection>R2C11:R4C11</RangeSelection>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>

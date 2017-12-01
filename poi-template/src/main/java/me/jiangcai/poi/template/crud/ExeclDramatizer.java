@@ -124,7 +124,7 @@ public class ExeclDramatizer implements RowDramatizer {
                         if (CollectionUtils.isEmpty(rowDefinition.fields()))
                             return rowService.queryAllEntity(rowDefinition);
                         return export(rowService.queryFields(rowDefinition, distinct, null), rowDefinition);
-                    }, null, report.equalsKeys().length == 0 ? null : Stream.of(report.equalsKeys()).collect(Collectors.toSet())
+                    }, null, null, report.equalsKeys().length == 0 ? null : Stream.of(report.equalsKeys()).collect(Collectors.toSet())
                     , report.allowKeys().length == 0 ? null : Stream.of(report.allowKeys()).collect(Collectors.toSet())
                     , resource, null);
 
