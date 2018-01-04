@@ -16,7 +16,10 @@ import java.util.List;
  * @author CJ
  */
 @Configuration
-@ComponentScan("me.jiangcai.crud.row.bean")
+@ComponentScan({
+        "me.jiangcai.crud.row.bean",
+        "me.jiangcai.crud.controller"
+})
 public class CrudConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
