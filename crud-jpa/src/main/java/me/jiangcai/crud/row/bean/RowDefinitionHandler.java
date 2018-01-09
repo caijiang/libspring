@@ -20,7 +20,11 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * @author CJ
@@ -77,16 +81,24 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
             return;
         }
 
-        final int startPosition = dramatizer.queryOffset(webRequest);
-        final int size = dramatizer.querySize(webRequest);
-
         final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
 
         //
-        Page<?> page = rowService.queryFields(rowDefinition, distinct,
-                (criteriaBuilder, root) -> rowDramatizer.order(fieldDefinitions, webRequest, criteriaBuilder, root)
-                , new PageRequest(startPosition / size, size));
-        dramatizer.writeResponse(page.getTotalElements(), page.getContent(), fieldDefinitions, webRequest);
+        final BiFunction<CriteriaBuilder, Root, List<Order>> filterFunction = (criteriaBuilder, root)
+                -> rowDramatizer.order(fieldDefinitions, webRequest, criteriaBuilder, root);
+
+        if (rowCustom != null && rowCustom.fetchAll()) {
+            List<?> list = rowService.queryFields(rowDefinition, distinct, filterFunction);
+            dramatizer.writeResponse(list.size(), list, fieldDefinitions, webRequest);
+        } else {
+            final int startPosition = dramatizer.queryOffset(webRequest);
+            final int size = dramatizer.querySize(webRequest);
+
+            Page<?> page = rowService.queryFields(rowDefinition, distinct,
+                    filterFunction
+                    , new PageRequest(startPosition / size, size));
+            dramatizer.writeResponse(page.getTotalElements(), page.getContent(), fieldDefinitions, webRequest);
+        }
         mavContainer.setRequestHandled(true);
 
     }
