@@ -10,7 +10,11 @@ import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
- * 数据定义
+ * 它定义了可以以列(row,或者叫做记录)方式呈现数据的一种方式
+ * 其中包括<ul>
+ *     <li>数据规格，即哪些实体会被排除</li>
+ *     <li>列字段，实体中何种数据(并不特指某字段)会被关注</li>
+ * </ul>
  *
  * @param <T> 数据来自的JPA Entity范型
  * @author CJ

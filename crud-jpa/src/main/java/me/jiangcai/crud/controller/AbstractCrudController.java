@@ -3,7 +3,6 @@ package me.jiangcai.crud.controller;
 import me.jiangcai.crud.CrudFriendly;
 import me.jiangcai.crud.exception.CrudNotFoundException;
 import me.jiangcai.crud.row.FieldDefinition;
-import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -60,11 +59,22 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         preparePersist(postData, otherData);
         entityManager.persist(postData);
         entityManager.flush();
+        postPersist(postData);
         ID id = postData.getId();
         // TODO 串化讲道理应该是通过MVC配置获取，这里先简单点来
         return ResponseEntity
                 .created(new URI(homeUri() + "/" + id))
                 .build();
+    }
+
+    /**
+     * 在完成持久化之后的调用钩子，<b>并非事务被提交之后</b>
+     *
+     * @param entity 完成持久化的实体
+     */
+    @SuppressWarnings("WeakerAccess")
+    protected void postPersist(T entity) {
+
     }
 
     @DeleteMapping("/{id}")
@@ -79,7 +89,6 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
     // 获取数据
     @GetMapping
-    @RowCustom(distinct = true)
     public RowDefinition<T> list(@RequestBody(required = false) Map<String, Object> queryData) {
         return new RowDefinition<T>() {
             @Override
