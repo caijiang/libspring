@@ -58,8 +58,8 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
 
         RowCustom rowCustom = returnType.getMethodAnnotation(RowCustom.class);
         if (rowCustom == null) {
-//            returnType.getContainingClass().getAnnotation(RowCustom.class);
-            rowCustom = returnType.getDeclaringClass().getAnnotation(RowCustom.class);
+            rowCustom = returnType.getContainingClass().getAnnotation(RowCustom.class);
+//            rowCustom = returnType.getDeclaringClass().getAnnotation(RowCustom.class);
         }
 
         // 看看有没有
