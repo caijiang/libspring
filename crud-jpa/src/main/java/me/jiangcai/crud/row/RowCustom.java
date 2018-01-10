@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * @author CJ
  */
 @Documented
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RowCustom {
     /**
