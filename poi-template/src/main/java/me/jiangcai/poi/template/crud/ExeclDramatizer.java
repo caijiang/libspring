@@ -89,7 +89,7 @@ public class ExeclDramatizer implements RowDramatizer {
     }
 
     @Override
-    public void writeResponse(long total, List<?> list, List<? extends IndefiniteFieldDefinition> fields, NativeWebRequest webRequest) throws IOException {
+    public void writeResponse(Page<?> page, List<? extends IndefiniteFieldDefinition> fields, NativeWebRequest webRequest) throws IOException {
 
     }
 

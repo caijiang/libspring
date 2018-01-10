@@ -17,37 +17,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * https://select2.github.io/options.html
- * 默认size = 30
+ * https://ant.design/components/pagination-cn/
+ * 数据将渲染在list,pagination中
+ * order的标准暂不明确
  *
  * @author CJ
+ * @since 4.0
  */
-public class Select2Dramatizer extends AbstractMediaRowDramatizer implements RowDramatizer {
-
-    @Override
-    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder, Root root) {
-        return null;
-    }
-
+public class AntDesignPaginationDramatizer extends AbstractMediaRowDramatizer implements RowDramatizer {
     @Override
     public String getOffsetParameterName() {
         throw new IllegalStateException("never!!");
     }
 
     @Override
+    public int getDefaultSize() {
+        return 10;
+    }
+
+    @Override
     public int queryOffset(NativeWebRequest webRequest) {
-        int page = readAsInt(webRequest, "page", 1);
+        int page = readAsInt(webRequest, "current", 1);
         return (page - 1) * querySize(webRequest);
     }
 
     @Override
-    public int getDefaultSize() {
-        return 30;
-    }
-
-    @Override
     public String getSizeParameterName() {
-        return "size";
+        return "pageSize";
     }
 
     @Override
@@ -57,14 +53,19 @@ public class Select2Dramatizer extends AbstractMediaRowDramatizer implements Row
 
     @Override
     protected void writeData(Page<?> page, List<Object> rows, NativeWebRequest webRequest) throws IOException {
-        // 是否已完成？ total < ofset+size
-        Map<String, Object> json = new HashMap<>();
-        json.put("total_count", page.getTotalElements());
-        json.put("items", rows);
-        // 实际上……
-//  "incomplete_results": false,
-//        json.put("incomplete_results", total < queryOffset(webRequest) + querySize(webRequest));
+        Map<String, Object> pagination = new HashMap<>();
+        pagination.put("current", page.getNumber() + 1);
+        pagination.put("pageSize", page.getSize());
+        pagination.put("total", page.getTotalElements());
 
+        Map<String, Object> json = new HashMap<>();
+        json.put("pagination", pagination);
+        json.put("list", rows);
         objectMapper.writeValue(webRequest.getNativeResponse(HttpServletResponse.class).getOutputStream(), json);
+    }
+
+    @Override
+    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder, Root root) {
+        return null;
     }
 }

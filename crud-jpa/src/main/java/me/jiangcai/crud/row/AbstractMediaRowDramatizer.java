@@ -1,5 +1,6 @@
 package me.jiangcai.crud.row;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.util.NumberUtils;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -50,18 +51,17 @@ public abstract class AbstractMediaRowDramatizer implements RowDramatizer {
     }
 
     @Override
-    public void writeResponse(long total, List<?> list, List<? extends IndefiniteFieldDefinition> fields, NativeWebRequest webRequest)
-            throws IOException {
+    public void writeResponse(Page<?> page, List<? extends IndefiniteFieldDefinition> fields, NativeWebRequest webRequest) throws IOException {
         final HttpServletResponse nativeResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 
         nativeResponse.setHeader("Content-Type", toMediaType().toString());
 
-        List<Object> rows = drawToRows(list, fields);
+        List<Object> rows = drawToRows(page.getContent(), fields);
 
-        writeResponse(total, rows, webRequest);
+        writeData(page, rows, webRequest);
     }
 
-    protected abstract void writeResponse(long total, List<Object> rows, NativeWebRequest webRequest) throws IOException;
+    protected abstract void writeData(Page<?> page, List<Object> rows, NativeWebRequest webRequest) throws IOException;
 
 
     private List<Object> drawToRows(List<?> list, List<? extends IndefiniteFieldDefinition> fields) {

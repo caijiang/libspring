@@ -89,7 +89,7 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
 
         if (rowCustom != null && rowCustom.fetchAll()) {
             List<?> list = rowService.queryFields(rowDefinition, distinct, filterFunction);
-            dramatizer.writeResponse(list.size(), list, fieldDefinitions, webRequest);
+            dramatizer.writeResponse(list, fieldDefinitions, webRequest);
         } else {
             final int startPosition = dramatizer.queryOffset(webRequest);
             final int size = dramatizer.querySize(webRequest);
@@ -97,7 +97,7 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
             Page<?> page = rowService.queryFields(rowDefinition, distinct,
                     filterFunction
                     , new PageRequest(startPosition / size, size));
-            dramatizer.writeResponse(page.getTotalElements(), page.getContent(), fieldDefinitions, webRequest);
+            dramatizer.writeResponse(page, fieldDefinitions, webRequest);
         }
         mavContainer.setRequestHandled(true);
 

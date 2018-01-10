@@ -55,7 +55,23 @@ public class AbstractCrudControllerTest extends BaseTest {
         mockMvc.perform(
                 get("/items")
         )
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isOk());
+        mockMvc.perform(
+                get("/items/ant-d")
+        )
+                .andDo(print())
+                .andExpect(status().isOk());
+        mockMvc.perform(
+                get("/items/jQuery")
+        )
+                .andDo(print())
+                .andExpect(status().isOk());
+        mockMvc.perform(
+                get("/items/select2")
+        )
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
 }

@@ -1,11 +1,11 @@
 package me.jiangcai.crud.row.supplier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jiangcai.crud.row.AbstractMediaRowDramatizer;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowDramatizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -27,7 +27,6 @@ import java.util.Objects;
  */
 public class JQueryDataTableDramatizer extends AbstractMediaRowDramatizer implements RowDramatizer {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final MediaType mediaType = MediaType.APPLICATION_JSON_UTF8;
     private static final Log log = LogFactory.getLog(JQueryDataTableDramatizer.class);
 
@@ -102,11 +101,11 @@ public class JQueryDataTableDramatizer extends AbstractMediaRowDramatizer implem
 
 
     @Override
-    protected void writeResponse(long total, List<Object> rows, NativeWebRequest webRequest) throws IOException {
+    protected void writeData(Page<?> page, List<Object> rows, NativeWebRequest webRequest) throws IOException {
         Map<String, Object> json = new HashMap<>();
         json.put("draw", queryDraw(webRequest));
-        json.put("recordsFiltered", total);
-        json.put("recordsTotal", total);
+        json.put("recordsFiltered", page.getTotalElements());
+        json.put("recordsTotal", page.getTotalElements());
         json.put("data", rows);
 
         objectMapper.writeValue(webRequest.getNativeResponse(HttpServletResponse.class).getOutputStream(), json);

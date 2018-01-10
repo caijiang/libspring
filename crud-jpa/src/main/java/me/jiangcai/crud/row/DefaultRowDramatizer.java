@@ -1,6 +1,7 @@
 package me.jiangcai.crud.row;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.NativeWebRequest;
 
@@ -43,7 +44,7 @@ public class DefaultRowDramatizer extends AbstractMediaRowDramatizer implements 
     }
 
     @Override
-    protected void writeResponse(long total, List<Object> rows, NativeWebRequest webRequest) throws IOException {
+    protected void writeData(Page<?> page, List<Object> rows, NativeWebRequest webRequest) throws IOException {
 // i do not know
         HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
         try (OutputStream stream = response.getOutputStream()) {
