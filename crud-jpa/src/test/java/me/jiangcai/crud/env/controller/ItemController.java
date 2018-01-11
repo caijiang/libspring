@@ -4,13 +4,17 @@ import me.jiangcai.crud.controller.AbstractCrudController;
 import me.jiangcai.crud.env.entity.Item;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowCustom;
+import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.field.Fields;
 import me.jiangcai.crud.row.supplier.AntDesignPaginationDramatizer;
 import me.jiangcai.crud.row.supplier.JQueryDataTableDramatizer;
 import me.jiangcai.crud.row.supplier.Select2Dramatizer;
+import me.jiangcai.crud.row.supplier.SingleRowDramatizer;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -27,6 +31,32 @@ public class ItemController extends AbstractCrudController<Item, Long> {
     @Override
     protected Object describeEntity(Item origin) {
         return super.describeEntity(origin);
+    }
+
+
+    @GetMapping(value = "/{id}/detail")
+    @Transactional(readOnly = true)
+    @RowCustom(distinct = true, dramatizer = SingleRowDramatizer.class)
+    public RowDefinition<Item> getDetail(@PathVariable long id) {
+        return new RowDefinition<Item>() {
+            @Override
+            public Class<Item> entityClass() {
+                return Item.class;
+            }
+
+            @Override
+            public List<FieldDefinition<Item>> fields() {
+                return Arrays.asList(
+                        Fields.asBasic("id"),
+                        Fields.asBasic("name")
+                );
+            }
+
+            @Override
+            public Specification<Item> specification() {
+                return (root, cq, cb) -> cb.equal(root.get("id"), id);
+            }
+        };
     }
 
     @GetMapping("/ant-d")

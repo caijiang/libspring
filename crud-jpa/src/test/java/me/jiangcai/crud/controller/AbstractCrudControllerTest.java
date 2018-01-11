@@ -3,6 +3,7 @@ package me.jiangcai.crud.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jiangcai.crud.BaseTest;
 import me.jiangcai.lib.test.matcher.SimpleMatcher;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -24,6 +26,9 @@ public class AbstractCrudControllerTest extends BaseTest {
     public void go() throws Exception {
         // 这个应该还不存在
         mockMvc.perform(get("/items/1"))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/items/1/detail"))
                 .andExpect(status().isNotFound());
 
         // 继续
@@ -48,6 +53,10 @@ public class AbstractCrudControllerTest extends BaseTest {
 
         // 新增的URI可以打开正确的资源
         mockMvc.perform(get(newOneUri))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        mockMvc.perform(get(newOneUri + "/detail"))
                 .andExpect(status().isOk())
                 .andDo(print());
 
