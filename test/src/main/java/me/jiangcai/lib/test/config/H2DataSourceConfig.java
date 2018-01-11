@@ -1,5 +1,6 @@
 package me.jiangcai.lib.test.config;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
@@ -33,6 +34,22 @@ public class H2DataSourceConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setUrl("jdbc:h2:mem:" + name + ";DB_CLOSE_DELAY=-1");
+        return dataSource;
+    }
+
+    /**
+     *
+     * @param name 名字
+     * @param mode 兼容模式 该值可以为：DB2、Derby、HSQLDB、MSSQLServer、MySQL、Oracle、PostgreSQL
+     * @return
+     */
+    public DataSource memDataSource(String name,String mode){
+        if(StringUtils.isEmpty(mode)){
+            return memDataSource(name);
+        }
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:" + name + ";DB_CLOSE_DELAY=-1;MODE=" + mode);
         return dataSource;
     }
 
