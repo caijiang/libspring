@@ -33,32 +33,6 @@ public class ItemController extends AbstractCrudController<Item, Long> {
         return super.describeEntity(origin);
     }
 
-
-    @GetMapping(value = "/{id}/detail")
-    @Transactional(readOnly = true)
-    @RowCustom(distinct = true, dramatizer = SingleRowDramatizer.class)
-    public RowDefinition<Item> getDetail(@PathVariable long id) {
-        return new RowDefinition<Item>() {
-            @Override
-            public Class<Item> entityClass() {
-                return Item.class;
-            }
-
-            @Override
-            public List<FieldDefinition<Item>> fields() {
-                return Arrays.asList(
-                        Fields.asBasic("id"),
-                        Fields.asBasic("name")
-                );
-            }
-
-            @Override
-            public Specification<Item> specification() {
-                return (root, cq, cb) -> cb.equal(root.get("id"), id);
-            }
-        };
-    }
-
     @GetMapping("/ant-d")
     @RowCustom(distinct = true, dramatizer = AntDesignPaginationDramatizer.class)
     public Object antDesignStyle(@RequestBody(required = false) Map<String, Object> queryData) {
@@ -81,8 +55,7 @@ public class ItemController extends AbstractCrudController<Item, Long> {
     protected List<FieldDefinition<Item>> listFields() {
         return Arrays.asList(
                 Fields.asBasic("id"),
-                Fields.asBasic("name"),
-                Fields.asBasic("amount")
+                Fields.asBasic("name")
         );
     }
 

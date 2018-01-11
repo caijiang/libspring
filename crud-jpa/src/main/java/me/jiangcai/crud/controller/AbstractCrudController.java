@@ -3,7 +3,10 @@ package me.jiangcai.crud.controller;
 import me.jiangcai.crud.CrudFriendly;
 import me.jiangcai.crud.exception.CrudNotFoundException;
 import me.jiangcai.crud.row.FieldDefinition;
+import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
+import me.jiangcai.crud.row.supplier.SingleRowDramatizer;
+import me.jiangcai.crud.utils.JpaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -51,6 +54,29 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         }
         return describeEntity(entity);
     }
+
+    @GetMapping(value = "/{id}/detail")
+    @Transactional(readOnly = true)
+    @RowCustom(distinct = true,dramatizer = SingleRowDramatizer.class)
+    public RowDefinition<T> getDetail(@PathVariable ID id){
+        return new RowDefinition<T>() {
+            @Override
+            public Class<T> entityClass() {
+                return currentClass();
+            }
+
+            @Override
+            public List<FieldDefinition<T>> fields() {
+                return listFields();
+            }
+
+            @Override
+            public Specification<T> specification() {
+                return (root,cq,cb)-> cb.equal(root.get(JpaUtils.idFieldNameForEntity(currentClass())),id);
+            }
+        };
+    }
+
 
     //增加一个数据
     @PostMapping

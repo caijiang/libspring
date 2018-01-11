@@ -12,5 +12,5 @@ import javax.persistence.Id;
 @Data
 public class EntityTest1 {
     @Id
-    private String id;
+    private String id1;
 }

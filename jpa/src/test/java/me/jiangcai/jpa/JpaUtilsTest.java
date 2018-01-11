@@ -18,4 +18,14 @@ public class JpaUtilsTest {
                 .isEqualTo(String.class);
     }
 
+    @Test
+    public void idFieldNameForEntity() throws Exception{
+        assertThat(JpaUtils.idFieldNameForEntity(EntityTest1.class))
+                .isEqualTo("id1");
+        assertThat(JpaUtils.idFieldNameForEntity(EntityTest2.class))
+                .isEqualTo("id");
+        assertThat(JpaUtils.idFieldNameForEntity(EntityTest4.class))
+                .isEqualTo("id");
+    }
+
 }

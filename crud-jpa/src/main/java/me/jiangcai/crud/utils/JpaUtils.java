@@ -1,4 +1,4 @@
-package me.jiangcai.jpa;
+package me.jiangcai.crud.utils;
 
 import org.springframework.beans.BeanUtils;
 
@@ -11,11 +11,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * @deprecated 挪到 {@link me.jiangcai.crud.utils.JpaUtils}
  * @author CJ
  * @since 3.0
  */
-@Deprecated
 public class JpaUtils {
     /**
      * @param entityClass 实体类
