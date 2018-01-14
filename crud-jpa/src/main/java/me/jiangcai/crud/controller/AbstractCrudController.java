@@ -31,6 +31,7 @@ import java.util.Map;
 
 /**
  * ID可能并不都是可简单序列化的，所以MVC本身需要支撑它们的序列化，这个由客户端项目实现。
+ * <b>警告：处理post时处理的逻辑需要可以重复的读取Request Body所以需要{@link me.jiangcai.crud.filter.MultiReadSupportFilter}的支持 </b>
  * 渲染整个entity？会不会出事呢……
  * TODO 安全控制
  * TODO PUT 修改
@@ -57,8 +58,8 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
     @GetMapping(value = "/{id}/detail")
     @Transactional(readOnly = true)
-    @RowCustom(distinct = true,dramatizer = SingleRowDramatizer.class)
-    public RowDefinition<T> getDetail(@PathVariable ID id){
+    @RowCustom(distinct = true, dramatizer = SingleRowDramatizer.class)
+    public RowDefinition<T> getDetail(@PathVariable ID id) {
         return new RowDefinition<T>() {
             @Override
             public Class<T> entityClass() {
@@ -72,7 +73,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
             @Override
             public Specification<T> specification() {
-                return (root,cq,cb)-> cb.equal(root.get(JpaUtils.idFieldNameForEntity(currentClass())),id);
+                return (root, cq, cb) -> cb.equal(root.get(JpaUtils.idFieldNameForEntity(currentClass())), id);
             }
         };
     }
