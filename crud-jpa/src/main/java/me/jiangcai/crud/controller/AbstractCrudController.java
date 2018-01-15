@@ -111,7 +111,17 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         T entity = entityManager.find(currentClass(), id);
         if (entity == null)
             throw new CrudNotFoundException();
+        prepareRemove(entity);
         entityManager.remove(entity);
+    }
+
+    /**
+     * 删除的钩子
+     *
+     * @param entity 实体
+     */
+    protected void prepareRemove(T entity) {
+
     }
 
     // 获取数据
