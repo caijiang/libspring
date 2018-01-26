@@ -1,7 +1,9 @@
 package me.jiangcai.crud.row;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Function;
 
@@ -10,7 +12,7 @@ import java.util.function.Function;
  *
  * @author CJ
  */
-public interface IndefiniteFieldDefinition {
+public interface IndefiniteFieldDefinition<T> {
 
     /**
      * @return 字段名称
@@ -26,4 +28,17 @@ public interface IndefiniteFieldDefinition {
      * @return 输出数据
      */
     Object export(Object origin, MediaType mediaType, Function<List, ?> exportMe);
+
+    /**
+     * @param entity 实体
+     * @return 大大方方地从实体中直接获取
+     * @since 4.0.0
+     */
+    default Object readValue(T entity) {
+        try {
+            return BeanUtils.getPropertyDescriptor(entity.getClass(), name()).getReadMethod().invoke(entity);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }

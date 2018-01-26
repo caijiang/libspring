@@ -7,11 +7,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * 直接以一种正文响应写入
@@ -56,7 +52,7 @@ public abstract class AbstractMediaRowDramatizer implements RowDramatizer {
 
         nativeResponse.setHeader("Content-Type", toMediaType().toString());
 
-        List<Object> rows = drawToRows(page.getContent(), fields);
+        List<Object> rows = RowService.drawToRows(page.getContent(), fields, toMediaType());
 
         writeData(page, rows, webRequest);
     }
@@ -64,27 +60,4 @@ public abstract class AbstractMediaRowDramatizer implements RowDramatizer {
     protected abstract void writeData(Page<?> page, List<Object> rows, NativeWebRequest webRequest) throws IOException;
 
 
-    private List<Object> drawToRows(List<?> list, List<? extends IndefiniteFieldDefinition> fields) {
-        List<Object> rows = new ArrayList<>();
-        Function<List, ?> function = (input) -> drawToRows(input, fields);
-        for (Object data : list) {
-// data 通常为一个Object[] 然后fields逐个描述它
-            HashMap<String, Object> outData = new HashMap<>();
-            if (data.getClass().isArray()) {
-                assert Array.getLength(data) == fields.size();
-                for (int i = 0; i < fields.size(); i++) {
-                    IndefiniteFieldDefinition fieldDefinition = fields.get(i);
-                    outData.put(fieldDefinition.name(), fieldDefinition.export(Array.get(data, i), toMediaType(), function));
-                }
-            } else {
-                // 只有一个结果？
-                for (IndefiniteFieldDefinition fieldDefinition : fields) {
-                    outData.put(fieldDefinition.name(), fieldDefinition.export(data, toMediaType(), function));
-                }
-            }
-
-            rows.add(outData);
-        }
-        return rows;
-    }
 }

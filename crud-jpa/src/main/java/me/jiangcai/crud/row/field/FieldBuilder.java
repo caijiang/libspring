@@ -1,6 +1,9 @@
 package me.jiangcai.crud.row.field;
 
 import me.jiangcai.crud.row.FieldDefinition;
+import me.jiangcai.crud.row.field.fake.AbstractFake;
+import me.jiangcai.crud.row.field.fake.FakeRoot;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -8,6 +11,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -26,6 +30,7 @@ public class FieldBuilder<T> {
     private BiFunction<Object, MediaType, Object> format;
     private Function<Root<T>, Expression<?>> order;
     private BiFunction<Root<T>, CriteriaBuilder, Expression<?>> biOrder;
+    private Function<T, ?> entityFunction;
     private boolean noOrder = false;
 
     private FieldBuilder(String name) {
@@ -88,8 +93,28 @@ public class FieldBuilder<T> {
         return this;
     }
 
+    public FieldBuilder<T> addEntityFunction(Function<T, ?> entityFunction) {
+        this.entityFunction = entityFunction;
+        return this;
+    }
+
     public FieldDefinition<T> build() {
         return new FieldDefinition<T>() {
+            @Override
+            public Object readValue(T entity) {
+                if (entityFunction != null)
+                    return entityFunction.apply(entity);
+                if (select != null) {
+                    AbstractFake fake = (AbstractFake) select.apply(new FakeRoot<>());
+                    return fake.toValue(entity);
+                }
+                try {
+                    return BeanUtils.getPropertyDescriptor(entity.getClass(), name()).getReadMethod().invoke(entity);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
             @Override
             public Selection<?> select(CriteriaBuilder criteriaBuilder, CriteriaQuery<?> query, Root<T> root) {
                 if (ownSelect != null)
