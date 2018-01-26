@@ -54,6 +54,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <Y> Join<T, Y> join(SingularAttribute<? super T, Y> attribute, JoinType jt) {
         FakeJoin<T, Y> join = new FakeJoin<>(this);
         join.andThenForName(attribute.getName());
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -87,6 +89,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <Y> CollectionJoin<T, Y> join(CollectionAttribute<? super T, Y> collection, JoinType jt) {
         FakeCollectionJoin<T, Y> join = new FakeCollectionJoin<>(this);
         join.andThenForName(collection.getName());
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -94,6 +98,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <Y> SetJoin<T, Y> join(SetAttribute<? super T, Y> set, JoinType jt) {
         FakeSetJoin<T, Y> join = new FakeSetJoin<>(this);
         join.andThenForName(set.getName());
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -101,6 +107,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <Y> ListJoin<T, Y> join(ListAttribute<? super T, Y> list, JoinType jt) {
         FakeListJoin<T, Y> join = new FakeListJoin<>(this);
         join.andThenForName(list.getName());
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -108,6 +116,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <K, V> MapJoin<T, K, V> join(MapAttribute<? super T, K, V> map, JoinType jt) {
         FakeMapJoin<T, K, V> join = new FakeMapJoin<>(this);
         join.andThenForName(map.getName());
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -150,6 +160,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <X, Y> Join<X, Y> join(String attributeName, JoinType jt) {
         FakeJoin<X, Y> join = new FakeJoin<>(this);
         join.andThenForName(attributeName);
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -157,6 +169,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <X, Y> CollectionJoin<X, Y> joinCollection(String attributeName, JoinType jt) {
         FakeCollectionJoin<X, Y> join = new FakeCollectionJoin<>(this);
         join.andThenForName(attributeName);
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -164,6 +178,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <X, Y> SetJoin<X, Y> joinSet(String attributeName, JoinType jt) {
         FakeSetJoin<X, Y> join = new FakeSetJoin<>(this);
         join.andThenForName(attributeName);
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -171,6 +187,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <X, Y> ListJoin<X, Y> joinList(String attributeName, JoinType jt) {
         FakeListJoin<X, Y> join = new FakeListJoin<>(this);
         join.andThenForName(attributeName);
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 
@@ -178,6 +196,8 @@ public class FakeFrom<Z, T> extends FakePath<T> implements From<Z, T> {
     public <X, K, V> MapJoin<X, K, V> joinMap(String attributeName, JoinType jt) {
         FakeMapJoin<X, K, V> join = new FakeMapJoin<>(this);
         join.andThenForName(attributeName);
+        if (jt != null && jt == JoinType.LEFT)
+            join.leftJoin();
         return join;
     }
 

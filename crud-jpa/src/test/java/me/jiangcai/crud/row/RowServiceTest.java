@@ -8,6 +8,7 @@ import me.jiangcai.crud.row.field.Fields;
 import me.jiangcai.crud.row.field.IndefiniteFieldBuilder;
 import org.junit.Test;
 
+import javax.persistence.criteria.JoinType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class RowServiceTest {
         testFieldDefinition(
                 Arrays.asList(
                         Fields.asFunction("bar", root -> root.get("foo").get("bar").get("value")),
+                        Fields.asFunction("blood", root -> root.join("blood", JoinType.LEFT).get("bar").get("value")),
                         Fields.asFunction("id", root -> root.get("id")),
                         Fields.asFunction("name", root -> root.get("name")),
                         Fields.asFunction("amount", root -> root.get("amount"))
@@ -132,6 +134,8 @@ public class RowServiceTest {
             assertThat(actualBar)
                     .isEqualTo(bar.getValue());
         }
+        assertThat(result.get("blood"))
+                .isNull();
 
     }
 
