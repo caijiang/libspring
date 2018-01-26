@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -33,7 +34,14 @@ public interface RowService {
                 .collect(Collectors.toList());
     }
 
-    static Object drawEntityToRow(Object entity, List<? extends IndefiniteFieldDefinition> fields, MediaType mediaType) {
+    /**
+     * @param entity    要进入查询的完整数据
+     * @param fields    字段定义
+     * @param mediaType 期望的媒体类型
+     * @return Map结果
+     */
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> drawEntityToRow(Object entity, List<? extends IndefiniteFieldDefinition> fields, MediaType mediaType) {
         HashMap<String, Object> outData = new HashMap<>();
         Function<List, ?> function = (input) -> drawEntityToRows(input, fields, mediaType);
         for (IndefiniteFieldDefinition fieldDefinition : fields) {
@@ -49,6 +57,7 @@ public interface RowService {
      * @param mediaType 期望的媒体类型
      * @return 将部分查询结果改变成键值对(Map) 列表
      */
+    @SuppressWarnings("unchecked")
     static List<Object> drawToRows(List<?> list, List<? extends IndefiniteFieldDefinition> fields, MediaType mediaType) {
         List<Object> rows = new ArrayList<>();
         Function<List, ?> function = (input) -> drawToRows(input, fields, mediaType);
