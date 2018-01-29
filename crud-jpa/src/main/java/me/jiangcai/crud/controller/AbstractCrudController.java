@@ -25,12 +25,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * ID可能并不都是可简单序列化的，所以MVC本身需要支撑它们的序列化，这个由客户端项目实现。
@@ -129,7 +133,17 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
     // 获取数据
     @GetMapping
-    public RowDefinition<T> list(@RequestBody(required = false) Map<String, Object> queryData) {
+    public RowDefinition<T> list(HttpServletRequest request) {
+        Map<String, Object> queryData = request.getParameterMap().entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, (Function<Map.Entry<String, String[]>, Object>) stringEntry -> {
+                    String[] rs = stringEntry.getValue();
+                    if (rs == null)
+                        return null;
+                    if (rs.length > 1)
+                        return rs;
+                    return rs[0];
+                }));
         return new RowDefinition<T>() {
             @Override
             public Class<T> entityClass() {

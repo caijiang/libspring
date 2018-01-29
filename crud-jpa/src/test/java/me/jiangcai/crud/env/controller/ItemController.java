@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -35,20 +36,20 @@ public class ItemController extends AbstractCrudController<Item, Long> {
 
     @GetMapping("/ant-d")
     @RowCustom(distinct = true, dramatizer = AntDesignPaginationDramatizer.class)
-    public Object antDesignStyle(@RequestBody(required = false) Map<String, Object> queryData) {
-        return list(queryData);
+    public Object antDesignStyle(HttpServletRequest request) {
+        return list(request);
     }
 
     @GetMapping("/jQuery")
     @RowCustom(distinct = true, dramatizer = JQueryDataTableDramatizer.class)
-    public Object jQueryStyle(@RequestBody(required = false) Map<String, Object> queryData) {
-        return list(queryData);
+    public Object jQueryStyle(HttpServletRequest request) {
+        return list(request);
     }
 
     @GetMapping("/select2")
     @RowCustom(distinct = true, dramatizer = Select2Dramatizer.class)
-    public Object select2Style(@RequestBody(required = false) Map<String, Object> queryData) {
-        return list(queryData);
+    public Object select2Style(HttpServletRequest request) {
+        return list(request);
     }
 
     @Override
