@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
@@ -142,6 +145,11 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
             public Specification<T> specification() {
                 return listSpecification(queryData);
             }
+
+            @Override
+            public List<Order> defaultOrder(CriteriaBuilder criteriaBuilder, Root<T> root) {
+                return listOrder(criteriaBuilder, root);
+            }
         };
     }
 
@@ -156,6 +164,17 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      * @see RowDefinition#specification()
      */
     protected abstract Specification<T> listSpecification(Map<String, Object> queryData);
+
+    /**
+     * 排序字段，默认没有排序
+     *
+     * @param criteriaBuilder
+     * @param root
+     * @return
+     */
+    protected List<Order> listOrder(CriteriaBuilder criteriaBuilder, Root<T> root) {
+        return null;
+    }
 
     /**
      * 准备持久化
