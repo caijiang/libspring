@@ -11,7 +11,7 @@ import javax.persistence.criteria.Root;
  * @param <T> 它可以处理的root的类型
  * @author CJ
  */
-public interface FieldDefinition<T> extends IndefiniteFieldDefinition {
+public interface FieldDefinition<T> extends IndefiniteFieldDefinition<T> {
     /**
      * @param criteriaBuilder cb
      * @param query           查询

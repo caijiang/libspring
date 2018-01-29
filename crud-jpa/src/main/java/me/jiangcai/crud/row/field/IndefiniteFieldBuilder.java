@@ -38,7 +38,7 @@ public class IndefiniteFieldBuilder {
     }
 
     public IndefiniteFieldDefinition build() {
-        return new IndefiniteFieldDefinition() {
+        return new IndefiniteFieldDefinition<Object>() {
 
             @Override
             public String name() {
