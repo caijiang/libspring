@@ -17,4 +17,10 @@ public interface Resource extends org.springframework.core.io.Resource {
      */
     URL httpUrl() throws IOException;
 
+    /**
+     * @return 这个资源在本系统中的path
+     * @since 4.0.0
+     */
+    String getResourcePath();
+
 }

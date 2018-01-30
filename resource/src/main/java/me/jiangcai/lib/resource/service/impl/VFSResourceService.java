@@ -202,14 +202,14 @@ public class VFSResourceService implements ResourceService {
         String url = uriPrefix.toString() + path;
 
         if (localFileMode) {
-            return new LocalResource(fileFile.toString() + File.separator + path, url);
+            return new LocalResource(path, fileFile.toString() + File.separator + path, url);
         }
         String filePath = fileHome.toString() + path;
 
         try {
 //            String uri = stringBuilder.toString();
 //            FileObject fileObject = vfsHelper.handle(fileBuilder.toString(), null);
-            return new VFSResource(vfsHelper, filePath, new URI(url));
+            return new VFSResource(path, vfsHelper, filePath, new URI(url));
 //            return new VFSResource(fileObject, new URI(stringBuilder.toString()));
         } catch (URISyntaxException e) {
             log.error("解释资源时", e);

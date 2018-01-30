@@ -31,8 +31,10 @@ public class VFSResource extends AbstractResource implements Resource, WritableR
     private final URI uri;
     private final String fileName;
     private transient final VFSHelper helper;
+    private final String path;
 
-    public VFSResource(VFSHelper vfsHelper, String file, URI uri) {
+    public VFSResource(String path, VFSHelper vfsHelper, String file, URI uri) {
+        this.path = path;
         this.uri = uri;
         this.helper = vfsHelper;
         this.fileName = file;
@@ -128,6 +130,11 @@ public class VFSResource extends AbstractResource implements Resource, WritableR
     @Override
     public URL httpUrl() throws IOException {
         return uri.toURL();
+    }
+
+    @Override
+    public String getResourcePath() {
+        return path;
     }
 
 }
