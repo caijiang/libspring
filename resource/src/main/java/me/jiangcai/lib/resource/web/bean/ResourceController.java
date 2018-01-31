@@ -15,13 +15,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 资源控制器
@@ -143,6 +150,67 @@ public class ResourceController {
         }
     }
 
+    @RequestMapping(value = "/jQueryFileUpload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Object jQueryFileUpLoad(MultipartFile file) {
+        HashMap<String, Object> body = new HashMap<>();
+        try {
+            Resource resource = uploadTempResource(file);
+            body.put("path", resource.getResourcePath());
+            body.put("url", resource.httpUrl().toString());
+            body.put("thumbnail_url", resource.httpUrl().toString());
+            body.put("name", file.getOriginalFilename());
+            body.put("type", getFileNameSuffix(file));
+            body.put("size", file.getSize());
+            // delete_url delete 还给不了
+        } catch (Exception ex) {
+            body.put("success", false);
+            body.put("error", ex.getLocalizedMessage());
+        }
+        return body;
+    }
+
+    @RequestMapping(value = "/jQueryFilesUpload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Object jQueryFilesUpload(MultipartHttpServletRequest request) {
+        return request.getMultiFileMap().values()
+                .stream()
+                .flatMap(List::stream)
+                .map(this::jQueryFileUpLoad)
+                .collect(Collectors.toList());
+    }
+
+    // 直接开放式的读取
+    @RequestMapping(value = "/paths/{path}", method = RequestMethod.GET)
+    public ResponseEntity getResource(HttpServletRequest request) throws IOException, URISyntaxException {
+        String path = readPath(request);
+
+        Resource resource = resourceService.getResource(path);
+        if (!resource.exists())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(resource.httpUrl().toURI())
+                .build();
+    }
+
+    private String readPath(HttpServletRequest request) throws UnsupportedEncodingException {
+        String path = request.getRequestURI().substring("/_resourceUpload/paths/".length());
+        while (path.contains("%"))
+            path = URLDecoder.decode(path, "UTF-8");
+        return path;
+    }
+
+    // 同样开放式的删除，但只能删除临时区域的
+    @RequestMapping(value = "/paths/{path}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteResource(HttpServletRequest request) throws IOException {
+        String path = readPath(request);
+        if (!path.startsWith("tmp/") && !path.startsWith("watch/"))
+            throw new IllegalArgumentException();
+        resourceService.deleteResource(path);
+    }
+
+
     //这个干嘛用的？？a
 //    @RequestMapping(method = RequestMethod.POST, value = "/webUploader")
 //    public ResponseEntity<?> webUploader(String id, MultipartFile file) throws IOException, URISyntaxException {
@@ -180,14 +248,19 @@ public class ResourceController {
      * @return 根据上传的信息 生成携带有准确后缀的临时名
      */
     private String randomFileName(MultipartFile file) {
+        String suffix = getFileNameSuffix(file);
+        return UUID.randomUUID().toString().replaceAll("-", "")
+                + "." + suffix;
+    }
+
+    private String getFileNameSuffix(MultipartFile file) {
         String suffix;
         try {
             suffix = FileUtils.fileExtensionName(file.getOriginalFilename());
         } catch (Exception ignored) {
             suffix = MediaType.parseMediaType(file.getContentType()).getSubtype();
         }
-        return UUID.randomUUID().toString().replaceAll("-", "")
-                + "." + suffix;
+        return suffix;
     }
 
 
