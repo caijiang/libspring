@@ -7,6 +7,7 @@ import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.supplier.SingleRowDramatizer;
 import me.jiangcai.crud.utils.JpaUtils;
+import me.jiangcai.crud.utils.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -134,16 +135,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
     // 获取数据
     @GetMapping
     public RowDefinition<T> list(HttpServletRequest request) {
-        Map<String, Object> queryData = request.getParameterMap().entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, (Function<Map.Entry<String, String[]>, Object>) stringEntry -> {
-                    String[] rs = stringEntry.getValue();
-                    if (rs == null)
-                        return null;
-                    if (rs.length > 1)
-                        return rs;
-                    return rs[0];
-                }));
+        Map<String, Object> queryData = MapUtils.changeIt(request.getParameterMap());
         return new RowDefinition<T>() {
             @Override
             public Class<T> entityClass() {
