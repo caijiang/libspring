@@ -58,16 +58,32 @@ public class FieldBuilder<T> {
         return new FieldBuilder<X>(name);
     }
 
+    /**
+     * 获取数据若是需要CriteriaBuilder的配合
+     *
+     * @param function 支持传入 CriteriaBuilder的定制函数
+     * @return this
+     */
     public FieldBuilder<T> addBiSelect(BiFunction<Root<T>, CriteriaBuilder, Expression<?>> function) {
         this.biSelect = function;
         return this;
     }
 
+    /**
+     * 获取数据时若需要当时的查询配合
+     * @param ownSelect 完全定制的函数
+     * @return this
+     */
     public FieldBuilder<T> addOwnSelect(OwnExpression<T> ownSelect) {
         this.ownSelect = ownSelect;
         return this;
     }
 
+    /**
+     * 获取数据仅需Root
+     * @param function root为参数的函数
+     * @return this
+     */
     public FieldBuilder<T> addSelect(Function<Root<T>, Expression<?>> function) {
         this.select = function;
         return this;
@@ -88,11 +104,22 @@ public class FieldBuilder<T> {
         return this;
     }
 
+    /**
+     * 从实体中获取的数据并不符合数据规格，则可调用该方法
+     * @param format 将原数据和期望Media转变为新数据
+     * @return this
+     */
     public FieldBuilder<T> addFormat(BiFunction<Object, MediaType, Object> format) {
         this.format = format;
         return this;
     }
 
+    /**
+     * 如果采用了{@link #addBiSelect(BiFunction)}或者{@link #addOwnSelect(OwnExpression)}会导致生成的FieldDefinition的
+     * {@link FieldDefinition#readValue(Object)}无法正常工作，这个时候需要调用该方法实施定制
+     * @param entityFunction 获取值的办法
+     * @return this
+     */
     public FieldBuilder<T> addEntityFunction(Function<T, ?> entityFunction) {
         this.entityFunction = entityFunction;
         return this;
