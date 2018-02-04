@@ -3,7 +3,6 @@ package org.luffy.lib.libspring.logging;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.luffy.libs.libseext.IOUtils;
-import org.luffy.test.SpringWebTest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 //@WebAppConfiguration
 //@ContextConfiguration(classes = {LoggingConfig.class})
-public abstract class LoggingConfigTest extends SpringWebTest {
+public abstract class LoggingConfigTest extends me.jiangcai.lib.test.SpringWebTest {
 
     private static final Log log = LogFactory.getLog(LoggingConfigTest.class);
 

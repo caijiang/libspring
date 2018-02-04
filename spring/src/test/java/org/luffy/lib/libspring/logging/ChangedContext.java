@@ -1,5 +1,6 @@
 package org.luffy.lib.libspring.logging;
 
+import me.jiangcai.lib.spring.logging.LoggingConfig;
 import org.junit.Test;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
