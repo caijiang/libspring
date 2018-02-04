@@ -12,6 +12,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,6 +63,11 @@ public class VFSResource extends AbstractResource implements Resource, WritableR
     @Override
     public long lastModified() throws IOException {
         return accessFileObject(fileObject -> fileObject.getContent().getLastModifiedTime());
+    }
+
+    @Override
+    public File getFile() throws IOException {
+        return new File(fileName);
     }
 
     @Override
