@@ -56,7 +56,8 @@ public class GitRepositoryState {
     /**
      * @return 获取可访问的commit url
      */
+    @SuppressWarnings("unused")
     public String getCommitUrl() {
-        return remoteOriginUrl + "/commit/" + commitId;
+        return remoteOriginUrl.replace(".git", "") + "/commit/" + commitId;
     }
 }
