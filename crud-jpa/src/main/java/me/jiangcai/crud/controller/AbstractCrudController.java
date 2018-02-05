@@ -31,18 +31,18 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * ID可能并不都是可简单序列化的，所以MVC本身需要支撑它们的序列化，这个由客户端项目实现。
  * <b>警告：处理post时处理的逻辑需要可以重复的读取Request Body所以需要{@link me.jiangcai.crud.filter.MultiReadSupportFilter}的支持 </b>
  * 渲染整个entity？会不会出事呢……
  * TODO 安全控制
- * TODO PUT 修改
+ * TODO get One 定制化方案
+ * TODO PUT /id
+ * TODO PUT /id/name 请求体=具体的属性内容
+ * TODO PATCH /id 请求体为部分资源内容
  *
  * @author CJ
  * @since 1.8
