@@ -49,7 +49,7 @@ import java.util.Map;
  * @author CJ
  * @since 1.8
  */
-public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID extends Serializable> {
+public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID extends Serializable, X extends T> {
 
     @Autowired
     private EntityManager entityManager;
@@ -92,12 +92,12 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
     //增加一个数据
     @PostMapping
     @Transactional
-    public ResponseEntity addOne(@RequestBody T postData, WebRequest request) throws URISyntaxException {
-        preparePersist(postData, request);
-        entityManager.persist(postData);
+    public ResponseEntity addOne(@RequestBody X postData, WebRequest request) throws URISyntaxException {
+        T result = preparePersist(postData, request);
+        entityManager.persist(result);
         entityManager.flush();
-        postPersist(postData);
-        ID id = postData.getId();
+        postPersist(result);
+        ID id = result.getId();
         // TODO 串化讲道理应该是通过MVC配置获取，这里先简单点来
         return ResponseEntity
                 .created(new URI(homeUri() + "/" + id))
@@ -202,11 +202,12 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
     /**
      * 准备持久化
      *
-     * @param data      准备持久化的数据
+     * @param data    准备持久化的数据
      * @param request 其他提交的数据
+     * @return 最终要提交的数据
      */
-    protected void preparePersist(T data, WebRequest request) {
-
+    protected T preparePersist(X data, WebRequest request) {
+        return data;
     }
 
     private String homeUri() {

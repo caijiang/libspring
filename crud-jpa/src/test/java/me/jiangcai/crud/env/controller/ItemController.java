@@ -24,7 +24,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/items")
-public class ItemController extends AbstractCrudController<Item, Long> {
+public class ItemController extends AbstractCrudController<Item, Long, Item> {
     @Override
     protected Object describeEntity(Item origin) {
         return super.describeEntity(origin);
@@ -62,7 +62,7 @@ public class ItemController extends AbstractCrudController<Item, Long> {
     }
 
     @Override
-    protected void preparePersist(Item data, WebRequest otherData) {
-        super.preparePersist(data, otherData);
+    protected Item preparePersist(Item data, WebRequest otherData) {
+        return super.preparePersist(data, otherData);
     }
 }
