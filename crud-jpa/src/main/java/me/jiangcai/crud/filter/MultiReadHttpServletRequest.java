@@ -51,6 +51,8 @@ public class MultiReadHttpServletRequest implements HttpServletRequest {
     public ServletInputStream getInputStream() throws IOException {
         ByteArrayInputStream stream = new ByteArrayInputStream(buffer);
         return new ServletInputStream() {
+            private ReadListener listener;
+
             @Override
             public boolean isFinished() {
                 return stream.available() == 0;
@@ -63,12 +65,25 @@ public class MultiReadHttpServletRequest implements HttpServletRequest {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-// TODO 暂不实现
+                this.listener = readListener;
+                if (this.listener != null) {
+                    try {
+                        listener.onDataAvailable();
+                    } catch (IOException e) {
+                        listener.onError(e);
+                    }
+                }
             }
 
             @Override
             public int read() throws IOException {
-                return stream.read();
+                try {
+                    return stream.read();
+                } finally {
+                    if (listener != null && isFinished()) {
+                        listener.onAllDataRead();
+                    }
+                }
             }
         };
     }

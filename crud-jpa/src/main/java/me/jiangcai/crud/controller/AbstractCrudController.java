@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -91,8 +92,8 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
     //增加一个数据
     @PostMapping
     @Transactional
-    public ResponseEntity addOne(@RequestBody T postData, @RequestBody(required = false) Map<String, Object> otherData) throws URISyntaxException {
-        preparePersist(postData, otherData);
+    public ResponseEntity addOne(@RequestBody T postData, WebRequest request) throws URISyntaxException {
+        preparePersist(postData, request);
         entityManager.persist(postData);
         entityManager.flush();
         postPersist(postData);
@@ -202,9 +203,9 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      * 准备持久化
      *
      * @param data      准备持久化的数据
-     * @param otherData 其他提交的数据
+     * @param request 其他提交的数据
      */
-    protected void preparePersist(T data, Map<String, Object> otherData) {
+    protected void preparePersist(T data, WebRequest request) {
 
     }
 

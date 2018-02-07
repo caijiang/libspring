@@ -4,19 +4,15 @@ import me.jiangcai.crud.controller.AbstractCrudController;
 import me.jiangcai.crud.env.entity.Item;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowCustom;
-import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.field.Fields;
 import me.jiangcai.crud.row.supplier.AntDesignPaginationDramatizer;
 import me.jiangcai.crud.row.supplier.JQueryDataTableDramatizer;
 import me.jiangcai.crud.row.supplier.Select2Dramatizer;
-import me.jiangcai.crud.row.supplier.SingleRowDramatizer;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -66,7 +62,7 @@ public class ItemController extends AbstractCrudController<Item, Long> {
     }
 
     @Override
-    protected void preparePersist(Item data, Map<String, Object> otherData) {
+    protected void preparePersist(Item data, WebRequest otherData) {
         super.preparePersist(data, otherData);
     }
 }
