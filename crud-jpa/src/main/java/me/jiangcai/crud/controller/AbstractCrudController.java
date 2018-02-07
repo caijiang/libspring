@@ -194,7 +194,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      *
      * @see RowDefinition#dataGroup(CriteriaBuilder, CriteriaQuery, Root)
      */
-    private CriteriaQuery<T> listGroup(CriteriaBuilder cb, CriteriaQuery<T> query, Root<T> root) {
+    protected CriteriaQuery<T> listGroup(CriteriaBuilder cb, CriteriaQuery<T> query, Root<T> root) {
         return query;
     }
 
