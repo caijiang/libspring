@@ -5,16 +5,20 @@ import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowDramatizer;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * https://ant.design/components/pagination-cn/
@@ -65,7 +69,31 @@ public class AntDesignPaginationDramatizer extends AbstractMediaRowDramatizer im
     }
 
     @Override
-    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder, Root root) {
-        return null;
+    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder
+            , Root root) {
+        String str = webRequest.getParameter("sorter");
+        if (StringUtils.isEmpty(str))
+            return null;
+        // sorter=username_descend
+        // ascend // descend
+        try {
+            int x = str.lastIndexOf("_");
+            String str1 = str.substring(0, x);
+            String str2 = str.substring(x + 1);
+
+            final Optional<FieldDefinition> optional = fields.stream().filter(fieldDefinition
+                    -> fieldDefinition.name().equals(str1)).findAny();
+            if (optional.isPresent()) {
+                @SuppressWarnings("unchecked") final Expression order = optional.get().order(root, criteriaBuilder);
+                if (order == null)
+                    return null;
+                if (str2.equalsIgnoreCase("ascend"))
+                    return Collections.singletonList(criteriaBuilder.asc(order));
+                return Collections.singletonList(criteriaBuilder.desc(order));
+            }
+            return null;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }

@@ -3,7 +3,6 @@ package me.jiangcai.crud.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jiangcai.crud.BaseTest;
 import me.jiangcai.lib.test.matcher.SimpleMatcher;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.stream.StreamSupport;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -71,6 +69,13 @@ public class AbstractCrudControllerTest extends BaseTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk());
+        mockMvc.perform(
+                get("/items/ant-d")
+                        .param("sorter", "name_descend")
+        )
+                .andDo(print())
+                .andExpect(status().isOk());
+
         mockMvc.perform(
                 get("/items/jQuery")
         )
