@@ -122,7 +122,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         if (entity == null)
             throw new CrudNotFoundException();
         prepareRemove(entity);
-        entityManager.remove(entity);
+        doRemove(entity);
     }
 
     /**
@@ -132,6 +132,14 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      */
     protected void prepareRemove(T entity) {
 
+    }
+
+    /**
+     * 执行删除动作，可自定义
+     * @param entity
+     */
+    protected void doRemove(T entity){
+        entityManager.remove(entity);
     }
 
     // 获取数据
