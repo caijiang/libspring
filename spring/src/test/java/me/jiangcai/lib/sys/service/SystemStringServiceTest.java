@@ -14,6 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author CJ
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
 @ContextConfiguration(classes = {SystemStringConfig.class, SystemStringServiceTest.Config.class})
 public class SystemStringServiceTest {
 
@@ -119,6 +121,8 @@ public class SystemStringServiceTest {
         final double value = random.nextDouble();
         systemStringService.updateSystemString(key, value);
         assertThat(systemStringService.getSystemString(key, Double.class, null))
+                .isEqualTo(value);
+        assertThat(systemStringService.getSystemString(key, Double.TYPE, null))
                 .isEqualTo(value);
     }
 

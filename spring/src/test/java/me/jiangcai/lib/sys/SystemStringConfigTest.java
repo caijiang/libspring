@@ -3,7 +3,6 @@ package me.jiangcai.lib.sys;
 import me.jiangcai.lib.sys.entity.SystemString;
 import me.jiangcai.lib.sys.entity.SystemString_;
 import me.jiangcai.lib.sys.service.SystemStringService;
-import me.jiangcai.lib.sys.service.SystemStringServiceTest;
 import me.jiangcai.lib.test.SpringWebTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author CJ
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {SystemStringConfig.class, SystemStringServiceTest.Config.class, SystemStringConfigTest.Config.class})
+@ContextConfiguration(classes = {SystemStringConfig.class, SystemStringConfigTest.Config.class})
 public class SystemStringConfigTest extends SpringWebTest {
 
     @Autowired

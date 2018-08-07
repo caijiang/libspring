@@ -110,15 +110,33 @@ public class SystemStringServiceImpl implements SystemStringService {
                 log.info("pares " + value + " into Calendar", e);
                 throw new IllegalStateException("pares " + value + " into Calendar", e);
             }
-        } else if (type.equals(Boolean.class))
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE))
             return (T) Boolean.valueOf(value);
-        else if (type.equals(Character.class))
+        else if (type.equals(Character.class) || type.equals(Character.TYPE))
             return (T) Character.valueOf(value.charAt(0));
-        else if (Number.class.isAssignableFrom(type)) {
+        else if (type.isPrimitive()) {
+            return (T) NumberUtils.parseNumber(value, toWrapperNumberClass(type));
+        } else if (Number.class.isAssignableFrom(type)) {
             Class<? extends Number> numberType = (Class<? extends Number>) type;
             return (T) NumberUtils.parseNumber(value, numberType);
         } else
             throw new IllegalArgumentException("not support type for:" + type);
+    }
+
+    private Class<? extends Number> toWrapperNumberClass(Class primitiveType) {
+        if (primitiveType == Byte.TYPE)
+            return Byte.class;
+        if (primitiveType == Short.TYPE)
+            return Short.class;
+        if (primitiveType == Integer.TYPE)
+            return Integer.class;
+        if (primitiveType == Long.TYPE)
+            return Long.class;
+        if (primitiveType == Float.TYPE)
+            return Float.class;
+        if (primitiveType == Double.TYPE)
+            return Double.class;
+        throw new IllegalArgumentException("not support type for:" + primitiveType);
     }
 
     @Override
