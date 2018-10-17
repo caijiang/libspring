@@ -2,16 +2,22 @@ package me.jiangcai.crud.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jiangcai.crud.BaseTest;
+import me.jiangcai.crud.env.entity.Item;
 import me.jiangcai.lib.test.matcher.SimpleMatcher;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
+import javax.persistence.EntityManager;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * @author CJ
@@ -19,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AbstractCrudControllerTest extends BaseTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     public void go() throws Exception {
@@ -86,6 +95,188 @@ public class AbstractCrudControllerTest extends BaseTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk());
+
+        // 4.2 修改测试
+        int int1 = random.nextInt();
+        mockMvc.perform(
+                put("/items/1/int1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(int1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.int1").value(int1));
+
+        int int2 = random.nextInt();
+        mockMvc.perform(
+                put("/items/1/int2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(int2))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.int2").value(int2));
+
+        byte[] bytes = new byte[1];
+        random.nextBytes(bytes);
+        int byte1 = bytes[0];
+        mockMvc.perform(
+                put("/items/1/byte1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(byte1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.byte1").value(byte1));
+
+        char char1 = 'a';
+        mockMvc.perform(
+                put("/items/1/char1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"" + char1 + "\"")
+        )
+                .andExpect(status().isAccepted());
+        assertThat(testItem().getChar1())
+                .isEqualTo(char1);
+
+        int short1 = byte1;
+        mockMvc.perform(
+                put("/items/1/short1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(short1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.short1").value(short1));
+
+        boolean boolean1 = random.nextBoolean();
+        mockMvc.perform(
+                put("/items/1/boolean1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(boolean1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.boolean1").value(boolean1));
+
+        float float1 = random.nextFloat();
+        mockMvc.perform(
+                put("/items/1/float1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(float1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.float1").value(float1));
+
+        double double1 = random.nextDouble();
+        mockMvc.perform(
+                put("/items/1/double1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(double1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.double1").value(double1));
+
+        long long1 = random.nextLong();
+        mockMvc.perform(
+                put("/items/1/long1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(long1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.long1").value(long1));
+
+        String string1 = randomString(6);
+        mockMvc.perform(
+                put("/items/1/string1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("\"" + String.valueOf(string1) + "\"")
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.string1").value(string1));
+
+        int int3 = random.nextInt();
+        mockMvc.perform(
+                put("/items/1/bigInteger1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(int3))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bigInteger1").value(int3));
+
+        BigDecimal bigDecimal1 = BigDecimal.valueOf(random.nextDouble());
+        mockMvc.perform(
+                put("/items/1/bigDecimal1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.valueOf(bigDecimal1))
+        )
+                .andExpect(status().isAccepted());
+        mockMvc.perform(
+                get("/items/1")
+                        .accept(MediaType.APPLICATION_JSON)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.bigDecimal1").value(bigDecimal1));
+
+        Date date1 = new Date();
+        mockMvc.perform(
+                put("/items/1/date1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new SimpleDateFormat("\"yyyy-MM-dd HH:mm:ss\"").format(date1))
+        )
+                .andExpect(status().isAccepted());
+        assertThat(testItem().getDate1())
+                .isEqualToIgnoringMillis(date1);
+
+    }
+
+    private Item testItem() {
+        return entityManager.find(Item.class, 1L);
     }
 
 }

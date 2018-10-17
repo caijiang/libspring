@@ -18,6 +18,7 @@
         <property name="packagesToScan">
             <array>
                 <value>me.jiangcai.crud.env.entity</value>
+                <value>org.springframework.data.jpa.convert.threeten</value>
             </array>
         </property>
         <property name="persistenceProvider">

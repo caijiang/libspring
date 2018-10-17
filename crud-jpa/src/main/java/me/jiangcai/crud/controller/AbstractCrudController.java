@@ -2,12 +2,14 @@ package me.jiangcai.crud.controller;
 
 import me.jiangcai.crud.CrudFriendly;
 import me.jiangcai.crud.exception.CrudNotFoundException;
+import me.jiangcai.crud.modify.PropertyChanger;
 import me.jiangcai.crud.row.FieldDefinition;
 import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.supplier.SingleRowDramatizer;
 import me.jiangcai.crud.utils.JpaUtils;
 import me.jiangcai.crud.utils.MapUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,7 +32,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
+import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -88,6 +93,53 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         };
     }
 
+    @Autowired
+    private List<PropertyChanger> changerSet;
+
+    /**
+     * 自定义修改的方法
+     *
+     * @param entity 实体
+     * @param name   字段名称
+     * @param data   原始数据
+     * @return 是否支持修改
+     */
+    @SuppressWarnings("WeakerAccess")
+    protected boolean customModifySupport(T entity, String name, Object data) {
+        return false;
+    }
+
+    // 修改一个数据
+    @PutMapping("/{id}/{name}")
+    @Transactional
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void modifyOne(@PathVariable ID id, @PathVariable String name, @RequestBody Object data) {
+        T entity = entityManager.find(currentClass(), id);
+        if (entity == null)
+            throw new CrudNotFoundException();
+        // 允许自定义修改
+        if (customModifySupport(entity, name, data))
+            return;
+        // 允许注册更多修改器
+        // 获取数据类型
+        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(currentClass(), name);
+        if (pd == null)
+            throw new CrudNotFoundException();
+
+        Object newValue = changerSet.stream()
+                .filter(propertyChanger -> propertyChanger.support(pd.getPropertyType()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("not supported."))
+                .change(pd.getPropertyType(), data);
+
+        try {
+            pd.getWriteMethod().invoke(entity, newValue);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("not supported.", e);
+        }
+        // 发布事件
+    }
+
 
     //增加一个数据
     @PostMapping
@@ -130,15 +182,18 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      *
      * @param entity 实体
      */
+    @SuppressWarnings("WeakerAccess")
     protected void prepareRemove(T entity) {
 
     }
 
     /**
      * 执行删除动作，可自定义
+     *
      * @param entity
      */
-    protected void doRemove(T entity){
+    @SuppressWarnings("WeakerAccess")
+    protected void doRemove(T entity) {
         entityManager.remove(entity);
     }
 
