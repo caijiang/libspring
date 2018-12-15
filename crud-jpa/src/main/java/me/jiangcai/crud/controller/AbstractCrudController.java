@@ -1,6 +1,9 @@
 package me.jiangcai.crud.controller;
 
 import me.jiangcai.crud.CrudFriendly;
+import me.jiangcai.crud.event.EntityAddEvent;
+import me.jiangcai.crud.event.EntityRemoveEvent;
+import me.jiangcai.crud.event.EntityUpdateEvent;
 import me.jiangcai.crud.exception.CrudNotFoundException;
 import me.jiangcai.crud.modify.PropertyChanger;
 import me.jiangcai.crud.row.FieldDefinition;
@@ -11,6 +14,7 @@ import me.jiangcai.crud.utils.JpaUtils;
 import me.jiangcai.crud.utils.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +62,8 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
     @Autowired
     private EntityManager entityManager;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @GetMapping(value = "/{id}")
     @Transactional(readOnly = true)
@@ -118,8 +124,10 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         if (entity == null)
             throw new CrudNotFoundException();
         // 允许自定义修改
-        if (customModifySupport(entity, name, data))
+        if (customModifySupport(entity, name, data)) {
+            applicationEventPublisher.publishEvent(new EntityUpdateEvent<>(entity));
             return;
+        }
         // 允许注册更多修改器
         // 获取数据类型
         PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(currentClass(), name);
@@ -138,6 +146,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
             throw new IllegalStateException("not supported.", e);
         }
         // 发布事件
+        applicationEventPublisher.publishEvent(new EntityUpdateEvent<>(entity));
     }
 
 
@@ -150,6 +159,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
         entityManager.flush();
         postPersist(result);
         ID id = result.getId();
+        applicationEventPublisher.publishEvent(new EntityAddEvent<>(result));
         // TODO 串化讲道理应该是通过MVC配置获取，这里先简单点来
         return ResponseEntity
                 .created(new URI(homeUri() + "/" + id))
@@ -175,6 +185,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
             throw new CrudNotFoundException();
         prepareRemove(entity);
         doRemove(entity);
+        applicationEventPublisher.publishEvent(new EntityRemoveEvent<>(entity));
     }
 
     /**
