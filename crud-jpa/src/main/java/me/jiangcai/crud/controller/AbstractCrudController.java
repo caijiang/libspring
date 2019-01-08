@@ -225,7 +225,7 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
 
             @Override
             public Specification<T> specification() {
-                return listSpecification(queryData);
+                return listSpecification(request, queryData);
             }
 
             @Override
@@ -245,6 +245,19 @@ public abstract class AbstractCrudController<T extends CrudFriendly<ID>, ID exte
      * @return 展示用的
      */
     protected abstract List<FieldDefinition<T>> listFields();
+
+    /**
+     * 优先级上比{@link #listSpecification(Map)}更高
+     *
+     * @param request   实际请求
+     * @param queryData 查询时提交的数据
+     * @return 查询规格
+     * @see RowDefinition#specification()
+     */
+    @SuppressWarnings("WeakerAccess")
+    protected Specification<T> listSpecification(HttpServletRequest request, Map<String, Object> queryData) {
+        return listSpecification(queryData);
+    }
 
     /**
      * @param queryData 查询时提交的数据
