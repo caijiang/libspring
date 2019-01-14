@@ -32,6 +32,7 @@ public class FieldBuilder<T> {
     private BiFunction<Root<T>, CriteriaBuilder, Expression<?>> biOrder;
     private Function<T, ?> entityFunction;
     private boolean noOrder = false;
+    private OwnExpression<T> ownOrder;
 
     private FieldBuilder(String name) {
         this.name = name;
@@ -71,6 +72,7 @@ public class FieldBuilder<T> {
 
     /**
      * 获取数据时若需要当时的查询配合
+     *
      * @param ownSelect 完全定制的函数
      * @return this
      */
@@ -81,11 +83,17 @@ public class FieldBuilder<T> {
 
     /**
      * 获取数据仅需Root
+     *
      * @param function root为参数的函数
      * @return this
      */
     public FieldBuilder<T> addSelect(Function<Root<T>, Expression<?>> function) {
         this.select = function;
+        return this;
+    }
+
+    public FieldBuilder<T> addOwnOrder(OwnExpression<T> ownOrder) {
+        this.ownOrder = ownOrder;
         return this;
     }
 
@@ -106,6 +114,7 @@ public class FieldBuilder<T> {
 
     /**
      * 从实体中获取的数据并不符合数据规格，则可调用该方法
+     *
      * @param format 将原数据和期望Media转变为新数据
      * @return this
      */
@@ -117,6 +126,7 @@ public class FieldBuilder<T> {
     /**
      * 如果采用了{@link #addBiSelect(BiFunction)}或者{@link #addOwnSelect(OwnExpression)}会导致生成的FieldDefinition的
      * {@link FieldDefinition#readValue(Object)}无法正常工作，这个时候需要调用该方法实施定制
+     *
      * @param entityFunction 获取值的办法
      * @return this
      */
@@ -166,13 +176,17 @@ public class FieldBuilder<T> {
             }
 
             @Override
-            public Expression<?> order(Root<T> root, CriteriaBuilder criteriaBuilder) {
+            public Expression<?> order(CriteriaQuery query, CriteriaBuilder criteriaBuilder, Root<T> root) {
                 if (noOrder)
                     return null;
+                if (ownOrder != null)
+                    return ownOrder.toExpression(root, criteriaBuilder, query);
                 if (biOrder != null)
                     return biOrder.apply(root, criteriaBuilder);
                 if (order != null)
                     return order.apply(root);
+                if (ownSelect != null)
+                    return ownSelect.toExpression(root, criteriaBuilder, query);
                 if (biSelect != null)
                     return biSelect.apply(root, criteriaBuilder);
                 if (select != null)

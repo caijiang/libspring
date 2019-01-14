@@ -2,6 +2,7 @@ package me.jiangcai.crud.row.bean;
 
 import me.jiangcai.crud.row.DefaultRowDramatizer;
 import me.jiangcai.crud.row.FieldDefinition;
+import me.jiangcai.crud.row.OrderGenerator;
 import me.jiangcai.crud.row.RowCustom;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.RowDramatizer;
@@ -20,11 +21,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
 import java.util.List;
-import java.util.function.BiFunction;
 
 /**
  * @author CJ
@@ -88,18 +85,18 @@ public class RowDefinitionHandler implements HandlerMethodReturnValueHandler {
         final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
 
         //
-        final BiFunction<CriteriaBuilder, Root, List<Order>> filterFunction = (criteriaBuilder, root)
-                -> rowDramatizer.order(fieldDefinitions, webRequest, criteriaBuilder, root);
+        final OrderGenerator orderGenerator = (query, cb, root)
+                -> rowDramatizer.order(fieldDefinitions, webRequest, query, cb, root);
 
         if (rowCustom != null && rowCustom.fetchAll()) {
-            List<?> list = rowService.queryFields(rowDefinition, distinct, filterFunction);
+            List<?> list = rowService.queryFields(rowDefinition, distinct, orderGenerator);
             dramatizer.writeResponse(list, fieldDefinitions, webRequest);
         } else {
             final int startPosition = dramatizer.queryOffset(webRequest);
             final int size = dramatizer.querySize(webRequest);
 
             Page<?> page = rowService.queryFields(rowDefinition, distinct,
-                    filterFunction
+                    orderGenerator
                     , new PageRequest(startPosition / size, size));
             dramatizer.writeResponse(page, fieldDefinitions, webRequest);
         }

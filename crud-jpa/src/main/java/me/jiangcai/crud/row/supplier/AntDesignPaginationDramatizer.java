@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
@@ -69,7 +70,8 @@ public class AntDesignPaginationDramatizer extends AbstractMediaRowDramatizer im
     }
 
     @Override
-    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder
+    public List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaQuery query
+            , CriteriaBuilder criteriaBuilder
             , Root root) {
         String str = webRequest.getParameter("sorter");
         if (StringUtils.isEmpty(str))
@@ -84,7 +86,7 @@ public class AntDesignPaginationDramatizer extends AbstractMediaRowDramatizer im
             final Optional<FieldDefinition> optional = fields.stream().filter(fieldDefinition
                     -> fieldDefinition.name().equals(str1)).findAny();
             if (optional.isPresent()) {
-                @SuppressWarnings("unchecked") final Expression order = optional.get().order(root, criteriaBuilder);
+                @SuppressWarnings("unchecked") final Expression order = optional.get().order(query, criteriaBuilder, root);
                 if (order == null)
                     return null;
                 if (str2.equalsIgnoreCase("ascend"))

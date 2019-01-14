@@ -2,6 +2,7 @@ package me.jiangcai.crud.row.bean;
 
 import lombok.AllArgsConstructor;
 import me.jiangcai.crud.row.FieldDefinition;
+import me.jiangcai.crud.row.OrderGenerator;
 import me.jiangcai.crud.row.RowDefinition;
 import me.jiangcai.crud.row.RowService;
 import org.apache.commons.logging.Log;
@@ -25,7 +26,6 @@ import javax.persistence.criteria.Selection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,7 +90,7 @@ public class RowServiceImpl implements RowService {
     @SuppressWarnings("unchecked")
     @Override
     public List<?> queryFields(RowDefinition rowDefinition, boolean distinct
-            , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction) {
+            , OrderGenerator customOrderFunction) {
         final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
 
         QueryPair resultPair = smartQuery(rowDefinition, distinct, customOrderFunction, fieldDefinitions);
@@ -105,7 +105,7 @@ public class RowServiceImpl implements RowService {
     @Override
     @SuppressWarnings("unchecked")
     public Page<?> queryFields(RowDefinition rowDefinition, boolean distinct,
-                               BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, Pageable pageable) {
+                               OrderGenerator customOrderFunction, Pageable pageable) {
         final List<FieldDefinition> fieldDefinitions = rowDefinition.fields();
 
         QueryPair resultPair = smartQuery(rowDefinition, distinct, customOrderFunction, fieldDefinitions);
@@ -138,7 +138,9 @@ public class RowServiceImpl implements RowService {
     }
 
     @SuppressWarnings("unchecked")
-    private QueryPair smartQuery(RowDefinition rowDefinition, boolean distinct, BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, List<FieldDefinition> fieldDefinitions) {
+    private QueryPair smartQuery(RowDefinition rowDefinition, boolean distinct
+            , OrderGenerator customOrderFunction
+            , List<FieldDefinition> fieldDefinitions) {
         final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 //        CriteriaQuery originDataQuery = criteriaBuilder.createQuery();
 //        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
@@ -178,7 +180,7 @@ public class RowServiceImpl implements RowService {
             dataQuery = dataQuery.distinct(true);
 
         // sort
-        List<Order> order = customOrderFunction == null ? null : customOrderFunction.apply(criteriaBuilder, root);
+        List<Order> order = customOrderFunction == null ? null : customOrderFunction.toOrder(pair.countQuery, criteriaBuilder, root);
         if (CollectionUtils.isEmpty(order))
             order = rowDefinition.defaultOrder(criteriaBuilder, root);
 

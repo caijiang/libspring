@@ -9,6 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <version>4.3-SNAPSHOT</version>
+
     <artifactId>crud-jpa</artifactId>
     <dependencies>
         <dependency>

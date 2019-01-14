@@ -70,7 +70,7 @@ public class BasicExpressionField<T> implements FieldDefinition<T> {
     }
 
     @Override
-    public Expression<?> order(Root<T> root, CriteriaBuilder criteriaBuilder) {
+    public Expression<?> order(CriteriaQuery query, CriteriaBuilder criteriaBuilder, Root<T> root) {
         return innerExpression(criteriaBuilder, root);
     }
 

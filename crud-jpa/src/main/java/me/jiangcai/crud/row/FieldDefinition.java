@@ -22,9 +22,10 @@ public interface FieldDefinition<T> extends IndefiniteFieldDefinition<T> {
 
 
     /**
-     * @param root            root
+     * @param query           实际的查询
      * @param criteriaBuilder cb
+     * @param root            root
      * @return 排序表达式; null 表示该字段并不支持排序
      */
-    Expression<?> order(Root<T> root, CriteriaBuilder criteriaBuilder);
+    Expression<?> order(CriteriaQuery query, CriteriaBuilder criteriaBuilder, Root<T> root);
 }

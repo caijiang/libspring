@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
@@ -30,11 +31,12 @@ public interface RowDramatizer {
     /**
      * @param fields          要显示的字段
      * @param webRequest      请求
+     * @param query           实际的请求
      * @param criteriaBuilder cb
      * @param root            root
      * @return 排序规则;可以返回null表示不支持排序
      */
-    List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaBuilder criteriaBuilder
+    List<Order> order(List<FieldDefinition> fields, NativeWebRequest webRequest, CriteriaQuery query, CriteriaBuilder criteriaBuilder
             , Root root);
 
     /**

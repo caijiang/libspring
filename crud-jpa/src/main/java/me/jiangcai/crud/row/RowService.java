@@ -5,15 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Root;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -106,7 +102,7 @@ public interface RowService {
      * @return 获取相关的字段
      */
     Page<?> queryFields(RowDefinition rowDefinition, boolean distinct
-            , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction, Pageable pageable);
+            , OrderGenerator customOrderFunction, Pageable pageable);
 
     /**
      * @param rowDefinition       数据定义
@@ -115,5 +111,5 @@ public interface RowService {
      * @return 获取相关的字段
      */
     List<?> queryFields(RowDefinition rowDefinition, boolean distinct
-            , BiFunction<CriteriaBuilder, Root, List<Order>> customOrderFunction);
+            , OrderGenerator customOrderFunction);
 }
