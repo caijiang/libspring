@@ -77,7 +77,7 @@ public class VFSResourceService implements ResourceService {
                 throw new IllegalStateException("ResourceService required web Environment.");
             try {
                 uri = "http://" + webApplicationContext.getServletContext().getVirtualServerName();
-            } catch (AbstractMethodError ignored) {
+            } catch (AbstractMethodError | NoSuchMethodError ignored) {
                 uri = "http://localhost";
                 log.warn("ResourceService can not use getVirtualServerName in Servlet Version < 3.1. ");
             }

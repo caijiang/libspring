@@ -7,11 +7,12 @@
     <parent>
         <artifactId>libpom</artifactId>
         <groupId>me.jiangcai.lib</groupId>
-        <version>4.0-SNAPSHOT</version>
+        <version>4.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>resource</artifactId>
     <packaging>jar</packaging>
+    <version>4.0-SNAPSHOT</version>
 
     <description>
         使用虚拟文件技术构建的资源管理系统

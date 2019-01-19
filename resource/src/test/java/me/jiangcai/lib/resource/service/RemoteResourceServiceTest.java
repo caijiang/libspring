@@ -1,7 +1,7 @@
 package me.jiangcai.lib.resource.service;
 
 import me.jiangcai.lib.resource.ResourceSpringConfig;
-import org.springframework.context.annotation.Configuration;
+import org.junit.Ignore;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
@@ -9,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * @author CJ
  */
+@Ignore
 @ContextConfiguration(classes = {RemoteResourceServiceTest.RemoteResourceServiceTestConfig.class})
 public class RemoteResourceServiceTest extends ResourceServiceTest {
 
